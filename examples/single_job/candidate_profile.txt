@@ -1,0 +1,4 @@
+Labor economist with a PhD. Built Python pipelines and panel datasets, used causal
+inference for research, communicated findings to academic and policy audiences, and
+created data visualizations. Completed applied research projects but have not yet
+worked directly with HR data or production SQL systems.

@@ -57,7 +57,7 @@ def extract(text: str, dictionary_path: Path | None = None) -> list[dict[str, ob
                         "end": match.end(),
                         "skill_id": entry.skill_id,
                         "canonical": entry.canonical,
-                        "source_taxonomy": "seed_dictionary_en",
+                        "source_taxonomy": "career_fit_seed_en",
                         "source_skill_id": entry.skill_id,
                         "analysis_category_code": entry.category_code,
                         "mapping_method": "dictionary_exact",

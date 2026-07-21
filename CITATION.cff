@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "Career Fit"
+message: "If you use Career Fit, please cite this repository."
+type: software
+authors:
+  - family-names: "Career Fit"
+    given-names: "Contributors"
+version: 0.1.0
+date-released: 2026-07-21
+repository-code: "https://github.com/JoeDHJ/career-fit"
+license: MIT
+abstract: "An explainable, evidence-first job-fit and skill-gap explorer for job seekers and labor-market researchers."

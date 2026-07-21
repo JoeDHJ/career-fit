@@ -24,7 +24,8 @@ def bundle_metrics(
         "unique_skill_count": len(skill_counts),
         "unique_category_count": len(category_counts),
         "category_counts": dict(category_counts),
-        "breadth": len(skill_counts),
+        "breadth": len(category_counts),
+        "skill_breadth": len(skill_counts),
         "category_entropy": entropy,
         "category_hhi": hhi,
         "pair_support": {

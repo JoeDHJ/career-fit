@@ -3,13 +3,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "skillbundle"
+name = "career-fit"
 version = "0.1.0"
-description = "Explainable skill extraction, normalization, taxonomy mapping, and skill-bundle measurement."
+description = "Explainable job-fit, skill-gap, and career-pathway analysis built on transparent skill evidence."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-authors = [{name = "SkillBundle contributors"}]
+authors = [{name = "Career Fit contributors"}]
 dependencies = []
 
 [project.optional-dependencies]
@@ -17,8 +17,8 @@ ml = ["transformers>=4.40", "torch>=2.2"]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
+career-fit = "career_fit.cli:main"
 skillbundle = "skillbundle.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
