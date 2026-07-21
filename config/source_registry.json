@@ -1,0 +1,33 @@
+{
+  "project": "skillbundle",
+  "release": "0.1.0",
+  "scope": {"geography": "US enrichment", "language": "en"},
+  "sources": [
+    {
+      "id": "esco",
+      "provider": "European Commission",
+      "version": "1.2.1",
+      "landing_url": "https://esco.ec.europa.eu/en/use-esco/download",
+      "api_url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api",
+      "license": "dataset/API terms must be checked for selected distribution",
+      "redistribution": "do_not_vendor_until_verified"
+    },
+    {
+      "id": "onet",
+      "provider": "O*NET Resource Center / USDOL ETA",
+      "version": "30.3",
+      "landing_url": "https://www.onetcenter.org/database.html",
+      "license": "CC BY 4.0",
+      "redistribution": "allowed_with_attribution"
+    },
+    {
+      "id": "skillspan",
+      "provider": "SkillSpan contributors",
+      "version": "public benchmark repository",
+      "landing_url": "https://github.com/kris927b/SkillSpan",
+      "license": "MIT (repository; cite paper and inspect dataset notice)",
+      "redistribution": "allowed_with_attribution_and_citation"
+    }
+  ]
+}
+

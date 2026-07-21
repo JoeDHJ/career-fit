@@ -1,0 +1,32 @@
+{
+  "dictionary_id": "skillbundle_seed_en",
+  "version": "v0.1.0",
+  "status": "public_baseline_not_formal_human_review",
+  "entries": [
+    {"skill_id": "software.python", "canonical": "Python", "aliases": ["python"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.sql", "canonical": "SQL", "aliases": ["sql"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.excel", "canonical": "Microsoft Excel", "aliases": ["excel", "microsoft excel"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.r", "canonical": "R", "aliases": ["R programming", "R language"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.tableau", "canonical": "Tableau", "aliases": ["tableau"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.javascript", "canonical": "JavaScript", "aliases": ["javascript"], "category_code": "specific_software_skill"},
+    {"skill_id": "software.java", "canonical": "Java", "aliases": ["java"], "category_code": "specific_software_skill"},
+    {"skill_id": "skill.data_analysis", "canonical": "Data analysis", "aliases": ["data analysis", "data analytics"], "category_code": "cognitive_skill"},
+    {"skill_id": "skill.statistics", "canonical": "Statistics", "aliases": ["statistics", "statistical analysis"], "category_code": "cognitive_skill"},
+    {"skill_id": "skill.problem_solving", "canonical": "Problem solving", "aliases": ["problem solving", "problem-solving"], "category_code": "cognitive_skill"},
+    {"skill_id": "skill.communication", "canonical": "Communication", "aliases": ["communication", "communicate"], "category_code": "social_skill"},
+    {"skill_id": "skill.negotiation", "canonical": "Negotiation", "aliases": ["negotiation", "negotiating"], "category_code": "social_skill"},
+    {"skill_id": "skill.writing", "canonical": "Writing", "aliases": ["writing", "technical writing"], "category_code": "writing_skill"},
+    {"skill_id": "skill.customer_service", "canonical": "Customer service", "aliases": ["customer service", "customer support"], "category_code": "customer_project_management_skill"},
+    {"skill_id": "skill.project_management", "canonical": "Project management", "aliases": ["project management", "project manager"], "category_code": "customer_project_management_skill"},
+    {"skill_id": "skill.leadership", "canonical": "Leadership", "aliases": ["leadership", "team leadership"], "category_code": "people_management_skill"},
+    {"skill_id": "skill.supervision", "canonical": "Supervision", "aliases": ["supervision", "supervising"], "category_code": "people_management_skill"},
+    {"skill_id": "skill.accounting", "canonical": "Accounting", "aliases": ["accounting"], "category_code": "financial_skill"},
+    {"skill_id": "skill.budgeting", "canonical": "Budgeting", "aliases": ["budgeting", "budget management"], "category_code": "financial_skill"},
+    {"skill_id": "skill.computer_literacy", "canonical": "Computer literacy", "aliases": ["computer literacy", "computer skills"], "category_code": "general_computer_skill"},
+    {"skill_id": "ai.artificial_intelligence", "canonical": "Artificial intelligence", "aliases": ["artificial intelligence", "AI"], "category_code": "ai_skill"},
+    {"skill_id": "ai.machine_learning", "canonical": "Machine learning", "aliases": ["machine learning", "ML"], "category_code": "ai_skill"},
+    {"skill_id": "ai.generative_ai", "canonical": "Generative AI", "aliases": ["generative AI", "generative artificial intelligence"], "category_code": "ai_skill"},
+    {"skill_id": "ai.natural_language_processing", "canonical": "Natural language processing", "aliases": ["natural language processing", "NLP"], "category_code": "ai_skill"}
+  ]
+}
+
