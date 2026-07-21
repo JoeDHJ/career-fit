@@ -19,6 +19,14 @@ python -m skillbundle.cli normalize "unknown skill phrase"
 python -m skillbundle.cli serve
 ```
 
+## Visual demo
+
+Run `python -m skillbundle.cli serve` and open `http://127.0.0.1:8766` to try the live extractor.
+
+![SkillBundle live extractor](docs/assets/skillbundle-dashboard.png)
+
+The page highlights the original text evidence first, then shows canonical mappings, category mix, breadth, and HHI with plain-language explanations. These are descriptive task-mix measures, not productivity or employment forecasts.
+
 ## Taxonomy architecture
 
 SkillBundle preserves the source taxonomy and a separate research layer. ESCO v1.2.1 is the primary public canonical source; O*NET provides U.S. enrichment. The research layer has ten categories and 45 two-category combinations:
