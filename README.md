@@ -50,6 +50,19 @@ career-fit serve
 
 If the console script is not on PATH, use `python -m career_fit.cli` for the same commands. The legacy `skillbundle` namespace and console script remain available as a compatibility layer.
 
+### Optional semantic review
+
+The explorer can send the supplied job text, candidate text, and deterministic requirement map to an OpenAI-compatible chat-completions endpoint for a second, text-based review. The review is advisory: it cannot change the rule-based scores, requirement classifications, or application decision. Leave the variables unset to keep the explorer fully local and rule-based.
+
+```powershell
+$env:CAREER_FIT_LLM_API_KEY = "your-key"
+$env:CAREER_FIT_LLM_BASE_URL = "https://api.openai.com/v1"
+$env:CAREER_FIT_LLM_MODEL = "your-model"
+career-fit serve
+```
+
+Candidate text is sent only when the review button is used. A local OpenAI-compatible endpoint may be used without an API key.
+
 ## Visual explorer
 
 The local page is designed to feel useful to a first-time job seeker while keeping the labor-economics logic visible:

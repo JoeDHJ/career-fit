@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 from .career import analyze_fit
+from .llm_review import LLMNotConfiguredError, LLMReviewClient, LLMReviewError
 
 
 DEFAULT_JOB = (
@@ -19,6 +20,7 @@ DEFAULT_CANDIDATE = (
     "audiences, and created data visualizations. Completed applied research "
     "projects but have not yet worked directly with HR data or production SQL."
 )
+LLM_REVIEW_CLIENT = LLMReviewClient()
 
 
 HTML = r"""<!doctype html>
@@ -97,6 +99,12 @@ HTML = r"""<!doctype html>
     button:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(95, 225, 199, .16); }
     .toolbar { justify-content: flex-start; margin-bottom: 16px; }
     .status { color: var(--muted); font-size: .78rem; }
+    .semantic-panel { margin-top: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-soft); }
+    .semantic-panel[hidden] { display: none; }
+    .semantic-list { display: grid; gap: 10px; margin-top: 14px; }
+    .semantic-item { padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+    .semantic-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .78rem; }
+    .semantic-item p { margin: 8px 0 0; color: var(--text); font-size: .86rem; line-height: 1.45; }
     .privacy-note { margin: 14px 0 0; color: var(--muted); font-size: .78rem; }
     .summary-grid { align-items: stretch; margin-top: 16px; }
     .summary-card { flex: 1 1 190px; min-height: 128px; padding: 18px; box-shadow: none; }
@@ -300,6 +308,8 @@ HTML = r"""<!doctype html>
           <button id="example-button" class="secondary" type="button">Load example</button>
           <button id="clear-button" class="secondary" type="button">Clear</button>
           <span id="status" class="status" aria-live="polite">Ready for analysis</span>
+          <button id="deep-review-button" class="secondary" type="button" disabled>Deep semantic review</button>
+          <span id="semantic-status" class="status" aria-live="polite">Optional review available when enabled.</span>
         </div>
         <div class="input-grid">
           <div>
@@ -317,6 +327,11 @@ HTML = r"""<!doctype html>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
           <article class="summary-card"><span class="label">Information confidence</span><strong id="confidence-score" class="summary-value">—</strong><span class="summary-note">clarity and evidence completeness</span></article>
           <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
+        </div>
+        <div id="semantic-panel" class="semantic-panel" hidden>
+          <span class="eyebrow">Deep semantic review</span>
+          <p id="semantic-summary" class="detail-copy"></p>
+          <div id="semantic-list" class="semantic-list"></div>
         </div>
       </div>
     </section>
@@ -386,6 +401,12 @@ HTML = r"""<!doctype html>
       const readinessScore = document.getElementById("readiness-score");
       const confidenceScore = document.getElementById("confidence-score");
       const blockedCount = document.getElementById("blocked-count");
+      const deepReviewButton = document.getElementById("deep-review-button");
+      const semanticStatus = document.getElementById("semantic-status");
+      const semanticPanel = document.getElementById("semantic-panel");
+      const semanticSummary = document.getElementById("semantic-summary");
+      const semanticList = document.getElementById("semantic-list");
+      const llmEnabled = __LLM_ENABLED__;
       const statusLabels = {
         direct: "Direct evidence",
         direct_weak: "Mentioned, proof is thin",
@@ -422,6 +443,33 @@ HTML = r"""<!doctype html>
         const number = Math.max(0, Math.min(100, Number(value || 0)));
         document.getElementById(ringId).style.setProperty("--ring-progress", number + "%");
         setText(document.getElementById(labelId), Math.round(number));
+      }
+      function renderSemanticReview(review) {
+        semanticPanel.hidden = false;
+        semanticSummary.textContent = review.overall_note || "The semantic review returned no overall note.";
+        clearNode(semanticList);
+        (review.requirements || []).forEach(function (item) {
+          const card = make("article", "semantic-item");
+          const meta = make("div", "semantic-meta");
+          meta.append(make("strong", "", item.requirement || "Requirement"), make("span", "", (item.decision || "uncertain") + " · " + Math.round(Number(item.confidence || 0) * 100) + "% confidence"));
+          card.appendChild(meta);
+          card.appendChild(make("p", "", item.rationale || "No rationale supplied."));
+          if (item.next_step) card.appendChild(make("p", "", "Next step: " + item.next_step));
+          semanticList.appendChild(card);
+        });
+      }
+      async function deepReview() {
+        if (!latest) { semanticStatus.textContent = "Run an analysis before requesting a review."; return; }
+        semanticStatus.textContent = "Reviewing the supplied evidence…";
+        deepReviewButton.disabled = true;
+        try {
+          const response = await fetch("/api/deep-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value, requirements: latest.requirements || [] }) });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || "review unavailable");
+          renderSemanticReview(payload);
+          semanticStatus.textContent = "Review complete. Treat uncertain items as leads for verification.";
+        } catch (error) { semanticStatus.textContent = "Review unavailable. The rule-based result is still available."; }
+        finally { deepReviewButton.disabled = !llmEnabled; }
       }
       function requirementTypeLabel(value) {
         return value === "skill" ? "Skill" : "Eligibility requirement";
@@ -535,14 +583,18 @@ HTML = r"""<!doctype html>
       function reset() {
         jobInput.value = ""; candidateInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
+        semanticPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
         [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
-        decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared.";
+        decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
       }
       exampleButton.addEventListener("click", function () { jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       analyzeButton.addEventListener("click", analyze);
+      deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
+      deepReviewButton.disabled = !llmEnabled;
+      if (llmEnabled) semanticStatus.textContent = "Optional review available.";
       jobInput.value = DEFAULT_JOB;
       candidateInput.value = DEFAULT_CANDIDATE;
       analyze();
@@ -558,8 +610,10 @@ def _json_literal(value: str) -> str:
 
 
 def render_page() -> str:
-    return HTML.replace("__DEFAULT_JOB__", _json_literal(DEFAULT_JOB)).replace(
-        "__DEFAULT_CANDIDATE__", _json_literal(DEFAULT_CANDIDATE)
+    return (
+        HTML.replace("__DEFAULT_JOB__", _json_literal(DEFAULT_JOB))
+        .replace("__DEFAULT_CANDIDATE__", _json_literal(DEFAULT_CANDIDATE))
+        .replace("__LLM_ENABLED__", json.dumps(LLM_REVIEW_CLIENT.config.enabled))
     )
 
 
@@ -582,6 +636,35 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/api/deep-review":
+            try:
+                length = min(int(self.headers.get("Content-Length", "0")), 120_000)
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                requirements = payload.get("requirements", [])
+                if not isinstance(requirements, list):
+                    raise TypeError("requirements must be a list")
+                result = LLM_REVIEW_CLIENT.review_fit(
+                    str(payload.get("job_text", ""))[:40_000],
+                    str(payload.get("candidate_text", ""))[:40_000],
+                    requirements[:30],
+                )
+            except LLMNotConfiguredError as exc:
+                self._send_json(
+                    {"error": "not_configured", "detail": str(exc)}, status=503
+                )
+                return
+            except LLMReviewError as exc:
+                self._send_json(
+                    {"error": "review_failed", "detail": str(exc)}, status=502
+                )
+                return
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                self._send_json(
+                    {"error": "invalid_request", "detail": str(exc)}, status=400
+                )
+                return
+            self._send_json(result)
+            return
         if parsed.path != "/api/analyze":
             self._send_json({"error": "not_found"}, status=404)
             return
@@ -594,7 +677,9 @@ class Handler(BaseHTTPRequestHandler):
                 payload.get("evidence"),
             )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
-            self._send_json({"error": "invalid_request", "detail": str(exc)}, status=400)
+            self._send_json(
+                {"error": "invalid_request", "detail": str(exc)}, status=400
+            )
             return
         self._send_json(result)
 
