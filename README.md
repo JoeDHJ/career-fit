@@ -23,7 +23,7 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.3 engine:
+Given a job description and a candidate profile, the v0.3 product:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
