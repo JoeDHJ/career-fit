@@ -19,7 +19,7 @@ Job seekers face different problems that look identical to a keyword checker:
 - A mid-career applicant may be ready on skills but blocked by an unresolved work-authorization, license, degree, or experience requirement.
 - Anyone can have a proof gap: the capability exists, but the resume does not make it reviewable.
 
-Career Fit keeps these cases separate so a user leaves with a better next move rather than a discouraging binary label. The design rationale is documented in [docs/job-seeker-pain-points.md](docs/job-seeker-pain-points.md).
+Career Fit keeps these cases separate so a user leaves with a better next move rather than a discouraging binary label.
 
 ## What it does
 

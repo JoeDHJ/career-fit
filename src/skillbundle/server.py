@@ -278,7 +278,7 @@ HTML = r"""<!doctype html>
   <main class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Career Fit</span></div>
-      <span class="micro">Local-first · explainable preparation · v0.2.0</span>
+      <span class="micro">Private by default · explainable preparation</span>
     </header>
 
     <section class="hero">
@@ -299,7 +299,7 @@ HTML = r"""<!doctype html>
           <button id="analyze-button" type="button">Analyze this role</button>
           <button id="example-button" class="secondary" type="button">Load example</button>
           <button id="clear-button" class="secondary" type="button">Clear</button>
-          <span id="status" class="status" aria-live="polite">Local analyzer ready</span>
+          <span id="status" class="status" aria-live="polite">Ready for analysis</span>
         </div>
         <div class="input-grid">
           <div>
@@ -316,7 +316,7 @@ HTML = r"""<!doctype html>
           <article class="summary-card"><span class="label">Evidence fit</span><strong id="fit-score" class="summary-value">—</strong><span class="summary-note">weighted requirement overlap</span></article>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
           <article class="summary-card"><span class="label">Information confidence</span><strong id="confidence-score" class="summary-value">—</strong><span class="summary-note">clarity and evidence completeness</span></article>
-          <article class="summary-card"><span class="label">Hard gates</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
+          <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
         </div>
       </div>
     </section>
@@ -331,7 +331,7 @@ HTML = r"""<!doctype html>
     </section>
 
     <section class="section">
-      <div class="section-head"><div><span class="eyebrow">Requirement–evidence matrix</span><h2>Inspect the reason behind every signal.</h2></div><p>Click a row to see the original job wording, the matching method, linked evidence, and the most useful next move.</p></div>
+      <div class="section-head"><div><span class="eyebrow">Requirement–evidence matrix</span><h2>Inspect the reason behind every signal.</h2></div><p>Click a row to see the original job wording, the evidence behind the result, and the most useful next move.</p></div>
       <div class="result-grid">
         <div class="panel">
           <div class="matrix matrix-head" aria-hidden="true"><div>Requirement</div><div>Status</div><div>Importance</div><div>Score</div></div>
@@ -361,9 +361,9 @@ HTML = r"""<!doctype html>
         <article class="meaning"><h3>Evidence fit is not hiring probability</h3><p>It is an importance-weighted summary of requirement overlap and supplied evidence. It does not estimate employer decisions.</p></article>
         <article class="meaning"><h3>A proof gap is not an ability gap</h3><p>A candidate may have the capability but lack a concrete task, result, work sample, or clear translation into employer language.</p></article>
         <article class="meaning"><h3>Transfer is deliberately cautious</h3><p>Adjacent evidence can suggest a bridge project, but the system never silently upgrades it to direct equivalence.</p></article>
-        <article class="meaning"><h3>Hard gates stay separate</h3><p>Licenses, work authorization, degrees, and experience floors need verification. Soft skill overlap cannot offset an unresolved gate.</p></article>
+        <article class="meaning"><h3>Eligibility requirements stay separate</h3><p>Licenses, work authorization, degrees, and experience floors need verification. Soft skill overlap cannot offset an unresolved requirement.</p></article>
       </div>
-      <p class="source-note">Career Fit v0.2 uses a versioned English seed dictionary, explicit transfer rules, conservative negation handling, and transparent preparation heuristics. The local demo does not permanently store inputs.</p>
+      <p class="source-note">Privacy note: Your inputs are analyzed locally and are not permanently stored by this app. Career Fit is designed for preparation, not prediction.</p>
     </section>
     <footer class="footer-row"><span>Career Fit · evidence before confidence</span><span>Preparation support, not an automated hiring system.</span></footer>
   </main>
@@ -423,13 +423,33 @@ HTML = r"""<!doctype html>
         document.getElementById(ringId).style.setProperty("--ring-progress", number + "%");
         setText(document.getElementById(labelId), Math.round(number));
       }
+      function requirementTypeLabel(value) {
+        return value === "skill" ? "Skill" : "Eligibility requirement";
+      }
+      function matchingMethodLabel(value) {
+        const labels = {
+          direct_skill_id: "Direct evidence",
+          reviewable_transfer_crosswalk: "Transferable evidence",
+          same_category_baseline: "Related skill category",
+          candidate_constraint_rule: "Eligibility check",
+        };
+        return labels[value] || "Requirement and evidence comparison";
+      }
+      function evidenceLabels(values) {
+        const ids = values || [];
+        if (!ids.length) return "No linked evidence";
+        return ids.map(function (value) {
+          const match = /^evidence-(\\d+)$/i.exec(value);
+          return match ? "Candidate evidence " + Number(match[1]) : "Candidate evidence";
+        }).join(", ");
+      }
       function renderDetail(item) {
         clearNode(detail);
         detail.appendChild(make("span", "eyebrow", "Selected requirement"));
         detail.appendChild(make("h3", "detail-title", item.canonical_skill || item.original_text));
         detail.appendChild(make("span", "badge " + (item.status || "unknown"), statusLabels[item.status] || item.status));
         const list = make("div", "detail-list");
-        [["Original job text", item.original_text], ["Requirement type", item.requirement_type], ["Importance", importanceLabels[item.importance_level] || item.importance_level], ["Match score", percent(item.match_score * 100)], ["Matching method", item.matching_method || "constraint rule"], ["Linked evidence", (item.evidence_ids || []).length ? item.evidence_ids.join(", ") : "No linked evidence"]].forEach(function (pair) {
+        [["Original job text", item.original_text], ["Requirement", requirementTypeLabel(item.requirement_type)], ["Importance", importanceLabels[item.importance_level] || item.importance_level], ["Match score", percent(item.match_score * 100)], ["Why this result", matchingMethodLabel(item.matching_method)], ["Linked evidence", evidenceLabels(item.evidence_ids)]].forEach(function (pair) {
           const row = make("div", "detail-line"); row.append(make("span", "detail-copy", pair[0]), make("strong", "", pair[1])); list.appendChild(row);
         });
         detail.appendChild(list);
@@ -437,7 +457,7 @@ HTML = r"""<!doctype html>
         if (item.status === "direct") copy = "The profile contains direct evidence. Improve the application by making the task, context, and result easier to verify.";
         if (item.status === "direct_weak") copy = "The skill is mentioned, but the proof is thin. Add a concrete task, context, duration, and measurable result.";
         if (item.status === "transferable") copy = "The profile contains adjacent evidence. Treat it as a bridge to investigate, not as proof that the requirements are identical.";
-        if (item.hard_constraint) copy = item.status === "met" ? "This gate appears satisfied from the supplied profile." : "This is an admission gate. Verify it directly before using the soft score to prioritize the application.";
+        if (item.hard_constraint) copy = item.status === "met" ? "This eligibility requirement appears satisfied from the supplied profile." : "This is an eligibility requirement. Verify it directly before using the soft score to prioritize the application.";
         detail.appendChild(make("p", "detail-copy", copy));
         if (item.source_context) detail.appendChild(make("p", "detail-copy", "Job context: " + item.source_context));
       }
@@ -447,7 +467,7 @@ HTML = r"""<!doctype html>
         items.forEach(function (item, index) {
           const row = make("button", "matrix-row" + (index === 0 ? " selected" : ""));
           row.type = "button";
-          const name = make("span", ""); name.append(make("span", "requirement-name", item.canonical_skill || item.original_text), make("span", "requirement-type", item.requirement_type === "skill" ? "Skill" : "Admission gate"));
+          const name = make("span", ""); name.append(make("span", "requirement-name", item.canonical_skill || item.original_text), make("span", "requirement-type", requirementTypeLabel(item.requirement_type)));
           const badge = make("span", "badge " + (item.status || "unknown"), statusLabels[item.status] || item.status);
           const importance = make("span", "detail-copy", importanceLabels[item.importance_level] || item.importance_level);
           const score = make("span", "score-number", item.hard_constraint ? (item.status === "met" ? "Met" : "Verify") : percent(item.match_score * 100));
@@ -501,16 +521,16 @@ HTML = r"""<!doctype html>
         renderMatrix(payload.requirements || []);
         renderChart(payload.requirements || []);
         renderGaps(payload.next_actions || payload.gaps || []);
-        status.textContent = "Updated · " + (summary.requirement_count || 0) + " requirements analyzed";
+        status.textContent = "Analysis ready · " + (summary.requirement_count || 0) + " requirements mapped";
       }
       async function analyze() {
         if (!jobInput.value.trim() || !candidateInput.value.trim()) { status.textContent = "Both texts are required."; return; }
-        status.textContent = "Analyzing locally…";
+        status.textContent = "Analyzing your inputs…";
         try {
           const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value }) });
           if (!response.ok) throw new Error("request failed");
           render(await response.json());
-        } catch (error) { status.textContent = "Local analyzer unavailable."; }
+        } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
       }
       function reset() {
         jobInput.value = ""; candidateInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart);
