@@ -324,6 +324,7 @@ HTML = r"""<!doctype html>
           <button id="analyze-button" type="button">Analyze this role</button>
           <button id="example-button" class="secondary" type="button">Load example</button>
           <button id="clear-button" class="secondary" type="button">Clear</button>
+          <button id="download-button" class="secondary" type="button" disabled>Download plan</button>
           <span id="status" class="status" aria-live="polite">Ready for analysis</span>
           <button id="deep-review-button" class="secondary" type="button" disabled>Deep semantic review</button>
           <span id="semantic-status" class="status" aria-live="polite">Optional review available when enabled.</span>
@@ -416,6 +417,7 @@ HTML = r"""<!doctype html>
       const exampleButton = document.getElementById("example-button");
       const clearButton = document.getElementById("clear-button");
       const compareButton = document.getElementById("compare-button");
+      const downloadButton = document.getElementById("download-button");
       const rolesInput = document.getElementById("roles-input");
       const compareStatus = document.getElementById("compare-status");
       const comparisonPanel = document.getElementById("comparison-panel");
@@ -625,6 +627,8 @@ HTML = r"""<!doctype html>
       }
       function render(payload) {
         latest = payload;
+        downloadButton.disabled = false;
+        deepReviewButton.disabled = !llmEnabled;
         const summary = payload.summary || {};
         setText(fitScore, percent(summary.evidence_fit_score));
         setText(readinessScore, percent(summary.application_readiness_score));
@@ -648,6 +652,18 @@ HTML = r"""<!doctype html>
           render(await response.json());
         } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
       }
+      function downloadPlan() {
+        if (!latest) { status.textContent = "Run an analysis before downloading the plan."; return; }
+        const blob = new Blob([JSON.stringify(latest, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "career-fit-analysis.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(function () { URL.revokeObjectURL(link.href); }, 0);
+        status.textContent = "Downloaded the evidence-first analysis plan.";
+      }
       async function compare() {
         const roles = rolesInput.value.split(/\r?\n\s*---+\s*\r?\n/).map(function (value) { return value.trim(); }).filter(Boolean);
         if (roles.length < 2) { compareStatus.textContent = "Add at least two roles, separated by a line containing --- ."; return; }
@@ -665,10 +681,13 @@ HTML = r"""<!doctype html>
         finally { compareButton.disabled = false; }
       }
       function reset() {
+        latest = null;
         jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
         semanticPanel.hidden = true; comparisonPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
         [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
+        downloadButton.disabled = true;
+        deepReviewButton.disabled = true;
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
         decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; compareStatus.textContent = "Use this when you are deciding where to focus first."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
@@ -676,6 +695,7 @@ HTML = r"""<!doctype html>
       exampleButton.addEventListener("click", function () { jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
+      downloadButton.addEventListener("click", downloadPlan);
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
       deepReviewButton.disabled = !llmEnabled;
