@@ -1,16 +1,21 @@
 import json
+import http.client
+import io
 import tempfile
+import threading
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 from skillbundle.benchmark import benchmark_skillspan
 from skillbundle.career import analyze_fit, compare_roles, evidence_from_text
+from skillbundle.cli import main as cli_main
 from skillbundle.dictionary import extract, load_dictionary
 from skillbundle.metrics import bundle_metrics
 from skillbundle.ner import PerceptronNER
 from skillbundle.normalization import normalize_label
 from skillbundle.requirements import extract_requirements
-from skillbundle.server import render_page
+from skillbundle.server import Handler, render_page
 from skillbundle.taxonomy import pair_codes
 
 
@@ -136,6 +141,43 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("transferable", statuses)
         self.assertTrue(result["gaps"])
 
+    def test_analyze_fit_rejects_blank_job_and_candidate_text(self):
+        with self.assertRaisesRegex(ValueError, "job_text"):
+            analyze_fit("   ", "Built Python projects.")
+        with self.assertRaisesRegex(ValueError, "candidate_text"):
+            analyze_fit("Must have Python.", "\n\t")
+
+    def test_cli_reports_blank_input_without_traceback(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = cli_main(["analyze", "--job", " ", "--candidate", "Python"])
+        self.assertEqual(code, 2)
+        self.assertIn("Error:", stderr.getvalue())
+        self.assertIn("job_text", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+    def test_cli_rejects_four_roles_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            roles_file = Path(temp) / "roles.json"
+            roles_file.write_text(
+                json.dumps(["Role one", "Role two", "Role three", "Role four"]),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+            with redirect_stderr(stderr):
+                code = cli_main(
+                    [
+                        "compare",
+                        "--roles-file",
+                        str(roles_file),
+                        "--candidate",
+                        "Built Python projects.",
+                    ]
+                )
+        self.assertEqual(code, 2)
+        self.assertIn("at most three", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_structured_evidence_can_raise_evidence_strength(self):
         evidence = [
             {
@@ -236,8 +278,59 @@ class CareerFitTests(unittest.TestCase):
     def test_role_comparison_rejects_oversized_batches(self):
         with self.assertRaises(ValueError):
             compare_roles(["Role one"], "Python")
-        with self.assertRaises(ValueError):
-            compare_roles(["Role"] * 6, "Python")
+        with self.assertRaisesRegex(ValueError, "at most three"):
+            compare_roles(["Role"] * 4, "Python")
+
+    def test_api_reports_blank_inputs_and_four_role_requests(self):
+        from http.server import ThreadingHTTPServer
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+
+        def post(path, payload):
+            connection = http.client.HTTPConnection(
+                "127.0.0.1", server.server_port
+            )
+            body = json.dumps(payload).encode("utf-8")
+            connection.request(
+                "POST",
+                path,
+                body=body,
+                headers={"Content-Type": "application/json"},
+            )
+            response = connection.getresponse()
+            result = json.loads(response.read().decode("utf-8"))
+            status = response.status
+            connection.close()
+            return status, result
+
+        try:
+            status, result = post(
+                "/api/analyze",
+                {"job_text": " ", "candidate_text": "Built Python projects."},
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("job_text", result["detail"])
+            status, result = post(
+                "/api/analyze",
+                {"job_text": "Must have Python.", "candidate_text": "\t"},
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("candidate_text", result["detail"])
+            status, result = post(
+                "/api/compare",
+                {
+                    "roles": ["Role one", "Role two", "Role three", "Role four"],
+                    "candidate_text": "Built Python projects.",
+                },
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("at most three", result["detail"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
 
 if __name__ == "__main__":

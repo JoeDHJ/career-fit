@@ -157,7 +157,7 @@ tests/                extraction, negation, constraints, and fit tests
 
 - expand the reviewed multilingual skill dictionary and occupational crosswalks;
 - add resume-to-evidence import with explicit user confirmation;
-- support multiple target roles and career pathways while preserving each audit trail;
+- evaluate a separate career-pathway graph only after defining its transition data and validation strategy;
 - add calibrated validation only if an appropriate, consented outcome dataset becomes available;
 - publish sensitivity checks for taxonomy, importance weights, transfer rules, and missing-evidence assumptions.
 

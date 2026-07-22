@@ -38,7 +38,7 @@ def parser():
         help="optional JSON list of structured evidence objects",
     )
     compare = sub.add_parser(
-        "compare", help="prioritize two to five target roles for one candidate"
+        "compare", help="prioritize two to three target roles for one candidate"
     )
     compare.add_argument(
         "--roles-file", type=Path, required=True, help="JSON list of job descriptions"
@@ -94,41 +94,43 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
     if args.command == "analyze":
-        job_text = _input_text(args.job, args.job_file, "job")
-        candidate_text = _input_text(args.candidate, args.candidate_file, "candidate")
-        evidence = None
-        if args.evidence_file:
-            evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
-        print(
-            json.dumps(
-                analyze_fit(job_text, candidate_text, evidence),
-                ensure_ascii=False,
-                indent=2,
+        try:
+            job_text = _input_text(args.job, args.job_file, "job")
+            candidate_text = _input_text(
+                args.candidate, args.candidate_file, "candidate"
             )
-        )
+            evidence = None
+            if args.evidence_file:
+                evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
+            result = analyze_fit(job_text, candidate_text, evidence)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     if args.command == "compare":
-        roles_payload = json.loads(args.roles_file.read_text(encoding="utf-8"))
-        roles = (
-            roles_payload.get("roles")
-            if isinstance(roles_payload, dict)
-            else roles_payload
-        )
-        if not isinstance(roles, list):
-            raise ValueError(
-                "--roles-file must contain a JSON list or an object with a roles list"
+        try:
+            roles_payload = json.loads(args.roles_file.read_text(encoding="utf-8"))
+            roles = (
+                roles_payload.get("roles")
+                if isinstance(roles_payload, dict)
+                else roles_payload
             )
-        candidate_text = _input_text(args.candidate, args.candidate_file, "candidate")
-        evidence = None
-        if args.evidence_file:
-            evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
-        print(
-            json.dumps(
-                compare_roles(roles, candidate_text, evidence),
-                ensure_ascii=False,
-                indent=2,
+            if not isinstance(roles, list):
+                raise ValueError(
+                    "--roles-file must contain a JSON list or an object with a roles list"
+                )
+            candidate_text = _input_text(
+                args.candidate, args.candidate_file, "candidate"
             )
-        )
+            evidence = None
+            if args.evidence_file:
+                evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
+            result = compare_roles(roles, candidate_text, evidence)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     if args.command == "extract":
         items = extract(args.text)

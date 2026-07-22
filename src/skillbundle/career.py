@@ -615,11 +615,19 @@ def _readiness_status(score: int, blocking: list[dict[str, Any]]) -> str:
     return "build_evidence_before_prioritizing"
 
 
+def _require_non_empty_text(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a non-empty text input")
+    return value
+
+
 def analyze_fit(
     job_text: str,
     candidate_text: str,
     evidence: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    job_text = _require_non_empty_text(job_text, "job_text")
+    candidate_text = _require_non_empty_text(candidate_text, "candidate_text")
     requirements = extract_requirements(job_text)
     candidate_evidence = _normalize_evidence(
         evidence if evidence is not None else evidence_from_text(candidate_text)
@@ -874,11 +882,16 @@ def compare_roles(
     """
     if not isinstance(roles, list):
         raise TypeError("roles must be a list of job-description strings")
-    cleaned = [str(role).strip() for role in roles if str(role).strip()]
+    cleaned = []
+    for role in roles:
+        if not isinstance(role, str):
+            raise TypeError("roles must contain job-description strings")
+        if role.strip():
+            cleaned.append(role.strip())
     if len(cleaned) < 2:
         raise ValueError("compare_roles requires at least two non-empty roles")
-    if len(cleaned) > 5:
-        raise ValueError("compare_roles supports at most five roles")
+    if len(cleaned) > 3:
+        raise ValueError("compare_roles supports at most three roles")
 
     entries = []
     for index, job_text in enumerate(cleaned, start=1):

@@ -842,11 +842,18 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 length = min(int(self.headers.get("Content-Length", "0")), 160_000)
                 payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                if not isinstance(payload, dict):
+                    raise TypeError("request body must be a JSON object")
                 roles = payload.get("roles", [])
                 if not isinstance(roles, list):
                     raise TypeError("roles must be a list")
+                role_texts = []
+                for role in roles:
+                    if not isinstance(role, str):
+                        raise TypeError("roles must contain job-description strings")
+                    role_texts.append(role[:40_000])
                 result = compare_roles(
-                    [str(role)[:40_000] for role in roles[:5]],
+                    role_texts,
                     str(payload.get("candidate_text", ""))[:40_000],
                     payload.get("evidence"),
                 )
@@ -863,6 +870,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", "0"))
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise TypeError("request body must be a JSON object")
             result = analyze_fit(
                 str(payload.get("job_text", "")),
                 str(payload.get("candidate_text", "")),
