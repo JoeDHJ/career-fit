@@ -79,9 +79,11 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 - action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
 - plain-language interpretation cards explain what the metrics can and cannot mean.
 
-![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.jpg)
+![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.png)
 
-![Career Fit requirement matrix](docs/assets/career-fit-matrix.jpg)
+![Career Fit requirement matrix](docs/assets/career-fit-matrix.png)
+
+![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
 
 ## Interpreting the scores
 
