@@ -17,8 +17,10 @@
       "provider": "O*NET Resource Center / USDOL ETA",
       "version": "30.3",
       "landing_url": "https://www.onetcenter.org/database.html",
+      "download_url": "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip",
       "license": "CC BY 4.0",
-      "redistribution": "allowed_with_attribution"
+      "redistribution": "allowed_with_attribution",
+      "raw_filename": "onet_30_3_text.zip"
     },
     {
       "id": "skillspan",

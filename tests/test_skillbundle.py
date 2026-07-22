@@ -5,7 +5,7 @@ from pathlib import Path
 
 from skillbundle.benchmark import benchmark_skillspan
 from skillbundle.career import analyze_fit, evidence_from_text
-from skillbundle.dictionary import extract
+from skillbundle.dictionary import extract, load_dictionary
 from skillbundle.metrics import bundle_metrics
 from skillbundle.ner import PerceptronNER
 from skillbundle.normalization import normalize_label
@@ -50,6 +50,35 @@ class CareerFitTests(unittest.TestCase):
     def test_nil_normalization(self):
         self.assertEqual(normalize_label("quantum knitting")["skill_id"], "NIL")
 
+    def test_onet_enrichment_is_provenanced_and_expands_exact_matches(self):
+        version, entries = load_dictionary()
+        self.assertIn("onet-30.3-derived-v2", version)
+        self.assertGreaterEqual(len(entries), 400)
+        item = next(
+            item for item in extract("Built dashboards with AWS and critical thinking.")
+        )
+        self.assertEqual(item["source_taxonomy"], "onet_30_3")
+        self.assertEqual(item["review_status"], "onet_exact_label_baseline")
+
+    def test_ambiguous_software_labels_require_context(self):
+        self.assertNotIn(
+            "React", {item["canonical"] for item in extract("React to feedback.")}
+        )
+        matched = extract("Built a React dashboard with JavaScript.")
+        self.assertIn("React", {item["canonical"] for item in matched})
+
+    def test_common_software_aliases_are_not_bare_word_matches(self):
+        self.assertNotIn(
+            "Microsoft Word",
+            {item["canonical"] for item in extract("Word the report carefully.")},
+        )
+        matched = extract("Prepared the report in Microsoft Word.")
+        self.assertIn("Microsoft Word", {item["canonical"] for item in matched})
+
+    def test_named_software_does_not_use_broad_category_transfer(self):
+        result = analyze_fit("Must have Java.", "Built Python projects.")
+        self.assertEqual(result["requirements"][0]["status"], "missing")
+
     def test_supervised_ner_trains_and_extracts(self):
         rows = [{"tokens": ["Use", "Python"], "tags_skill": ["O", "B-SKILL"]}]
         model = PerceptronNER()
@@ -66,7 +95,9 @@ class CareerFitTests(unittest.TestCase):
         self.assertGreater(result["summary"]["role_fit_score"], 0)
         self.assertEqual(result["summary"]["blocking_constraint_count"], 1)
         self.assertEqual(result["summary"]["decision"], "verify_before_applying")
-        self.assertTrue(any(item["gap_type"] == "verification_gap" for item in result["gaps"]))
+        self.assertTrue(
+            any(item["gap_type"] == "verification_gap" for item in result["gaps"])
+        )
 
     def test_hard_constraints_allow_requirement_after_keyword(self):
         result = analyze_fit(
@@ -77,7 +108,9 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("education", types)
         self.assertIn("work_authorization", types)
         visa = next(
-            item for item in result["hard_constraints"] if item["requirement_type"] == "work_authorization"
+            item
+            for item in result["hard_constraints"]
+            if item["requirement_type"] == "work_authorization"
         )
         self.assertIn("No visa sponsorship", visa["original_text"])
 
@@ -85,7 +118,9 @@ class CareerFitTests(unittest.TestCase):
         requirements = extract_requirements(
             "Must have Python and SQL. Strongly preferred: causal inference. HR data is a plus."
         )
-        levels = {item["canonical_skill"]: item["importance_level"] for item in requirements}
+        levels = {
+            item["canonical_skill"]: item["importance_level"] for item in requirements
+        }
         self.assertEqual(levels["Python"], "must")
         self.assertEqual(levels["SQL"], "must")
         self.assertEqual(levels["Causal inference"], "strongly_preferred")
@@ -119,7 +154,9 @@ class CareerFitTests(unittest.TestCase):
         self.assertEqual(len(evidence_from_text("Python")), 1)
 
     def test_negated_profile_statement_is_not_counted_as_evidence(self):
-        result = analyze_fit("Must have HR data.", "Have not worked directly with HR data.")
+        result = analyze_fit(
+            "Must have HR data.", "Have not worked directly with HR data."
+        )
         item = result["requirements"][0]
         self.assertEqual(item["status"], "missing")
         self.assertEqual(result["summary"]["excluded_evidence_count"], 1)
@@ -132,7 +169,11 @@ class CareerFitTests(unittest.TestCase):
         types = {item["requirement_type"] for item in requirements}
         self.assertIn("experience_floor", types)
         self.assertIn("work_authorization", types)
-        experience = next(item for item in requirements if item["requirement_type"] == "experience_floor")
+        experience = next(
+            item
+            for item in requirements
+            if item["requirement_type"] == "experience_floor"
+        )
         self.assertEqual(experience["required_years"], 5)
         result = analyze_fit(
             "Must have five years of operations experience and authorization to work in the United States.",
@@ -146,7 +187,9 @@ class CareerFitTests(unittest.TestCase):
         self.assertEqual(unresolved["hard_constraints"][0]["status"], "unknown")
 
     def test_v02_exposes_three_job_seeker_signals_and_actions(self):
-        result = analyze_fit("Must have Python and SQL.", "Built Python research projects.")
+        result = analyze_fit(
+            "Must have Python and SQL.", "Built Python research projects."
+        )
         summary = result["summary"]
         self.assertIn("capability_signal_score", summary)
         self.assertIn("proof_signal_score", summary)

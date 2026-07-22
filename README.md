@@ -110,11 +110,13 @@ The machine-readable output uses schema `career_fit.v0.2`; details are in [docs/
 
 ## Data and taxonomy
 
-The demo uses a small, versioned English seed dictionary so results are reproducible and easy to audit. It is a transparent baseline, not a complete occupational ontology.
+The demo uses a versioned English dictionary with a transparent seed layer and an O*NET 30.3 enrichment layer. The current local build exposes 421 entries: Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Exact matching is conservative: ambiguous software names require nearby software context, while bare common-word aliases are excluded. It is a transparent baseline for evidence extraction, not a complete occupational ontology.
 
 - `config/seed_dictionary_en.json` stores canonical skill IDs, aliases, and analytical category codes.
+- `config/onet_enrichment_en.json` stores O*NET-derived labels, source element IDs, exact-label mapping methods, and the 10-category analytical mapping.
 - `config/taxonomy_10_ai.json` stores the ten-category research layer and 45 pair combinations.
-- `config/source_registry.json` records planned public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
+- `tools/build_onet_enrichment.py` regenerates the enrichment layer from the registered O*NET 30.3 text release.
+- `config/source_registry.json` records public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
 - `src/skillbundle/career.py` stores explicit transfer crosswalks and evidence rules.
 
 Raw third-party data is not silently bundled. Check each source’s current license and attribution requirements before redistribution.

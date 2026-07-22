@@ -18,6 +18,11 @@ The v0.2 JSON response uses `schema_version: career_fit.v0.2`. Field names are e
   "hard_constraint": false,
   "extraction_method": "dictionary_exact",
   "extraction_confidence": 0.99,
+  "source_taxonomy": "career_fit_seed_en",
+  "source_skill_id": "software.python",
+  "review_status": "baseline_unreviewed",
+  "match_mode": "exact",
+  "dictionary_version": "v0.2.0+onet-30.3-derived-v2",
   "status": "direct_weak",
   "status_label": "Mentioned, proof is thin",
   "match_score": 0.72,
@@ -45,7 +50,12 @@ Experience floors additionally expose `required_years` and, when available, `exp
   "recency_years": 1,
   "measurable_result": "1.3 million records",
   "evidence_status": "user_provided",
-  "negated": false
+  "negated": false,
+  "source_taxonomy": "career_fit_seed_en",
+  "source_skill_id": "software.python",
+  "review_status": "baseline_unreviewed",
+  "match_mode": "exact",
+  "dictionary_version": "v0.2.0+onet-30.3-derived-v2"
 }
 ```
 

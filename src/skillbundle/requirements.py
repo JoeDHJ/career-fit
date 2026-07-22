@@ -120,6 +120,11 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
                 "hard_constraint": False,
                 "extraction_method": item["mapping_method"],
                 "extraction_confidence": item["confidence"],
+                "source_taxonomy": item["source_taxonomy"],
+                "source_skill_id": item["source_skill_id"],
+                "review_status": item["review_status"],
+                "match_mode": item["match_mode"],
+                "dictionary_version": item["dictionary_version"],
             }
         )
 

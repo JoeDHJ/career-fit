@@ -87,6 +87,12 @@ The candidate parser applies a conservative local negation rule to phrases such 
 
 A missing mention is not evidence that a person lacks the capability. The interface therefore calls missing cases foundation gaps only as a preparation hypothesis and asks the user to verify whether the issue is actually a translation or proof gap.
 
-## 9. Sensitivity and future validation
+## 9. Dictionary expansion and mapping discipline
+
+The English dictionary combines a small transparent seed layer with exact labels from O*NET 30.3. The enrichment includes Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Each enrichment entry retains its O*NET element ID, source file, source taxonomy, mapping method, match mode, and baseline confidence.
+
+O*NET labels are mapped into the ten-category analytical layer only when the mapping rule is explicit. Named software uses exact-label matching; common-word software names such as React, Go, and Zoom also require nearby software context. Generic aliases such as bare Word, Project, and Access are not matched on their own. The dictionary does not treat occupational importance ratings as proof that a candidate has a skill, and it does not infer synonyms beyond the small alias list for common software names. Unmatched language remains unmatched rather than being forced into a category.
+
+## 10. Sensitivity and future validation
 
 The most consequential modeling choices are importance weights, transfer rules, evidence-type weights, and missing-evidence treatment. Future releases should publish sensitivity tables under alternative choices and validate only on a consented, well-defined sample. A high score should never be presented as evidence that a candidate is more productive or more likely to be hired.

@@ -64,6 +64,17 @@ TRANSFER_SKILL_IDS = {
     },
     "skill.leadership": {"skill.supervision", "skill.project_management"},
 }
+CATEGORY_BASELINE_TRANSFER = {
+    "cognitive_skill",
+    "social_skill",
+    "character_skill",
+    "writing_skill",
+    "customer_project_management_skill",
+    "people_management_skill",
+    "financial_skill",
+    "general_computer_skill",
+    "ai_skill",
+}
 
 
 def _number(value: Any, default: float = 0.0) -> float:
@@ -137,7 +148,11 @@ def _is_negated(text: str, start: int, end: int) -> bool:
 
 def _infer_evidence_type(text: str, start: int, end: int) -> str:
     clause = _local_clause(text, start, end)
-    if re.search(r"\b(research|thesis|dissertation|academic study|research project)\b", clause, re.I):
+    if re.search(
+        r"\b(research|thesis|dissertation|academic study|research project)\b",
+        clause,
+        re.I,
+    ):
         return "research_project"
     if re.search(r"\b(portfolio|github|repository|open-source)\b", clause, re.I):
         return "portfolio"
@@ -145,7 +160,11 @@ def _infer_evidence_type(text: str, start: int, end: int) -> str:
         return "course"
     if re.search(r"\b(certificate|certification)\b", clause, re.I):
         return "certificate"
-    if re.search(r"\b(worked|managed|led|delivered|employment|role|job|professional|experience)\b", clause, re.I):
+    if re.search(
+        r"\b(worked|managed|led|delivered|employment|role|job|professional|experience)\b",
+        clause,
+        re.I,
+    ):
         return "work"
     return "self_reported"
 
@@ -159,8 +178,10 @@ def evidence_from_text(text: str) -> list[dict[str, Any]]:
     items = []
     for index, item in enumerate(extract(text), start=1):
         negated = _is_negated(text, int(item["start"]), int(item["end"]))
-        evidence_type = "unknown" if negated else _infer_evidence_type(
-            text, int(item["start"]), int(item["end"])
+        evidence_type = (
+            "unknown"
+            if negated
+            else _infer_evidence_type(text, int(item["start"]), int(item["end"]))
         )
         items.append(
             {
@@ -170,9 +191,17 @@ def evidence_from_text(text: str) -> list[dict[str, Any]]:
                 "analysis_category_code": item["analysis_category_code"],
                 "evidence_type": evidence_type,
                 "source_text": item["text"],
-                "mapping_method": item["mapping_method"] + ("+negation_rule" if negated else ""),
+                "mapping_method": item["mapping_method"]
+                + ("+negation_rule" if negated else ""),
                 "extraction_confidence": item["confidence"],
-                "evidence_status": "negated_statement" if negated else "candidate_profile_inferred",
+                "source_taxonomy": item["source_taxonomy"],
+                "source_skill_id": item["source_skill_id"],
+                "review_status": item["review_status"],
+                "match_mode": item["match_mode"],
+                "dictionary_version": item["dictionary_version"],
+                "evidence_status": "negated_statement"
+                if negated
+                else "candidate_profile_inferred",
                 "negated": negated,
             }
         )
@@ -200,7 +229,9 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
     lowered = candidate_text.casefold()
     requirement_type = requirement["requirement_type"]
     if requirement_type == "professional_license":
-        positive = re.search(r"\b(licensed|licence|license|certified|certification)\b", lowered)
+        positive = re.search(
+            r"\b(licensed|licence|license|certified|certification)\b", lowered
+        )
         negative = re.search(
             r"\b(no|without|lack(?:s|ing)?|not)\b[^.!?;\n]{0,35}\b(license|licence|certification|certified)\b",
             lowered,
@@ -222,7 +253,9 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             lowered,
         )
     elif requirement_type == "education":
-        positive = re.search(r"\b(bachelor|master|ph\.?d|doctorate|doctoral)\b", lowered)
+        positive = re.search(
+            r"\b(bachelor|master|ph\.?d|doctorate|doctoral)\b", lowered
+        )
         negative = re.search(
             r"\b(no|without|not|lack(?:s|ing)?)\b[^.!?;\n]{0,25}\b(bachelor|master|ph\.?d|doctorate|doctoral)\b",
             lowered,
@@ -254,7 +287,9 @@ def _match_evidence(
 ) -> dict[str, Any]:
     skill_id = str(requirement.get("skill_id"))
     category = str(requirement.get("analysis_category_code"))
-    direct = [item for item in evidence_by_skill.get(skill_id, []) if not item.get("negated")]
+    direct = [
+        item for item in evidence_by_skill.get(skill_id, []) if not item.get("negated")
+    ]
     matching_method = "direct_skill_id"
     if direct:
         selected, coverage, status, proficiency = direct, 1.0, "direct", 0.85
@@ -262,28 +297,49 @@ def _match_evidence(
         transferable = []
         for candidate_id in TRANSFER_SKILL_IDS.get(skill_id, set()):
             transferable.extend(
-                item for item in evidence_by_skill.get(candidate_id, []) if not item.get("negated")
+                item
+                for item in evidence_by_skill.get(candidate_id, [])
+                if not item.get("negated")
             )
         if transferable:
-            selected, coverage, status, proficiency = transferable, 0.55, "transferable", 0.65
+            selected, coverage, status, proficiency = (
+                transferable,
+                0.55,
+                "transferable",
+                0.65,
+            )
             matching_method = "reviewable_transfer_crosswalk"
-        else:
+        elif category in CATEGORY_BASELINE_TRANSFER:
             category_items = [
-                item for item in evidence_by_category.get(category, [])
+                item
+                for item in evidence_by_category.get(category, [])
                 if not item.get("negated") and str(item.get("skill_id")) != skill_id
             ]
             if category_items:
-                selected, coverage, status, proficiency = category_items, 0.45, "transferable", 0.55
+                selected, coverage, status, proficiency = (
+                    category_items,
+                    0.45,
+                    "transferable",
+                    0.55,
+                )
                 matching_method = "same_category_baseline"
             else:
                 selected, coverage, status, proficiency = [], 0.0, "missing", 0.0
+        else:
+            selected, coverage, status, proficiency = [], 0.0, "missing", 0.0
     if selected:
         evidence = sum(_evidence_score(item) for item in selected) / len(selected)
         recency = sum(_recency_score(item) for item in selected) / len(selected)
         depth = sum(_depth_score(item) for item in selected) / len(selected)
     else:
         evidence, recency, depth = 0.0, 0.0, 0.0
-    score = 0.35 * coverage + 0.25 * evidence + 0.20 * proficiency + 0.10 * recency + 0.10 * depth
+    score = (
+        0.35 * coverage
+        + 0.25 * evidence
+        + 0.20 * proficiency
+        + 0.10 * recency
+        + 0.10 * depth
+    )
     if status == "direct" and evidence < 0.55:
         status = "direct_weak"
     return {
@@ -298,13 +354,19 @@ def _match_evidence(
     }
 
 
-def _gap_for(requirement: dict[str, Any], assessment: dict[str, Any]) -> dict[str, Any] | None:
+def _gap_for(
+    requirement: dict[str, Any], assessment: dict[str, Any]
+) -> dict[str, Any] | None:
     status = assessment.get("status")
     if status in ("direct", "met"):
         return None
-    canonical = str(requirement.get("canonical_skill", requirement.get("original_text")))
+    canonical = str(
+        requirement.get("canonical_skill", requirement.get("original_text"))
+    )
     importance = str(requirement.get("importance_level", "inferred"))
-    impact = IMPORTANCE_WEIGHTS.get(importance, 0.2) * (1 - _number(assessment.get("match_score")))
+    impact = IMPORTANCE_WEIGHTS.get(importance, 0.2) * (
+        1 - _number(assessment.get("match_score"))
+    )
     if status == "direct_weak":
         gap_type = "proof_gap"
         action_type = "package_proof"
@@ -337,7 +399,9 @@ def _gap_for(requirement: dict[str, Any], assessment: dict[str, Any]) -> dict[st
         action_type = "build_foundation"
         action = f"Create a structured learning plan for {canonical} and finish with a small work sample before treating it as a core qualification."
         artifact = "A learning log plus a small, reviewable work sample."
-        prompt = f"What is the smallest real task that would let you practice {canonical}?"
+        prompt = (
+            f"What is the smallest real task that would let you practice {canonical}?"
+        )
         horizon, effort = "medium term", "2–6 weeks"
     return {
         "requirement_id": requirement["requirement_id"],
@@ -408,13 +472,18 @@ def analyze_fit(
             assessments.append(item)
             continue
         skill_requirement_count += 1
-        assessment = _match_evidence(requirement, evidence_by_skill, evidence_by_category)
+        assessment = _match_evidence(
+            requirement, evidence_by_skill, evidence_by_category
+        )
         if assessment["status"] == "direct":
             direct_count += 1
         weight = _number(requirement["importance_weight"], 0.2)
         weighted_total += weight * _number(assessment["match_score"])
         weight_total += weight
-        item = {**requirement, **{key: value for key, value in assessment.items() if key != "evidence"}}
+        item = {
+            **requirement,
+            **{key: value for key, value in assessment.items() if key != "evidence"},
+        }
         assessments.append(item)
         gap = _gap_for(requirement, assessment)
         if gap:
@@ -428,30 +497,70 @@ def analyze_fit(
         else 0.0
     )
     signal_coverage = (
-        sum(1.0 if item["status"] == "direct" else 0.55 if item["status"] == "transferable" else 0.0 for item in assessments if not item["hard_constraint"])
+        sum(
+            1.0
+            if item["status"] == "direct"
+            else 0.55
+            if item["status"] == "transferable"
+            else 0.0
+            for item in assessments
+            if not item["hard_constraint"]
+        )
         / skill_requirement_count
         if skill_requirement_count
         else 0.0
     )
-    assessment_confidence = round(100 * (0.35 * job_clarity + 0.35 * candidate_quality + 0.30 * signal_coverage))
+    assessment_confidence = round(
+        100 * (0.35 * job_clarity + 0.35 * candidate_quality + 0.30 * signal_coverage)
+    )
 
     capability_signal = (
-        sum(1.0 if item["status"] == "direct" else 0.82 if item["status"] == "direct_weak" else 0.60 if item["status"] == "transferable" else 0.0 for item in assessments if not item["hard_constraint"])
+        sum(
+            1.0
+            if item["status"] == "direct"
+            else 0.82
+            if item["status"] == "direct_weak"
+            else 0.60
+            if item["status"] == "transferable"
+            else 0.0
+            for item in assessments
+            if not item["hard_constraint"]
+        )
         / skill_requirement_count
         if skill_requirement_count
         else 0.0
     )
     proof_signal = (
-        sum(_number(item.get("evidence_strength")) for item in assessments if not item["hard_constraint"])
+        sum(
+            _number(item.get("evidence_strength"))
+            for item in assessments
+            if not item["hard_constraint"]
+        )
         / skill_requirement_count
         if skill_requirement_count
         else 0.0
     )
-    must_items = [item for item in assessments if item.get("importance_level") == "must" and not item["hard_constraint"]]
-    must_match = sum(_number(item.get("match_score")) for item in must_items) / len(must_items) if must_items else soft_fit / 100
+    must_items = [
+        item
+        for item in assessments
+        if item.get("importance_level") == "must" and not item["hard_constraint"]
+    ]
+    must_match = (
+        sum(_number(item.get("match_score")) for item in must_items) / len(must_items)
+        if must_items
+        else soft_fit / 100
+    )
     blocking = [item for item in hard_constraints if item["status"] != "met"]
-    gate_signal = 0.0 if any(item["status"] == "not_met" for item in blocking) else 0.35 if blocking else 1.0
-    readiness_score = round(100 * (0.50 * must_match + 0.30 * proof_signal + 0.20 * gate_signal))
+    gate_signal = (
+        0.0
+        if any(item["status"] == "not_met" for item in blocking)
+        else 0.35
+        if blocking
+        else 1.0
+    )
+    readiness_score = round(
+        100 * (0.50 * must_match + 0.30 * proof_signal + 0.20 * gate_signal)
+    )
     readiness = _readiness_status(readiness_score, blocking)
 
     if any(item["status"] == "not_met" for item in blocking):
@@ -468,7 +577,9 @@ def analyze_fit(
         decision_label = "Promising overlap; build targeted proof before treating the role as a priority."
     else:
         decision = "evidence_building_needed"
-        decision_label = "Several important requirements need evidence or structured preparation."
+        decision_label = (
+            "Several important requirements need evidence or structured preparation."
+        )
 
     for item in blocking:
         gaps.append(
@@ -488,7 +599,12 @@ def analyze_fit(
                 "basis": "A hard requirement is separate from skill overlap and cannot be offset by a high soft score.",
             }
         )
-    gaps.sort(key=lambda item: (-_number(item.get("impact_score")), item.get("canonical_skill", "")))
+    gaps.sort(
+        key=lambda item: (
+            -_number(item.get("impact_score")),
+            item.get("canonical_skill", ""),
+        )
+    )
     return {
         "schema_version": "career_fit.v0.2",
         "product": "Career Fit",
