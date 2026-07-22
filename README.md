@@ -1,30 +1,41 @@
 # Career Fit
 
-**Career Fit** is an explainable, evidence-first job-matching explorer for job seekers, career coaches, and labor-market researchers.
+**Career Fit** is an explainable, evidence-first job-search planner for job seekers, career coaches, and labor-market researchers.
 
-It answers a practical question:
+It answers three questions that keyword tools usually collapse into one:
 
-> For this role, what evidence do I already have, what is transferable, what is missing, and what should I do next?
+> Can I do this? Can I prove it? Should I apply now?
 
-Career Fit is intentionally not an ATS score, a hiring-probability model, or a replacement for human judgment. It separates hard admission constraints from softer skill overlap, shows the evidence behind each match, and turns gaps into concrete preparation actions.
+Career Fit translates one job description and one candidate profile into a requirement–evidence map. It distinguishes direct evidence, transferable evidence, proof gaps, foundation gaps, and hard application gates. It then turns the most important gaps into concrete proof or verification actions.
 
-中文定位：Career Fit 把“我适不适合这份工作”拆成可解释的要求—证据矩阵。它帮助求职者看清已经具备的能力、可以迁移的经验、尚未证明的技能，以及下一步最值得投入的行动。结果不是录用概率，也不是对个人价值的判断。
+Career Fit is not an ATS score, a hiring-probability model, an employer ranking system, or a judgment of personal value.
+
+## Why this product exists
+
+Job seekers face different problems that look identical to a keyword checker:
+
+- A career switcher may have adjacent experience but no employer-facing translation.
+- A PhD or nontraditional candidate may have strong research capability but weak industry proof.
+- A mid-career applicant may be ready on skills but blocked by an unresolved work-authorization, license, degree, or experience requirement.
+- Anyone can have a proof gap: the capability exists, but the resume does not make it reviewable.
+
+Career Fit keeps these cases separate so a user leaves with a better next move rather than a discouraging binary label. The design rationale is documented in [docs/job-seeker-pain-points.md](docs/job-seeker-pain-points.md).
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.1 engine:
+Given a job description and a candidate profile, the v0.2 engine:
 
-1. extracts skill requirements and hard constraints;
-2. maps candidate statements to auditable evidence objects;
-3. distinguishes direct evidence, transferable evidence, weak evidence, and missing evidence;
-4. calculates a transparent Role Fit Score and an Assessment Confidence score;
-5. ranks evidence gaps and produces an action plan.
-
-The default page uses a People Analytics example: a labor economist can see why Python and causal inference transfer well, while SQL, HR-data context, and business communication may require more targeted proof.
+1. extracts dictionary-backed skill requirements and explicit hard gates;
+2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
+3. maps candidate statements to auditable evidence objects;
+4. distinguishes direct evidence, thin proof, transferable evidence, and missing evidence;
+5. calculates Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence;
+6. ranks proof, translation, bridge, foundation, and verification gaps;
+7. proposes an expected proof artifact and an evidence prompt for each priority action.
 
 ## Quick start
 
-~~~powershell
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e .
@@ -35,78 +46,91 @@ career-fit analyze --job-file examples\single_job\people_analytics_job.txt --can
 # Launch the visual explorer
 career-fit serve
 # Open http://127.0.0.1:8766
-~~~
+```
 
-If the console script is not on PATH, use python -m career_fit.cli in the same commands. The legacy skillbundle module and console script remain available as a compatibility layer.
+If the console script is not on PATH, use `python -m career_fit.cli` for the same commands. The legacy `skillbundle` namespace and console script remain available as a compatibility layer.
 
 ## Visual explorer
 
-The local app is designed for a broad audience without hiding the labor-economics logic:
+The local page is designed to feel useful to a first-time job seeker while keeping the labor-economics logic visible:
 
-- a compact scorecard distinguishes fit, confidence, requirements, and blocked constraints;
-- the requirement–evidence matrix makes every score inspectable;
-- the fit profile shows where evidence is direct, transferable, or missing;
-- gap cards translate a deficit into an application, portfolio, or training action;
-- the “economic meaning” cards explain what the numbers do and do not mean.
+- three animated signal rings separate capability, proof, and application readiness;
+- the scorecard shows Evidence Fit, Application Readiness, Information Confidence, and unresolved Hard Gates;
+- the requirement–evidence matrix makes every assessment inspectable;
+- the profile chart shows the shape of evidence overlap across requirements;
+- action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
+- plain-language interpretation cards explain what the metrics can and cannot mean.
 
-![Career Fit visual explorer](docs/assets/career-fit-dashboard.jpg)
+![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.jpg)
 
-![Requirement--evidence matrix](docs/assets/career-fit-matrix.jpg)
+![Career Fit requirement matrix](docs/assets/career-fit-matrix.jpg)
 
 ## Interpreting the scores
 
-For each soft requirement j, the engine reports:
+For each soft requirement `j`, the engine reports:
 
-~~~text
+```text
 Match_j = 0.35 coverage
          + 0.25 evidence strength
          + 0.20 proficiency signal
          + 0.10 recency
-         + 0.10 depth
-~~~
+         + 0.10 evidence depth
+```
 
-The Role Fit Score is the importance-weighted average of these requirement matches, rescaled to 0–100. “Must have”, “strongly preferred”, “preferred”, and inferred requirements receive weights 1.0, 0.7, 0.4, and 0.2.
+**Evidence Fit** is the importance-weighted average of these matches, rescaled to 0–100. Must-have, strongly preferred, preferred, and inferred requirements receive weights 1.0, 0.7, 0.4, and 0.2.
 
-Assessment Confidence is a measure of how complete and strong the available text evidence is. It is not a calibrated probability. A hard constraint such as a license, work authorization, degree, or experience floor is reported separately and can block readiness even when soft fit is high.
+**Capability Signal** gives descriptive weight to direct, thin, and transferable overlap. Transferable evidence is intentionally discounted and never presented as equivalent proof.
 
-The methodology is documented in [docs/methodology.md](docs/methodology.md), and the machine-readable output contract is in [docs/data-contract.md](docs/data-contract.md).
+**Proof Signal** summarizes how concrete and reviewable the supplied evidence is. Structured work, research, portfolio, duration, and measurable-result fields are stronger than a bare keyword mention.
+
+**Application Readiness** is a preparation-triage measure:
+
+```text
+Readiness = 100 × (0.50 must-have match
+                  + 0.30 proof signal
+                  + 0.20 hard-gate signal)
+```
+
+An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
+
+The machine-readable output uses schema `career_fit.v0.2`; details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 
-The v0.1 demo uses a small versioned English seed dictionary so that the result is reproducible and easy to audit. It is a transparent baseline, not a complete occupational ontology.
+The demo uses a small, versioned English seed dictionary so results are reproducible and easy to audit. It is a transparent baseline, not a complete occupational ontology.
 
-- config/seed_dictionary_en.json stores canonical skill IDs, aliases, and the analytical category code.
-- config/taxonomy_10_cn_ai.json stores the ten-category research layer and 45 pair combinations.
-- config/source_registry.json records planned public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
-- Raw third-party data is not silently bundled. Check each source's current license and attribution requirements before redistribution.
+- `config/seed_dictionary_en.json` stores canonical skill IDs, aliases, and analytical category codes.
+- `config/taxonomy_10_ai.json` stores the ten-category research layer and 45 pair combinations.
+- `config/source_registry.json` records planned public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
+- `src/skillbundle/career.py` stores explicit transfer crosswalks and evidence rules.
 
-The ten-category layer is an analytical lens inspired by labor-market skill research. It is useful for descriptive comparison, but it should not be read as a universal or immutable definition of skill.
+Raw third-party data is not silently bundled. Check each source’s current license and attribution requirements before redistribution.
 
 ## Privacy and fairness
 
-The demo runs locally. Candidate text and structured evidence are sent only to the local process serving the page; this repository does not include a hosted personal-data service.
+The demo runs locally. Candidate text and structured evidence are sent only to the local Python process serving the page; this repository does not include a hosted personal-data service.
 
-Career Fit should be used to improve a candidate's preparation and self-understanding, not to automate exclusion. It can miss synonyms, understate informal experience, reproduce biases in job descriptions, and confuse lack of evidence with lack of ability. See [docs/privacy-and-fairness.md](docs/privacy-and-fairness.md).
+Career Fit should help a person prepare, not automate exclusion. A missing mention is not proof of missing ability. The engine excludes conservatively detected negative statements, exposes uncertainty, avoids protected traits, and keeps hard constraints visible for human verification. See [docs/privacy-and-fairness.md](docs/privacy-and-fairness.md).
 
 ## Repository layout
 
-~~~text
+```text
 src/career_fit/       public Career Fit namespace and CLI
 src/skillbundle/      compatibility namespace and transparent engine
-config/               seed dictionary, taxonomy, and source registry
+config/               English seed dictionary, taxonomy, and source registry
 examples/             reproducible job, candidate, and evidence inputs
-docs/                 design, requirements, methodology, and data contracts
-tests/                unit tests for extraction and fit analysis
-~~~
+docs/                 product, design, methodology, and data contracts
+tests/                extraction, negation, constraints, and fit tests
+```
 
 ## Roadmap
 
 - expand the reviewed multilingual skill dictionary and occupational crosswalks;
-- add resume-to-evidence import with user confirmation instead of silent inference;
-- support multiple roles and career pathways while preserving the single-role audit trail;
+- add resume-to-evidence import with explicit user confirmation;
+- support multiple target roles and career pathways while preserving each audit trail;
 - add calibrated validation only if an appropriate, consented outcome dataset becomes available;
-- publish sensitivity checks for taxonomy, importance weights, and missing-evidence assumptions.
+- publish sensitivity checks for taxonomy, importance weights, transfer rules, and missing-evidence assumptions.
 
 ## License
 
-MIT. See LICENSE.
+MIT. See [LICENSE](LICENSE).

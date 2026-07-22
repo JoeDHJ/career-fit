@@ -11,31 +11,31 @@ The extractor assigns a requirement level from local language cues:
 | preferred | preferred, bonus, plus | 0.4 |
 | inferred | mentioned without a clear marker | 0.2 |
 
-The v0.1 wording rules are intentionally conservative. They are not a claim that every employer uses these words consistently.
+The wording rules are intentionally conservative. They are not a claim that every employer uses these words consistently.
 
 ## 2. Requirement-level match
 
-For soft requirement j:
+For soft requirement `j`:
 
-~~~text
+```text
 M_j = 0.35 C_j + 0.25 E_j + 0.20 P_j + 0.10 R_j + 0.10 D_j
-~~~
+```
 
 Where:
 
-- C is coverage: 1.0 for direct evidence, 0.55 for same-category transferable evidence, 0 for missing evidence;
-- E is evidence strength, weighted by evidence type;
-- P is a conservative proficiency signal;
-- R is recency;
-- D is evidence depth, using duration when supplied.
+- `C` is coverage: 1.0 for direct evidence, 0.55 for explicit transfer evidence, 0.45 for the same-category baseline, and 0 for missing evidence;
+- `E` is evidence strength, weighted by evidence type;
+- `P` is a conservative proficiency signal;
+- `R` is recency;
+- `D` is evidence depth, using duration when supplied.
 
-The Role Fit Score is:
+Evidence Fit is:
 
-~~~text
+```text
 100 × Σ(weight_j × M_j) / Σ(weight_j)
-~~~
+```
 
-This is a descriptive readiness index for the supplied text. It is not a probability and has no causal interpretation.
+This is a descriptive preparation index for the supplied text. It is not a probability and has no causal interpretation.
 
 ## 3. Evidence strength
 
@@ -51,16 +51,42 @@ The baseline evidence weights are:
 | self-reported keyword | 0.35 |
 | unknown | 0.25 |
 
-Measurable results receive a small transparent bonus. This is a prioritization heuristic, not a psychometric scale.
+Measurable results receive a small transparent bonus. Context heuristics used for free text are labeled in the evidence object and do not override explicit structured evidence.
 
-## 4. Hard constraints
+## 4. Capability Signal
 
-Licenses, work authorization, degrees, and explicit experience floors are checked separately. Their status is met, not_met, or unknown. An unknown hard constraint produces blocked_pending_verification; the UI asks the user to verify it rather than assuming absence.
+For descriptive triage, direct evidence contributes 1.0, thin direct evidence 0.82, transferable evidence 0.60, and missing evidence 0.0. The signal makes adjacent experience visible while preserving a clear distinction from direct proof.
 
-## 5. Assessment Confidence
+## 5. Proof Signal
 
-Assessment Confidence combines job-description clarity, average evidence strength, and the share of requirements with direct evidence. It describes the information available to the engine. It is not calibrated against interview or hiring outcomes.
+Proof Signal averages evidence strength over the role’s soft requirements. It rewards evidence types with a reviewable work product, duration, recency, or measurable result. A low Proof Signal can indicate an evidence-packaging problem rather than a capability problem.
 
-## 6. Sensitivity and future validation
+## 6. Hard gates
 
-The most consequential modeling choices are the importance weights, transferability definition, evidence-type weights, and treatment of missing evidence. Future releases should publish sensitivity tables under alternative weights and validate only on a consented, well-defined sample. A high score should never be presented as evidence that a candidate is more productive or more likely to be hired.
+Licenses, work authorization, degrees, and explicit experience floors are checked separately. Their status is `met`, `not_met`, or `unknown`.
+
+- `not_met` produces `blocked_by_constraint`;
+- `unknown` produces `verify_before_applying`;
+- `met` contributes no penalty to the soft Evidence Fit score.
+
+## 7. Application Readiness
+
+Application Readiness is:
+
+```text
+100 × (0.50 must-have match
+      + 0.30 proof signal
+      + 0.20 hard-gate signal)
+```
+
+The hard-gate signal is 1.0 when there are no unresolved gates, 0.35 when a gate is unknown, and 0.0 when a gate is explicitly not met. The result is a preparation route, not a prediction of interview or hiring outcomes.
+
+## 8. Negation and missing evidence
+
+The candidate parser applies a conservative local negation rule to phrases such as “no,” “without,” “not,” and “not yet” before a matched skill. Negated mentions remain in the output with `negated: true` for auditability but are excluded from the evidence match.
+
+A missing mention is not evidence that a person lacks the capability. The interface therefore calls missing cases foundation gaps only as a preparation hypothesis and asks the user to verify whether the issue is actually a translation or proof gap.
+
+## 9. Sensitivity and future validation
+
+The most consequential modeling choices are importance weights, transfer rules, evidence-type weights, and missing-evidence treatment. Future releases should publish sensitivity tables under alternative choices and validate only on a consented, well-defined sample. A high score should never be presented as evidence that a candidate is more productive or more likely to be hired.

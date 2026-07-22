@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_taxonomy(path: Path | None = None) -> dict[str, object]:
-    path = path or ROOT / "config" / "taxonomy_10_cn_ai.json"
+    path = path or ROOT / "config" / "taxonomy_10_ai.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 

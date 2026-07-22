@@ -1,3 +1,3 @@
 """Career Fit compatibility package and transparent skill-analysis engine."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

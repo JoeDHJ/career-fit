@@ -23,6 +23,26 @@ PREFERRED_MARKERS = re.compile(
     r"\b(preferred|preferably|plus|bonus|nice to have)\b", re.IGNORECASE
 )
 
+NUMBER_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+}
+
+
+def parse_number(value: str) -> int | None:
+    value = value.casefold().strip()
+    if value.isdigit():
+        return int(value)
+    return NUMBER_WORDS.get(value)
+
 
 def _importance(context: str) -> str:
     if REQUIRED_MARKERS.search(context):
@@ -39,7 +59,7 @@ def _context(text: str, start: int, end: int, window: int = 90) -> str:
 
 
 def _local_clause(text: str, start: int, end: int) -> str:
-    """Return the sentence/line containing a mention for local cue matching."""
+    """Return the sentence or line containing a mention for local cue matching."""
     boundaries = ".!?;\n"
     left = max((text.rfind(mark, 0, start) for mark in boundaries), default=-1) + 1
     right_candidates = [text.find(mark, end) for mark in boundaries]
@@ -69,11 +89,11 @@ def _constraint(
 
 
 def extract_requirements(text: str) -> list[dict[str, object]]:
-    """Extract transparent v0.1 job requirements from a job description.
+    """Extract auditable skill requirements and high-stakes admission gates.
 
-    Skill requirements use the existing dictionary baseline. A small rule layer
-    captures high-stakes admission constraints separately so a strong soft score
-    cannot hide a missing license, authorization, degree, or experience floor.
+    The rule layer is intentionally explicit. It captures work authorization,
+    education, professional licenses, and experience floors separately so a
+    strong soft match cannot hide an unresolved application gate.
     """
     requirements: list[dict[str, object]] = []
     seen: set[tuple[str, str]] = set()
@@ -107,6 +127,7 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
         requirement_type: str,
         canonical: str,
         match: re.Match[str],
+        **extra: object,
     ) -> None:
         key = (requirement_type, canonical.casefold())
         if key in seen:
@@ -119,6 +140,7 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
                 canonical,
                 match.group(0).strip(),
                 source_context=_context(text, match.start(), match.end()),
+                **extra,
             )
         )
 
@@ -131,35 +153,53 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
             label = re.search(
                 r"license|licence|certification|certificate", match.group(0), re.I
             )
-            add_constraint("professional_license", label.group(0), match)
+            if label:
+                add_constraint("professional_license", label.group(0), match)
 
     for match in re.finditer(
-        r"[^.!?;\n]*\b(?:authorized to work|work authorization|work permit|visa sponsorship|eligible to work)\b[^.!?;\n]*",
+        r"[^.!?;\n]*\b(?:authorized to work|authorization to work|work authorization|"
+        r"work permit|eligible to work|right to work|visa sponsorship|requires? sponsorship)\b"
+        r"[^.!?;\n]*",
         text,
         re.IGNORECASE,
     ):
         add_constraint("work_authorization", "Work authorization", match)
 
     for match in re.finditer(
-        r"[^.!?;\n]*\b(?:bachelor(?:'s)?|master(?:'s)?|ph\.?d\.?|doctorate)\b"
+        r"[^.!?;\n]*\b(?:bachelor(?:'s)?|master(?:'s)?|ph\.?d\.?|doctorate|doctoral)\b"
         r"[^.!?;\n]*",
         text,
         re.IGNORECASE,
     ):
         if REQUIRED_MARKERS.search(match.group(0)):
             label = re.search(
-                r"bachelor(?:'s)?|master(?:'s)?|ph\.?d\.?|doctorate",
+                r"bachelor(?:'s)?|master(?:'s)?|ph\.?d\.?|doctorate|doctoral",
                 match.group(0),
                 re.I,
             )
-            add_constraint("education", label.group(0), match)
+            if label:
+                add_constraint("education", label.group(0), match)
 
     for match in re.finditer(
-        r"\b(\d+)\+?\s+years?\s+(?:of\s+)?experience\b[^.!?;\n]*",
+        r"\b(?P<number>\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+"
+        r"years?\s+(?:of\s+)?(?P<area>[^.!?;\n]{0,80}?)\bexperience\b[^.!?;\n]*",
         text,
         re.IGNORECASE,
     ):
+        years = parse_number(match.group("number"))
+        if years is None:
+            continue
+        area = re.sub(r"\s+", " ", match.group("area")).strip(" ,.-")
+        canonical = f"{years}+ years"
+        if area:
+            canonical += f" of {area} experience"
+        else:
+            canonical += " of experience"
         add_constraint(
-            "experience_floor", f"{match.group(1)}+ years of experience", match
+            "experience_floor",
+            canonical,
+            match,
+            required_years=years,
+            experience_area=area or None,
         )
     return requirements

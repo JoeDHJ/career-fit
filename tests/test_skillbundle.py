@@ -13,7 +13,7 @@ from skillbundle.requirements import extract_requirements
 from skillbundle.taxonomy import pair_codes
 
 
-class SkillBundleTests(unittest.TestCase):
+class CareerFitTests(unittest.TestCase):
     def test_extract_longest_match_and_offsets(self):
         text = "Manage customer service projects using Python and SQL."
         items = extract(text)
@@ -65,8 +65,8 @@ class SkillBundleTests(unittest.TestCase):
         )
         self.assertGreater(result["summary"]["role_fit_score"], 0)
         self.assertEqual(result["summary"]["blocking_constraint_count"], 1)
-        self.assertEqual(result["summary"]["decision"], "blocked_pending_verification")
-        self.assertTrue(any(item["gap_type"] == "hard_constraint" for item in result["gaps"]))
+        self.assertEqual(result["summary"]["decision"], "verify_before_applying")
+        self.assertTrue(any(item["gap_type"] == "verification_gap" for item in result["gaps"]))
 
     def test_hard_constraints_allow_requirement_after_keyword(self):
         result = analyze_fit(
@@ -117,6 +117,43 @@ class SkillBundleTests(unittest.TestCase):
         self.assertEqual(item["status"], "direct")
         self.assertGreater(item["evidence_strength"], 0.9)
         self.assertEqual(len(evidence_from_text("Python")), 1)
+
+    def test_negated_profile_statement_is_not_counted_as_evidence(self):
+        result = analyze_fit("Must have HR data.", "Have not worked directly with HR data.")
+        item = result["requirements"][0]
+        self.assertEqual(item["status"], "missing")
+        self.assertEqual(result["summary"]["excluded_evidence_count"], 1)
+        self.assertEqual(item["evidence_ids"], [])
+
+    def test_spelled_experience_floor_and_work_gate_are_extracted(self):
+        requirements = extract_requirements(
+            "Must have five years of operations experience and authorization to work in the United States."
+        )
+        types = {item["requirement_type"] for item in requirements}
+        self.assertIn("experience_floor", types)
+        self.assertIn("work_authorization", types)
+        experience = next(item for item in requirements if item["requirement_type"] == "experience_floor")
+        self.assertEqual(experience["required_years"], 5)
+        result = analyze_fit(
+            "Must have five years of operations experience and authorization to work in the United States.",
+            "Eight years of operations experience. Authorized to work in the United States.",
+        )
+        self.assertEqual(result["summary"]["blocking_constraint_count"], 0)
+        unresolved = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "The profile does not state current United States work authorization.",
+        )
+        self.assertEqual(unresolved["hard_constraints"][0]["status"], "unknown")
+
+    def test_v02_exposes_three_job_seeker_signals_and_actions(self):
+        result = analyze_fit("Must have Python and SQL.", "Built Python research projects.")
+        summary = result["summary"]
+        self.assertIn("capability_signal_score", summary)
+        self.assertIn("proof_signal_score", summary)
+        self.assertIn("application_readiness_score", summary)
+        self.assertEqual(result["schema_version"], "career_fit.v0.2")
+        self.assertTrue(result["next_actions"])
+        self.assertIn("expected_artifact", result["next_actions"][0])
 
 
 if __name__ == "__main__":

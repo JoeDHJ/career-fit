@@ -1,10 +1,10 @@
 # Career Fit data contract
 
-The v0.1 JSON response uses schema_version career_fit.v0.1. Field names are intentionally explicit so the output can be audited or used by a downstream notebook.
+The v0.2 JSON response uses `schema_version: career_fit.v0.2`. Field names are explicit so the output can be audited or used by a downstream notebook.
 
 ## Requirement record
 
-~~~json
+```json
 {
   "requirement_id": "req-001",
   "requirement_type": "skill",
@@ -17,15 +17,23 @@ The v0.1 JSON response uses schema_version career_fit.v0.1. Field names are inte
   "importance_weight": 1.0,
   "hard_constraint": false,
   "extraction_method": "dictionary_exact",
-  "extraction_confidence": 0.99
+  "extraction_confidence": 0.99,
+  "status": "direct_weak",
+  "status_label": "Mentioned, proof is thin",
+  "match_score": 0.72,
+  "matching_method": "direct_skill_id",
+  "evidence_strength": 0.35,
+  "evidence_ids": ["evidence-001"]
 }
-~~~
+```
 
-Hard constraints use requirement_type values such as professional_license, work_authorization, education, and experience_floor. They carry hard_constraint true and are not included in the soft-fit denominator.
+Hard gates use requirement types such as `professional_license`, `work_authorization`, `education`, and `experience_floor`. They carry `hard_constraint: true`, `status` values `met`, `not_met`, or `unknown`, and are not included in the soft-fit denominator.
+
+Experience floors additionally expose `required_years` and, when available, `experience_area`.
 
 ## Evidence record
 
-~~~json
+```json
 {
   "evidence_id": "evidence-001",
   "skill_id": "software.python",
@@ -33,38 +41,50 @@ Hard constraints use requirement_type values such as professional_license, work_
   "analysis_category_code": "specific_software_skill",
   "evidence_type": "research_project",
   "source_text": "Built a panel-data pipeline",
-  "measurable_result": "1.3 million records",
   "duration_months": 18,
-  "recency_years": 1
+  "recency_years": 1,
+  "measurable_result": "1.3 million records",
+  "evidence_status": "user_provided",
+  "negated": false
 }
-~~~
+```
 
-Supported evidence types are work, research_project, portfolio, github_project, course, certificate, self_reported, and unknown. Users may add fields; the engine ignores fields it does not use.
+Supported evidence types are `work`, `research_project`, `portfolio`, `github_project`, `course`, `certificate`, `self_reported`, and `unknown`. Mentions detected inside a conservative negative statement remain in the evidence list with `negated: true` and `evidence_status: negated_statement`, but are excluded from matching.
 
-## Assessment record
+## Gap and action record
 
-Each soft requirement copies the requirement fields and adds:
-
-~~~json
+```json
 {
-  "status": "direct",
-  "status_label": "Direct evidence / 直接证据",
-  "match_score": 0.92,
-  "coverage": 1.0,
-  "evidence_strength": 0.98,
-  "evidence_ids": ["evidence-001"]
+  "requirement_id": "req-001",
+  "canonical_skill": "Python",
+  "gap_type": "proof_gap",
+  "action_type": "package_proof",
+  "priority": "medium",
+  "time_horizon": "before applying",
+  "estimated_effort": "15–30 minutes",
+  "action": "Turn your existing Python mention into one concrete proof point with a task, context, and measurable result.",
+  "expected_artifact": "A quantified resume bullet, work sample, or interview story.",
+  "evidence_prompt": "What did you do with Python, for whom, and what changed because of it?"
 }
-~~~
+```
 
-The full response also contains:
+Gap types are `proof_gap`, `translation_gap`, `bridge_gap`, `foundation_gap`, and `verification_gap`. They are preparation categories, not ability judgments.
 
-- requirements: all soft and hard requirement assessments;
-- evidence: normalized evidence objects used in the match;
-- hard_constraints: the hard-constraint subset and statuses;
-- gaps: ranked preparation recommendations;
-- summary: scores, counts, and a decision label;
-- interpretation: non-causal caveats shown by the UI.
+## Summary record
+
+The summary includes:
+
+- `evidence_fit_score`: importance-weighted requirement overlap;
+- `role_fit_score`: compatibility alias for earlier clients;
+- `capability_signal_score`: direct and transferable overlap;
+- `proof_signal_score`: concreteness and reviewability of evidence;
+- `application_readiness_score`: preparation triage under the supplied information;
+- `assessment_confidence`: information completeness and extraction quality;
+- `readiness_status` and `decision`: human-readable routing labels;
+- requirement, evidence, and hard-gate counts.
+
+None of these fields is a calibrated hiring probability.
 
 ## Reproducibility
 
-The dictionary, taxonomy, extraction method, and importance weights are versioned in the repository. A future release must increment the schema or dictionary version when changing field meaning or score semantics.
+The dictionary, taxonomy, negation rule, transfer map, extraction method, and importance weights are versioned in the repository. A future release must increment the schema or dictionary version when changing field meaning or score semantics.
