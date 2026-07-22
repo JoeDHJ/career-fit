@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse
+from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.request import ProxyHandler, Request, build_opener
 
 from .career import analyze_fit, compare_roles
 from .llm_review import LLMNotConfiguredError, LLMReviewClient, LLMReviewError
@@ -21,6 +24,7 @@ DEFAULT_CANDIDATE = (
     "projects but have not yet worked directly with HR data or production SQL."
 )
 LLM_REVIEW_CLIENT = LLMReviewClient()
+ATLAS_URL = os.environ.get("CAREER_FIT_ATLAS_URL", "").rstrip("/")
 
 
 HTML = r"""<!doctype html>
@@ -105,7 +109,30 @@ HTML = r"""<!doctype html>
     .semantic-item { padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
     .semantic-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .78rem; }
     .semantic-item p { margin: 8px 0 0; color: var(--text); font-size: .86rem; line-height: 1.45; }
-    .privacy-note { margin: 14px 0 0; color: var(--muted); font-size: .78rem; }
+     .privacy-note { margin: 14px 0 0; color: var(--muted); font-size: .78rem; }
+     .occupation-context-panel { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+     .occupation-search-row { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+     .occupation-search-row label { display: grid; gap: 7px; flex: 1 1 320px; color: var(--muted); font-size: .78rem; }
+     .occupation-search-row input { width: 100%; padding: 12px 13px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font: inherit; }
+     .occupation-search-row input:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 4px rgba(0, 113, 227, .12); }
+     .occupation-status, .occupation-interpretation { margin: 12px 0 0; color: var(--muted); font-size: .8rem; }
+     .occupation-candidates, .occupation-reviews { display: grid; gap: 9px; margin-top: 14px; }
+     .occupation-candidate, .occupation-review { padding: 13px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 13px; }
+     .occupation-candidate { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+     .occupation-candidate strong { display: block; }
+     .occupation-candidate span, .occupation-review-meta { color: var(--muted); font-size: .75rem; }
+     .occupation-candidate button { padding: 8px 12px; font-size: .8rem; box-shadow: none; }
+     .occupation-review blockquote { margin: 8px 0 0; font-size: .85rem; line-height: 1.45; }
+     .occupation-review a { color: var(--blue); }
+     .occupation-review-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+     .occupation-review-tag { padding: 3px 7px; color: var(--blue); background: #edf5ff; border-radius: 999px; font-size: .7rem; }
+     .occupation-review-filter-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+     .occupation-review-filter-row label { display: grid; gap: 5px; color: var(--muted); font-size: .7rem; }
+     .occupation-review-filter-row select { width: 100%; min-width: 0; padding: 7px 8px; font-size: .76rem; }
+     .occupation-context-empty { color: var(--muted); font-size: .82rem; }
+     .occupation-disclosure { margin-top: 13px; color: var(--muted); font-size: .72rem; }
+     .occupation-disclosure summary { cursor: pointer; }
+     .occupation-disclosure p { max-width: 680px; margin: 8px 0 0; line-height: 1.45; }
     .compare-panel { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
     .compare-panel .section-head { margin-bottom: 10px; }
     .compare-panel .section-head p { max-width: 620px; font-size: .84rem; }
@@ -362,6 +389,30 @@ HTML = r"""<!doctype html>
           </div>
         </div>
         <p class="privacy-note">Privacy reminder: paste only what you want analyzed. Do not include contact details, identification numbers, or sensitive personal data.</p>
+        <div class="occupation-context-panel">
+          <div class="section-head"><div><span class="eyebrow">Optional occupation context</span><h3>What workers say about this occupation.</h3></div><p>Career Fit analyzes a specific posting. If you confirm a standard occupation from AI Labor Atlas, this panel can show public worker comments about pay, interviews, management, and the work environment.</p></div>
+          <div class="occupation-search-row">
+            <label for="occupation-query">Occupation or job-family name
+              <input id="occupation-query" type="search" placeholder="e.g. Data Scientist or People Analytics Analyst" />
+            </label>
+            <button id="occupation-search-button" class="secondary" type="button">Find occupations</button>
+          </div>
+          <p id="occupation-status" class="occupation-status" aria-live="polite">Select a standard occupation before viewing worker context.</p>
+          <div id="occupation-candidates" class="occupation-candidates"></div>
+          <div id="occupation-context-result" hidden>
+            <p id="occupation-context-title" class="occupation-interpretation"></p>
+            <div class="occupation-review-filter-row">
+              <label for="occupation-review-source-filter">Source
+                <select id="occupation-review-source-filter"><option value="all">All sources</option></select>
+              </label>
+              <label for="occupation-review-topic-filter">Topic
+                <select id="occupation-review-topic-filter"><option value="all">All topics</option></select>
+              </label>
+            </div>
+            <div id="occupation-reviews" class="occupation-reviews"></div>
+            <details class="occupation-disclosure"><summary>About these reviews</summary><p id="occupation-disclosure-text">Reviews are user-generated and may be incomplete, subjective, outdated, or biased. They are not verified facts or representative of all workers. Source links and dates are shown where available.</p></details>
+          </div>
+        </div>
         <div class="compare-panel">
           <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Career Fit reuses the same candidate evidence and ranks preparation priority, not hiring odds.</p></div>
           <label class="input-label" for="roles-input">Target roles <span>optional role portfolio</span></label>
@@ -449,6 +500,16 @@ HTML = r"""<!doctype html>
       const compareButton = document.getElementById("compare-button");
       const downloadButton = document.getElementById("download-button");
       const rolesInput = document.getElementById("roles-input");
+      const occupationQuery = document.getElementById("occupation-query");
+      const occupationSearchButton = document.getElementById("occupation-search-button");
+      const occupationStatus = document.getElementById("occupation-status");
+      const occupationCandidates = document.getElementById("occupation-candidates");
+      const occupationContextResult = document.getElementById("occupation-context-result");
+      const occupationContextTitle = document.getElementById("occupation-context-title");
+      const occupationReviews = document.getElementById("occupation-reviews");
+      const occupationDisclosure = document.getElementById("occupation-disclosure-text");
+      const occupationReviewSourceFilter = document.getElementById("occupation-review-source-filter");
+      const occupationReviewTopicFilter = document.getElementById("occupation-review-topic-filter");
       const compareStatus = document.getElementById("compare-status");
       const comparisonPanel = document.getElementById("comparison-panel");
       const comparisonGrid = document.getElementById("comparison-grid");
@@ -495,6 +556,101 @@ HTML = r"""<!doctype html>
         inferred: "Inferred"
       };
       let latest = null;
+      let latestOccupationContext = null;
+
+      function reviewSourceLabel(value) {
+        return { user_submitted: "User submitted", reddit: "Reddit", indeed: "Indeed", other: "Other public source" }[value] || "Public source";
+      }
+      function reviewScopeLabel(value) {
+        return { occupation: "Occupation context", employer_role: "Employer and role", job_posting: "Specific job posting" }[value] || "Scope not specified";
+      }
+      function reviewTopicLabel(value) {
+        return { pay_benefits: "Pay and benefits", interview_management: "Interview and management", work_environment: "Work environment", workload: "Workload", growth: "Growth", tasks_tools: "Tasks and tools", other: "Other" }[value] || value;
+      }
+      function renderOccupationReviews(payload) {
+        latestOccupationContext = payload;
+        clearNode(occupationReviews);
+        const context = payload.reviews || {};
+        occupationDisclosure.textContent = context.disclosure || "Reviews are user-generated and may be incomplete, subjective, outdated, or biased. They are not verified facts or representative of all workers. Source links and dates are shown where available.";
+        const reviews = context.reviews || [];
+        const sourceValue = occupationReviewSourceFilter.value;
+        const topicValue = occupationReviewTopicFilter.value;
+        const sourceLabels = context.source_labels || {};
+        const topicLabels = context.topic_labels || {};
+        occupationReviewSourceFilter.innerHTML = "";
+        const allSources = make("option", "", "All sources"); allSources.value = "all"; occupationReviewSourceFilter.appendChild(allSources);
+        Object.keys(context.source_counts || {}).forEach(function (value) { const option = make("option", "", sourceLabels[value] || reviewSourceLabel(value)); option.value = value; occupationReviewSourceFilter.appendChild(option); });
+        occupationReviewTopicFilter.innerHTML = "";
+        const allTopics = make("option", "", "All topics"); allTopics.value = "all"; occupationReviewTopicFilter.appendChild(allTopics);
+        Object.keys(context.topic_counts || {}).forEach(function (value) { const option = make("option", "", topicLabels[value] || reviewTopicLabel(value)); option.value = value; occupationReviewTopicFilter.appendChild(option); });
+        occupationReviewSourceFilter.value = sourceValue || "all";
+        occupationReviewTopicFilter.value = topicValue || "all";
+        occupationReviewSourceFilter.disabled = !reviews.length;
+        occupationReviewTopicFilter.disabled = !reviews.length;
+        const filteredReviews = reviews.filter(function (review) {
+          return (sourceValue === "all" || !sourceValue || review.source === sourceValue)
+            && (topicValue === "all" || !topicValue || (review.topics || []).includes(topicValue));
+        });
+        const occupationTitle = payload.occupation && payload.occupation.title ? payload.occupation.title : "Confirmed occupation";
+        const occupationCode = payload.occupation && payload.occupation.onet_soc_code ? " · O*NET-SOC " + payload.occupation.onet_soc_code : "";
+        const totalReviewCount = Number(context.total_review_count || reviews.length);
+        const totalText = totalReviewCount > reviews.length ? " of " + totalReviewCount : "";
+        occupationContextTitle.textContent = occupationTitle + occupationCode + " · " + (reviews.length ? filteredReviews.length + totalText + " public comment" + (totalReviewCount === 1 ? "" : "s") : "No public comments loaded") + ". There is no overall occupation rating.";
+        if (context.is_truncated) occupationContextTitle.textContent += " Display limited to the most recent " + reviews.length + ".";
+        if (!reviews.length) { occupationReviews.appendChild(make("p", "occupation-context-empty", "No public review context is loaded for this occupation yet. When available, comments remain tied to their source, date, and scope.")); return; }
+        if (!filteredReviews.length) { occupationReviews.appendChild(make("p", "occupation-context-empty", "No comments match these filters. Try showing all sources and topics.")); return; }
+        filteredReviews.slice(0, 8).forEach(function (review) {
+          const card = make("article", "occupation-review");
+          const meta = make("div", "occupation-review-meta");
+          const source = review.source_url ? document.createElement("a") : make("span", "", "");
+          source.textContent = reviewSourceLabel(review.source);
+          if (review.source_url) { source.href = review.source_url; source.target = "_blank"; source.rel = "noreferrer"; }
+          const fields = [reviewScopeLabel(review.review_scope), review.review_date || "Date not provided"];
+          if (review.rating != null) fields.push("Rating " + review.rating + "/5");
+          if (review.author_display) fields.push("By " + review.author_display);
+          meta.append(source, make("span", "", fields.join(" · ")));
+          card.appendChild(meta);
+          const contextLine = [review.job_title, review.employer, review.location].filter(Boolean).join(" · ");
+          if (contextLine) card.appendChild(make("p", "occupation-review-meta", contextLine));
+          const quote = make("blockquote", "", review.excerpt); card.appendChild(quote);
+          const tags = make("div", "occupation-review-tags");
+          (review.topics || []).forEach(function (topic) { tags.appendChild(make("span", "occupation-review-tag", topicLabels[topic] || reviewTopicLabel(topic))); });
+          if (tags.childNodes.length) card.appendChild(tags);
+          occupationReviews.appendChild(card);
+        });
+      }
+      async function loadOccupationContext(code) {
+        occupationStatus.textContent = "Loading public occupation context…";
+        try {
+          const response = await fetch("/api/occupation-context?source=" + encodeURIComponent(code));
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || "occupation context unavailable");
+          occupationContextResult.hidden = false;
+          renderOccupationReviews(payload);
+          occupationStatus.textContent = "Occupation confirmed for context only. It does not change the job-specific analysis.";
+        } catch (error) { occupationStatus.textContent = "Occupation context is unavailable. The job-specific analysis remains available."; }
+      }
+      occupationReviewSourceFilter.addEventListener("change", function () { if (!occupationContextResult.hidden && latestOccupationContext) renderOccupationReviews(latestOccupationContext); });
+      occupationReviewTopicFilter.addEventListener("change", function () { if (!occupationContextResult.hidden && latestOccupationContext) renderOccupationReviews(latestOccupationContext); });
+      async function findOccupations() {
+        const query = occupationQuery.value.trim();
+        if (!query) { occupationStatus.textContent = "Enter an occupation or job-family name first."; return; }
+        occupationStatus.textContent = "Finding standard occupations…";
+        clearNode(occupationCandidates); occupationContextResult.hidden = true;
+        try {
+          const response = await fetch("/api/occupation-context?query=" + encodeURIComponent(query));
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || "occupation search unavailable");
+          if (!(payload.candidates || []).length) { occupationCandidates.appendChild(make("p", "occupation-context-empty", "No title-based suggestion was found. Try a broader occupation name.")); occupationStatus.textContent = "No standard occupation suggestion found."; return; }
+          occupationStatus.textContent = "Choose the closest standard occupation. Suggestions require your confirmation.";
+          (payload.candidates || []).forEach(function (candidate) {
+            const card = make("article", "occupation-candidate");
+            const copy = make("div", "", ""); copy.append(make("strong", "", candidate.title), make("span", "", (candidate.onet_soc_code || "Code unavailable") + " · title evidence only"));
+            const button = make("button", "secondary", "Use this occupation"); button.type = "button"; button.addEventListener("click", function () { loadOccupationContext(candidate.onet_soc_code); });
+            card.append(copy, button); occupationCandidates.appendChild(card);
+          });
+        } catch (error) { occupationStatus.textContent = "Occupation context is unavailable in this session. The job-specific analysis remains available."; }
+      }
 
       function make(tag, className, text) {
         const node = document.createElement(tag);
@@ -753,6 +909,8 @@ HTML = r"""<!doctype html>
         jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
         semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
+        clearNode(occupationCandidates); occupationContextResult.hidden = true; occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
+        latestOccupationContext = null;
         [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
         downloadButton.disabled = true;
         deepReviewButton.disabled = true;
@@ -763,6 +921,8 @@ HTML = r"""<!doctype html>
       exampleButton.addEventListener("click", function () { jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
+      occupationSearchButton.addEventListener("click", findOccupations);
+      occupationQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") findOccupations(); });
       downloadButton.addEventListener("click", downloadPlan);
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
@@ -788,6 +948,40 @@ def render_page() -> str:
         .replace("__DEFAULT_CANDIDATE__", _json_literal(DEFAULT_CANDIDATE))
         .replace("__LLM_ENABLED__", json.dumps(LLM_REVIEW_CLIENT.config.enabled))
     )
+
+
+def _fetch_atlas_context(params: dict[str, str]) -> tuple[dict[str, object], int]:
+    if not ATLAS_URL:
+        return (
+            {
+                "error": "not_configured",
+                "detail": "Set CAREER_FIT_ATLAS_URL to connect AI Labor Atlas.",
+            },
+            503,
+        )
+    atlas = urlparse(ATLAS_URL)
+    if atlas.scheme not in {"http", "https"} or not atlas.netloc:
+        return (
+            {
+                "error": "invalid_configuration",
+                "detail": "CAREER_FIT_ATLAS_URL must be an http(s) URL.",
+            },
+            503,
+        )
+    url = f"{ATLAS_URL}/api/occupation-context?{urlencode(params)}"
+    request = Request(url, headers={"Accept": "application/json"})
+    try:
+        with build_opener(ProxyHandler({})).open(request, timeout=3) as response:
+            payload = json.loads(response.read(240_000).decode("utf-8"))
+            return payload, response.status
+    except HTTPError as exc:
+        try:
+            payload = json.loads(exc.read(240_000).decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            payload = {"error": "atlas_error", "detail": str(exc)}
+        return payload, exc.code
+    except (URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        return {"error": "atlas_unavailable", "detail": str(exc)}, 502
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -895,6 +1089,24 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/analyze":
             self._send_json({"error": "use_post"}, status=405)
+            return
+        if parsed.path == "/api/occupation-context":
+            params = parse_qs(parsed.query)
+            source = params.get("source", [""])[0]
+            query = params.get("query", [""])[0]
+            if bool(source) == bool(query):
+                self._send_json(
+                    {
+                        "error": "invalid_request",
+                        "detail": "provide exactly one of source or query",
+                    },
+                    status=400,
+                )
+                return
+            payload, status = _fetch_atlas_context(
+                {"source": source} if source else {"query": query}
+            )
+            self._send_json(payload, status=status)
             return
         self._send_json({"error": "not_found"}, status=404)
 

@@ -259,6 +259,15 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("Role fingerprint", page)
         self.assertIn("They do not estimate market value", page)
 
+    def test_client_page_exposes_confirmed_occupation_review_context(self):
+        page = render_page()
+        self.assertIn('id="occupation-query"', page)
+        self.assertIn("What workers say", page)
+        self.assertIn('id="occupation-review-source-filter"', page)
+        self.assertIn('id="occupation-review-topic-filter"', page)
+        self.assertIn("Select a standard occupation", page)
+        self.assertIn("They are not verified facts or representative of all workers", page)
+
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(
             [

@@ -92,6 +92,12 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 
 The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
 
+### Optional occupation context
+
+Career Fit is specific to the job posting you provide. An optional occupation-context panel can connect a confirmed standard occupation to AI Labor Atlas and show public worker comments about pay, interviews, management, workload, growth, and work environment. Start AI Labor Atlas on `http://127.0.0.1:8765`, set `CAREER_FIT_ATLAS_URL` to that address, then search and confirm the closest occupation. The title suggestions are evidence leads, not an automatic classification.
+
+Worker comments remain separate from the job-specific analysis. They do not change Evidence Fit, Application Readiness, eligibility, or any other Career Fit signal. Comments can be positive, negative, mixed, incomplete, subjective, outdated, or biased; they are not verified facts or representative of all workers. Source, date, scope, and link are preserved where available. See the Atlas [worker review contract](https://github.com/JoeDHJ/ai-labor-atlas/blob/main/docs/review-data.md) for the import boundary.
+
 ## Interpreting the scores
 
 For each soft requirement `j`, the engine reports:
