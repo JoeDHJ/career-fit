@@ -24,6 +24,9 @@ Career Fit must make those distinctions legible and actionable without claiming 
 14. Keep all user-facing project content in English, including the page, CLI labels, documentation, examples, and screenshots.
 15. Preserve the legacy SkillBundle extraction and benchmark commands during the rename.
 16. Compare two to three target roles for one candidate using the same deterministic analysis and expose the preparation-priority basis.
+17. Expose a Role Fingerprint that separates category-level mismatch from named-skill evidence.
+18. Identify posting-specific skill bundles and turn them into integrated proof-artifact suggestions.
+19. Keep bundle co-occurrence separate from claims about market value, productivity, wages, or hiring probability.
 
 ## Non-goals
 
@@ -45,4 +48,5 @@ Career Fit must make those distinctions legible and actionable without claiming 
 - Structured project evidence scores stronger than a bare keyword mention.
 - The JSON output contains enough fields to reproduce the score calculation and the next-action rationale.
 - A user can compare two or three roles, see the ranking basis, and load a selected role into the detailed view.
+- A single-role response contains category profiles, largest mismatch dimensions, and posting-specific skill bundles with auditable statuses.
 - The visual page explains the economic meaning and limitations of every metric in plain English.

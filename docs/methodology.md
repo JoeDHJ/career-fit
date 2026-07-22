@@ -93,6 +93,21 @@ The English dictionary combines a small transparent seed layer with exact labels
 
 O*NET labels are mapped into the ten-category analytical layer only when the mapping rule is explicit. Named software uses exact-label matching; common-word software names such as React, Go, and Zoom also require nearby software context. Generic aliases such as bare Word, Project, and Access are not matched on their own. The dictionary does not treat occupational importance ratings as proof that a candidate has a skill, and it does not infer synonyms beyond the small alias list for common software names. Unmatched language remains unmatched rather than being forced into a category.
 
-## 10. Sensitivity and future validation
+## 10. Multidimensional role fingerprints and skill bundles
+
+The Role Fingerprint operationalizes a multidimensional mismatch view. For each taxonomy category `c`, the engine reports the importance-weighted evidence coverage of the named requirements that fall in that category:
+
+```text
+Category coverage_c = sum(weight_j × Match_j) / sum(weight_j)
+Gap signal_c = 1 - Category coverage_c
+```
+
+The category is an explanatory layer only. Direct evidence, transferable evidence, and missing evidence remain attached to each named requirement. The largest dimensions are ranked by the category gap multiplied by the role's requirement weight.
+
+Skill bundles are pairs of distinct named requirements that occur in the same supplied posting. Each pair receives the lower of its two requirement weights and the lower of its two match scores. The resulting card suggests an integrated proof artifact. It does not estimate complementarity, productivity, wages, or a causal hiring effect.
+
+This design draws on the task-based and multidimensional mismatch literature, including [Guvenen, Kuruscu, Tanaka, and Wiczer](https://www.aeaweb.org/articles?id=10.1257/mac.20160241), [Deming and Kahn](https://www.nber.org/papers/w23328), and [Postel-Vinay and Lise](https://doi.org/10.1257/aer.20162002). The papers motivate the dimensions and user workflow; they do not validate Career Fit's descriptive scores.
+
+## 11. Sensitivity and future validation
 
 The most consequential modeling choices are importance weights, transfer rules, evidence-type weights, and missing-evidence treatment. Future releases should publish sensitivity tables under alternative choices and validate only on a consented, well-defined sample. A high score should never be presented as evidence that a candidate is more productive or more likely to be hired.

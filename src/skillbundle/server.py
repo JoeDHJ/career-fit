@@ -123,6 +123,28 @@ HTML = r"""<!doctype html>
     .comparison-action { margin: 0 0 13px; color: var(--muted); font-size: .8rem; }
     .comparison-card button { width: 100%; }
     .comparison-panel[hidden] { display: none; }
+    .fingerprint-panel { display: grid; gap: 16px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .fingerprint-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 14px; }
+    .fingerprint-card, .bundle-card { padding: 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 15px; }
+    .fingerprint-card h3, .bundle-card h3 { margin-bottom: 5px; }
+    .category-profile { display: grid; gap: 12px; }
+    .category-row { display: grid; gap: 6px; }
+    .category-meta, .bundle-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .76rem; }
+    .category-name { font-weight: 700; }
+    .category-track { height: 9px; overflow: hidden; background: rgba(167, 183, 204, .16); border-radius: 999px; }
+    .category-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); border-radius: inherit; transition: width 520ms ease; }
+    .category-foot { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .72rem; }
+    .mismatch-list, .bundle-grid { display: grid; gap: 10px; }
+    .mismatch-item { padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .mismatch-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .mismatch-item strong { display: block; margin-bottom: 3px; }
+    .bundle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .bundle-card { box-shadow: none; }
+    .bundle-card.supported { border-color: rgba(52, 199, 89, .42); }
+    .bundle-card h3 { font-size: .96rem; }
+    .bundle-action { margin: 10px 0 0; color: var(--text); font-size: .83rem; }
+    .bundle-status { margin-top: 8px; color: var(--muted); font-size: .75rem; }
+    .fingerprint-panel[hidden] { display: none; }
     .summary-grid { align-items: stretch; margin-top: 16px; }
     .summary-card { flex: 1 1 190px; min-height: 128px; padding: 18px; box-shadow: none; }
     .summary-value { display: block; margin: 8px 0 4px; font-size: clamp(1.55rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -.05em; }
@@ -177,7 +199,7 @@ HTML = r"""<!doctype html>
     @keyframes pulse { 0%, 100% { opacity: .55; transform: scale(.86); } 50% { opacity: 1; transform: scale(1.12); } }
     @keyframes drift { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(8deg); } }
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid, .comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid, .comparison-grid, .bundle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fingerprint-layout { grid-template-columns: 1fr; } }
     @media (max-width: 700px) { .shell { width: min(100% - 26px, 1240px); } .hero { padding-top: 48px; } .input-grid, .meaning-grid, .gap-grid { grid-template-columns: 1fr; } .panel { padding: 17px; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 74px minmax(0, 1fr); } .ring { width: 68px; height: 68px; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
@@ -353,6 +375,14 @@ HTML = r"""<!doctype html>
           <article class="summary-card"><span class="label">Information confidence</span><strong id="confidence-score" class="summary-value">—</strong><span class="summary-note">clarity and evidence completeness</span></article>
           <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
         </div>
+        <div id="fingerprint-panel" class="fingerprint-panel" hidden>
+          <div class="section-head"><div><span class="eyebrow">Role fingerprint</span><h3>See the dimensions behind the role.</h3></div><p>Categories organize the posting; named skills remain the evidence unit. This is a descriptive mismatch view, not an ability test.</p></div>
+          <div class="fingerprint-layout">
+            <div class="fingerprint-card"><div id="category-profile" class="category-profile"></div></div>
+            <aside class="fingerprint-card"><span class="eyebrow">Largest dimensions to investigate</span><div id="mismatch-list" class="mismatch-list"></div></aside>
+          </div>
+          <div class="fingerprint-card"><div class="section-head"><div><span class="eyebrow">Requirements that appear together</span><h3>Turn a skill bundle into one proof artifact.</h3></div><p>These pairs come from this posting only. They do not estimate market value or wage complementarity.</p></div><div id="bundle-grid" class="bundle-grid"></div></div>
+        </div>
         <div id="semantic-panel" class="semantic-panel" hidden>
           <span class="eyebrow">Deep semantic review</span>
           <p id="semantic-summary" class="detail-copy"></p>
@@ -371,7 +401,7 @@ HTML = r"""<!doctype html>
     </section>
 
     <section class="section">
-      <div class="section-head"><div><span class="eyebrow">Requirement–evidence matrix</span><h2>Inspect the reason behind every signal.</h2></div><p>Click a row to see the original job wording, the evidence behind the result, and the most useful next move.</p></div>
+      <div class="section-head"><div><span class="eyebrow">Requirement and evidence matrix</span><h2>Inspect the reason behind every signal.</h2></div><p>Click a row to see the original job wording, the evidence behind the result, and the most useful next move.</p></div>
       <div class="result-grid">
         <div class="panel">
           <div class="matrix matrix-head" aria-hidden="true"><div>Requirement</div><div>Status</div><div>Importance</div><div>Score</div></div>
@@ -391,7 +421,7 @@ HTML = r"""<!doctype html>
     </section>
 
     <section class="section">
-      <div class="section-head"><div><span class="eyebrow">Gap → action</span><h2>Leave with a useful next move.</h2></div><p>Actions are ordered by requirement importance and evidence shortfall. Each card names the proof artifact you can create or the gate you can verify.</p></div>
+      <div class="section-head"><div><span class="eyebrow">Gap to action</span><h2>Leave with a useful next move.</h2></div><p>Actions are ordered by requirement importance and evidence shortfall. Each card names the proof artifact you can create or the gate you can verify.</p></div>
       <div id="gap-list" class="gap-grid" aria-live="polite"></div>
     </section>
 
@@ -422,6 +452,10 @@ HTML = r"""<!doctype html>
       const compareStatus = document.getElementById("compare-status");
       const comparisonPanel = document.getElementById("comparison-panel");
       const comparisonGrid = document.getElementById("comparison-grid");
+      const fingerprintPanel = document.getElementById("fingerprint-panel");
+      const categoryProfile = document.getElementById("category-profile");
+      const mismatchList = document.getElementById("mismatch-list");
+      const bundleGrid = document.getElementById("bundle-grid");
       const status = document.getElementById("status");
       const matrix = document.getElementById("matrix");
       const detail = document.getElementById("detail");
@@ -593,6 +627,39 @@ HTML = r"""<!doctype html>
           gapList.appendChild(card);
         });
       }
+      function renderFingerprint(fingerprint) {
+        fingerprintPanel.hidden = !fingerprint;
+        clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
+        if (!fingerprint) return;
+        (fingerprint.categories || []).forEach(function (item) {
+          const row = make("div", "category-row");
+          const meta = make("div", "category-meta");
+          meta.append(make("span", "category-name", item.category_name || item.category_code), make("span", "", Math.round(Number(item.evidence_coverage || 0) * 100) + "% evidence coverage"));
+          const track = make("div", "category-track");
+          const fill = make("div", "category-fill"); fill.style.width = Math.max(0, Math.min(100, Number(item.evidence_coverage || 0) * 100)) + "%";
+          track.appendChild(fill);
+          const foot = make("div", "category-foot");
+          foot.append(make("span", "", String(item.required_count || 0) + " role requirement" + (item.required_count === 1 ? "" : "s")), make("span", "", String(item.direct_count || 0) + " direct · " + String(item.transferable_count || 0) + " transferable"));
+          row.append(meta, track, foot); categoryProfile.appendChild(row);
+        });
+        const dimensions = fingerprint.mismatch_dimensions || [];
+        if (!dimensions.length) mismatchList.appendChild(make("p", "detail-copy", "No category-level gap is visible in the supplied evidence."));
+        dimensions.forEach(function (item) {
+          const card = make("div", "mismatch-item");
+          card.append(make("strong", "", item.category_name || item.category_code), make("span", "detail-copy", Math.round(Number(item.gap_score || 0) * 100) + "% gap signal · " + String(item.required_count || 0) + " requirement" + (item.required_count === 1 ? "" : "s")));
+          mismatchList.appendChild(card);
+        });
+        const bundles = fingerprint.skill_bundles || [];
+        if (!bundles.length) bundleGrid.appendChild(make("p", "detail-copy", "No multi-skill bundle was found in this role text."));
+        bundles.slice(0, 6).forEach(function (bundle) {
+          const card = make("article", "bundle-card" + (bundle.is_supported ? " supported" : ""));
+          const meta = make("div", "bundle-meta"); meta.append(make("span", "", (bundle.gap_type || "role bundle").replaceAll("_", " ")), make("span", "", Math.round(Number(bundle.bundle_match_score || 0) * 100) + "% joint signal"));
+          card.append(meta, make("h3", "", (bundle.skills || []).join(" + ")));
+          card.append(make("p", "bundle-status", (bundle.statuses || []).map(function (value) { return statusLabels[value] || value; }).join(" · ")));
+          card.append(make("p", "bundle-action", bundle.action || "Show the context and result that connect these skills."));
+          bundleGrid.appendChild(card);
+        });
+      }
       function renderComparison(payload) {
         clearNode(comparisonGrid);
         (payload.roles || []).forEach(function (item) {
@@ -641,6 +708,7 @@ HTML = r"""<!doctype html>
         renderMatrix(payload.requirements || []);
         renderChart(payload.requirements || []);
         renderGaps(payload.next_actions || payload.gaps || []);
+        renderFingerprint(payload.role_fingerprint);
         status.textContent = "Analysis ready · " + (summary.requirement_count || 0) + " requirements mapped";
       }
       async function analyze() {
@@ -682,9 +750,9 @@ HTML = r"""<!doctype html>
       }
       function reset() {
         latest = null;
-        jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid);
+        jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
-        semanticPanel.hidden = true; comparisonPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
+        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
         [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
         downloadButton.disabled = true;
         deepReviewButton.disabled = true;
@@ -809,6 +877,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/favicon.ico":
+            self.send_response(204)
+            self.end_headers()
+            return
         if parsed.path == "/" or parsed.path == "/index.html":
             self._send_page()
             return

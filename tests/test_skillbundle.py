@@ -10,6 +10,7 @@ from skillbundle.metrics import bundle_metrics
 from skillbundle.ner import PerceptronNER
 from skillbundle.normalization import normalize_label
 from skillbundle.requirements import extract_requirements
+from skillbundle.server import render_page
 from skillbundle.taxonomy import pair_codes
 
 
@@ -186,7 +187,7 @@ class CareerFitTests(unittest.TestCase):
         )
         self.assertEqual(unresolved["hard_constraints"][0]["status"], "unknown")
 
-    def test_v02_exposes_three_job_seeker_signals_and_actions(self):
+    def test_v03_exposes_three_job_seeker_signals_and_actions(self):
         result = analyze_fit(
             "Must have Python and SQL.", "Built Python research projects."
         )
@@ -194,9 +195,27 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("capability_signal_score", summary)
         self.assertIn("proof_signal_score", summary)
         self.assertIn("application_readiness_score", summary)
-        self.assertEqual(result["schema_version"], "career_fit.v0.2")
+        self.assertEqual(result["schema_version"], "career_fit.v0.3")
         self.assertTrue(result["next_actions"])
         self.assertIn("expected_artifact", result["next_actions"][0])
+
+    def test_role_fingerprint_exposes_dimensions_and_bundles(self):
+        result = analyze_fit(
+            "Must have Python and SQL. Strongly preferred stakeholder communication.",
+            "Built Python research projects and presented findings to stakeholders.",
+        )
+        fingerprint = result["role_fingerprint"]
+        self.assertEqual(fingerprint["taxonomy_id"], "deming_kahn_10_ai")
+        self.assertTrue(fingerprint["categories"])
+        self.assertTrue(fingerprint["skill_bundles"])
+        self.assertEqual(fingerprint["skill_bundles"][0]["skills"], ["Python", "SQL"])
+        self.assertIn("dimensions", result["interpretation"])
+
+    def test_client_page_exposes_role_fingerprint_explanations(self):
+        page = render_page()
+        self.assertIn('id="fingerprint-panel"', page)
+        self.assertIn("Role fingerprint", page)
+        self.assertIn("They do not estimate market value", page)
 
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(
@@ -206,7 +225,7 @@ class CareerFitTests(unittest.TestCase):
             ],
             "Built Python research projects and created data visualizations.",
         )
-        self.assertEqual(result["schema_version"], "career_fit.compare.v0.1")
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.2")
         self.assertEqual(result["role_count"], 2)
         self.assertEqual(result["roles"][0]["priority_rank"], 1)
         self.assertEqual(result["roles"][0]["role_label"], "Data Analyst")

@@ -18,6 +18,7 @@ job description + candidate profile
   -> requirement and evidence records
   -> direct / thin / transferable / missing matching
   -> capability, proof, readiness, and confidence signals
+  -> multidimensional role fingerprint and posting-specific skill bundles
   -> ranked gap-to-action plan
   -> local JSON API + interactive explorer
 
@@ -45,6 +46,7 @@ The signals are deliberately separable because a person can have capability with
 6. Actions are preparation advice. The engine does not claim a known causal hiring effect.
 7. Local by default. Candidate inputs stay in the local process in the demo.
 8. English-only surface. User-facing page copy, documentation, CLI labels, examples, and screenshots use English for consistent public delivery.
+9. Literature informs the workflow, not unsupported claims. The interface translates multidimensional mismatch and task transfer into evidence and practice actions while keeping their empirical boundaries visible.
 
 ## Extension points
 

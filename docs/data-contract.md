@@ -1,6 +1,6 @@
 # Career Fit data contract
 
-The v0.2 JSON response uses `schema_version: career_fit.v0.2`. Field names are explicit so the output can be audited or used by a downstream notebook.
+The v0.3 JSON response uses `schema_version: career_fit.v0.3`. Field names are explicit so the output can be audited or used by a downstream notebook. The v0.3 release adds a descriptive Role Fingerprint without changing the meaning of the existing scores.
 
 ## Requirement record
 
@@ -95,12 +95,24 @@ The summary includes:
 
 None of these fields is a calibrated hiring probability.
 
+## Role Fingerprint
+
+`role_fingerprint` contains:
+
+- `taxonomy_id` and `taxonomy_version`, which identify the ten-category analytical layer;
+- `categories`, with role requirement counts, evidence counts, direct and transferable counts, evidence coverage, and a gap signal;
+- `mismatch_dimensions`, the largest category-level gaps among categories required by this posting;
+- `skill_bundles`, pairs of named requirements that appear together in the supplied posting, their evidence statuses, joint signal, and a suggested proof action;
+- `caveat`, which keeps the interpretation boundary in the machine-readable result.
+
+Categories are organizing dimensions, not substitutes for named skills. Skill bundles describe co-occurrence in the supplied job text. They are not estimates of wage value, employer preference beyond the posting, or worker ability.
+
 ## Reproducibility
 
 The dictionary, taxonomy, negation rule, transfer map, extraction method, and importance weights are versioned in the repository. A future release must increment the schema or dictionary version when changing field meaning or score semantics.
 
 ## Role comparison response
 
-The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.1`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, and the full single-role `analysis` for auditability.
+The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.2`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, a `top_mismatch`, a `top_bundle`, and the full single-role `analysis` for auditability.
 
 Roles are ordered by application readiness, then Evidence Fit and Information Confidence. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.

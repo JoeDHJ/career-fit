@@ -31,7 +31,8 @@ Given a job description and a candidate profile, the v0.3 product:
 4. distinguishes direct evidence, thin proof, transferable evidence, and missing evidence;
 5. calculates Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence;
 6. ranks proof, translation, bridge, foundation, and verification gaps;
-7. proposes an expected proof artifact and an evidence prompt for each priority action.
+7. proposes an expected proof artifact and an evidence prompt for each priority action;
+8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting.
 
 It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using the existing readiness, evidence-fit, and information-confidence signals, then lets the user inspect any role in the full requirement matrix.
 
@@ -77,13 +78,19 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 - the requirement–evidence matrix makes every assessment inspectable;
 - the profile chart shows the shape of evidence overlap across requirements;
 - action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
+- the Role Fingerprint shows category-level mismatch without replacing named-skill evidence;
+- skill-bundle cards turn co-occurring requirements into integrated proof-artifact ideas;
 - plain-language interpretation cards explain what the metrics can and cannot mean.
 
 ![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.png)
 
 ![Career Fit requirement matrix](docs/assets/career-fit-matrix.png)
 
+![Career Fit role fingerprint](docs/assets/career-fit-fingerprint.png)
+
 ![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
+
+The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
 
 ## Interpreting the scores
 
@@ -113,7 +120,7 @@ Readiness = 100 × (0.50 must-have match
 
 An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
 
-The single-role machine-readable output uses schema `career_fit.v0.2`; role comparison uses `career_fit.compare.v0.1`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
+The single-role machine-readable output uses schema `career_fit.v0.3`; role comparison uses `career_fit.compare.v0.2`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 
@@ -125,6 +132,7 @@ The demo uses a versioned English dictionary with a transparent seed layer and a
 - `tools/build_onet_enrichment.py` regenerates the enrichment layer from the registered O*NET 30.3 text release.
 - `config/source_registry.json` records public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
 - `src/skillbundle/career.py` stores explicit transfer crosswalks and evidence rules.
+- `src/skillbundle/career.py` also creates the descriptive Role Fingerprint and posting-specific skill bundles.
 
 Raw third-party data is not silently bundled. Check each source’s current license and attribution requirements before redistribution.
 
