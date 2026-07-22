@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from .benchmark import benchmark_skillspan
-from .career import analyze_fit
+from .career import analyze_fit, compare_roles
 from .dictionary import extract
 from .metrics import bundle_metrics
 from .ner import PerceptronNER, load_skillspan_rows
@@ -29,8 +29,26 @@ def parser():
     job.add_argument("--job-file", type=Path, help="path to a job description")
     candidate = analyze.add_mutually_exclusive_group(required=True)
     candidate.add_argument("--candidate", help="candidate profile text")
-    candidate.add_argument("--candidate-file", type=Path, help="path to a candidate profile")
+    candidate.add_argument(
+        "--candidate-file", type=Path, help="path to a candidate profile"
+    )
     analyze.add_argument(
+        "--evidence-file",
+        type=Path,
+        help="optional JSON list of structured evidence objects",
+    )
+    compare = sub.add_parser(
+        "compare", help="prioritize two to five target roles for one candidate"
+    )
+    compare.add_argument(
+        "--roles-file", type=Path, required=True, help="JSON list of job descriptions"
+    )
+    compare_candidate = compare.add_mutually_exclusive_group(required=True)
+    compare_candidate.add_argument("--candidate", help="candidate profile text")
+    compare_candidate.add_argument(
+        "--candidate-file", type=Path, help="path to a candidate profile"
+    )
+    compare.add_argument(
         "--evidence-file",
         type=Path,
         help="optional JSON list of structured evidence objects",
@@ -84,6 +102,29 @@ def main(argv: list[str] | None = None) -> int:
         print(
             json.dumps(
                 analyze_fit(job_text, candidate_text, evidence),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+    if args.command == "compare":
+        roles_payload = json.loads(args.roles_file.read_text(encoding="utf-8"))
+        roles = (
+            roles_payload.get("roles")
+            if isinstance(roles_payload, dict)
+            else roles_payload
+        )
+        if not isinstance(roles, list):
+            raise ValueError(
+                "--roles-file must contain a JSON list or an object with a roles list"
+            )
+        candidate_text = _input_text(args.candidate, args.candidate_file, "candidate")
+        evidence = None
+        if args.evidence_file:
+            evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
+        print(
+            json.dumps(
+                compare_roles(roles, candidate_text, evidence),
                 ensure_ascii=False,
                 indent=2,
             )

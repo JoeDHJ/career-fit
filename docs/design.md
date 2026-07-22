@@ -2,7 +2,7 @@
 
 ## Product boundary
 
-Career Fit is a decision-support tool for job seekers. The v0.2 unit of analysis is one job description and one candidate profile. The output is an auditable preparation report, not an employment forecast.
+Career Fit is a decision-support tool for job seekers. The v0.3 product supports one detailed job description and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
 
 The product has three audiences:
 
@@ -20,6 +20,11 @@ job description + candidate profile
   -> capability, proof, readiness, and confidence signals
   -> ranked gap-to-action plan
   -> local JSON API + interactive explorer
+
+optional role set + same candidate profile
+  -> independent role analyses
+  -> preparation-priority ranking
+  -> inspect one role in the detailed evidence view
 ```
 
 ## Three-signal model

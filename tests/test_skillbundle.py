@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from skillbundle.benchmark import benchmark_skillspan
-from skillbundle.career import analyze_fit, evidence_from_text
+from skillbundle.career import analyze_fit, compare_roles, evidence_from_text
 from skillbundle.dictionary import extract, load_dictionary
 from skillbundle.metrics import bundle_metrics
 from skillbundle.ner import PerceptronNER
@@ -197,6 +197,28 @@ class CareerFitTests(unittest.TestCase):
         self.assertEqual(result["schema_version"], "career_fit.v0.2")
         self.assertTrue(result["next_actions"])
         self.assertIn("expected_artifact", result["next_actions"][0])
+
+    def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
+        result = compare_roles(
+            [
+                "Role: Data Analyst\nMust have Python and data visualization.",
+                "Role: Java Developer\nMust have Java and cloud computing.",
+            ],
+            "Built Python research projects and created data visualizations.",
+        )
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.1")
+        self.assertEqual(result["role_count"], 2)
+        self.assertEqual(result["roles"][0]["priority_rank"], 1)
+        self.assertEqual(result["roles"][0]["role_label"], "Data Analyst")
+        self.assertEqual(result["roles"][1]["role_label"], "Java Developer")
+        self.assertIn("analysis", result["roles"][0])
+        self.assertIn("priority_basis", result["roles"][0])
+
+    def test_role_comparison_rejects_oversized_batches(self):
+        with self.assertRaises(ValueError):
+            compare_roles(["Role one"], "Python")
+        with self.assertRaises(ValueError):
+            compare_roles(["Role"] * 6, "Python")
 
 
 if __name__ == "__main__":

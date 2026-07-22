@@ -645,3 +645,91 @@ def analyze_fit(
             "Hard constraints are reported separately because soft skill overlap cannot offset an unresolved gate.",
         ],
     }
+
+
+def _role_label(job_text: str, index: int) -> str:
+    lines = [line.strip() for line in job_text.splitlines() if line.strip()]
+    if not lines:
+        return f"Target role {index}"
+    first = lines[0]
+    if ":" in first and first.casefold().split(":", 1)[0] in {
+        "role",
+        "title",
+        "position",
+    }:
+        first = first.split(":", 1)[1].strip()
+    return first[:100] or f"Target role {index}"
+
+
+def _priority_basis(summary: dict[str, Any]) -> str:
+    decision = summary.get("decision")
+    if decision == "strong_evidence_overlap":
+        return "Closest current preparation match; focus on proof packaging."
+    if decision == "targeted_proof_needed":
+        return "Promising target; build the highest-priority proof before investing further."
+    if decision == "verify_before_applying":
+        return "Resolve an eligibility question before prioritizing this application."
+    if decision == "blocked_by_constraint":
+        return "An apparent eligibility barrier should be resolved first."
+    return "Build evidence before treating this role as a priority."
+
+
+def compare_roles(
+    roles: list[str],
+    candidate_text: str,
+    evidence: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Rank a small set of target roles using the same auditable fit engine.
+
+    The result is a preparation priority, not a hiring or income forecast. Roles
+    are ordered by application readiness, then evidence fit and information
+    confidence so ties are deterministic without inventing a new score.
+    """
+    if not isinstance(roles, list):
+        raise TypeError("roles must be a list of job-description strings")
+    cleaned = [str(role).strip() for role in roles if str(role).strip()]
+    if len(cleaned) < 2:
+        raise ValueError("compare_roles requires at least two non-empty roles")
+    if len(cleaned) > 5:
+        raise ValueError("compare_roles supports at most five roles")
+
+    entries = []
+    for index, job_text in enumerate(cleaned, start=1):
+        analysis = analyze_fit(job_text, candidate_text, evidence)
+        summary = analysis["summary"]
+        entries.append(
+            {
+                "role_id": f"role-{index:02d}",
+                "role_label": _role_label(job_text, index),
+                "role_text": job_text,
+                "summary": summary,
+                "priority_basis": _priority_basis(summary),
+                "top_action": analysis["next_actions"][0]
+                if analysis["next_actions"]
+                else None,
+                "analysis": analysis,
+            }
+        )
+
+    entries.sort(
+        key=lambda item: (
+            -int(item["summary"].get("application_readiness_score", 0)),
+            -int(item["summary"].get("evidence_fit_score", 0)),
+            -int(item["summary"].get("assessment_confidence", 0)),
+            str(item["role_label"]).casefold(),
+        )
+    )
+    for rank, item in enumerate(entries, start=1):
+        item["priority_rank"] = rank
+    return {
+        "schema_version": "career_fit.compare.v0.1",
+        "product": "Career Fit",
+        "mode": "role_comparison",
+        "role_count": len(entries),
+        "roles": entries,
+        "interpretation": {
+            "priority": "Roles are ordered by preparation readiness, then evidence fit and information confidence. This is not a hiring-probability ranking.",
+            "transfer": "Transferable evidence remains visible as a bridge and is never treated as direct equivalence.",
+            "missing": "A lower-ranked role may reflect missing proof or an unresolved gate rather than lower underlying ability.",
+        },
+    }

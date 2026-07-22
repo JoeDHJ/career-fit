@@ -23,7 +23,7 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.2 engine:
+Given a job description and a candidate profile, the v0.3 engine:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
@@ -32,6 +32,8 @@ Given a job description and a candidate profile, the v0.2 engine:
 5. calculates Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence;
 6. ranks proof, translation, bridge, foundation, and verification gaps;
 7. proposes an expected proof artifact and an evidence prompt for each priority action.
+
+It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using the existing readiness, evidence-fit, and information-confidence signals, then lets the user inspect any role in the full requirement matrix.
 
 ## Quick start
 
@@ -42,6 +44,9 @@ python -m pip install -e .
 
 # Analyze one role locally
 career-fit analyze --job-file examples\single_job\people_analytics_job.txt --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json
+
+# Compare a small target-role portfolio
+career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt
 
 # Launch the visual explorer
 career-fit serve
@@ -106,7 +111,7 @@ Readiness = 100 × (0.50 must-have match
 
 An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
 
-The machine-readable output uses schema `career_fit.v0.2`; details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
+The single-role machine-readable output uses schema `career_fit.v0.2`; role comparison uses `career_fit.compare.v0.1`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 

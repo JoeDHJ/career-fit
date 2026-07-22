@@ -98,3 +98,9 @@ None of these fields is a calibrated hiring probability.
 ## Reproducibility
 
 The dictionary, taxonomy, negation rule, transfer map, extraction method, and importance weights are versioned in the repository. A future release must increment the schema or dictionary version when changing field meaning or score semantics.
+
+## Role comparison response
+
+The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.1`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, and the full single-role `analysis` for auditability.
+
+Roles are ordered by application readiness, then Evidence Fit and Information Confidence. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.

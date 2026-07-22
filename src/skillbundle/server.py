@@ -4,7 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-from .career import analyze_fit
+from .career import analyze_fit, compare_roles
 from .llm_review import LLMNotConfiguredError, LLMReviewClient, LLMReviewError
 
 
@@ -106,6 +106,23 @@ HTML = r"""<!doctype html>
     .semantic-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .78rem; }
     .semantic-item p { margin: 8px 0 0; color: var(--text); font-size: .86rem; line-height: 1.45; }
     .privacy-note { margin: 14px 0 0; color: var(--muted); font-size: .78rem; }
+    .compare-panel { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .compare-panel .section-head { margin-bottom: 10px; }
+    .compare-panel .section-head p { max-width: 620px; font-size: .84rem; }
+    .compare-input { min-height: 150px; }
+    .comparison-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .comparison-card { padding: 17px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 15px; }
+    .comparison-card:first-child { border-color: rgba(0, 113, 227, .52); box-shadow: 0 0 0 2px rgba(0, 113, 227, .08); }
+    .comparison-rank { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; }
+    .comparison-card h3 { margin: 9px 0 6px; }
+    .comparison-basis { min-height: 50px; color: var(--muted); font-size: .82rem; }
+    .comparison-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 14px 0; }
+    .comparison-metric { padding: 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+    .comparison-metric strong { display: block; margin-top: 2px; font-size: 1.08rem; }
+    .comparison-metric span { color: var(--muted); font-size: .7rem; }
+    .comparison-action { margin: 0 0 13px; color: var(--muted); font-size: .8rem; }
+    .comparison-card button { width: 100%; }
+    .comparison-panel[hidden] { display: none; }
     .summary-grid { align-items: stretch; margin-top: 16px; }
     .summary-card { flex: 1 1 190px; min-height: 128px; padding: 18px; box-shadow: none; }
     .summary-value { display: block; margin: 8px 0 4px; font-size: clamp(1.55rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -.05em; }
@@ -160,7 +177,7 @@ HTML = r"""<!doctype html>
     @keyframes pulse { 0%, 100% { opacity: .55; transform: scale(.86); } 50% { opacity: 1; transform: scale(1.12); } }
     @keyframes drift { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(8deg); } }
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid, .comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 700px) { .shell { width: min(100% - 26px, 1240px); } .hero { padding-top: 48px; } .input-grid, .meaning-grid, .gap-grid { grid-template-columns: 1fr; } .panel { padding: 17px; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 74px minmax(0, 1fr); } .ring { width: 68px; height: 68px; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
@@ -279,7 +296,7 @@ HTML = r"""<!doctype html>
     .footer-row { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
+    @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid, .comparison-grid { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
   </style>
 </head>
 <body>
@@ -322,6 +339,13 @@ HTML = r"""<!doctype html>
           </div>
         </div>
         <p class="privacy-note">Privacy reminder: paste only what you want analyzed. Do not include contact details, identification numbers, or sensitive personal data.</p>
+        <div class="compare-panel">
+          <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Career Fit reuses the same candidate evidence and ranks preparation priority, not hiring odds.</p></div>
+          <label class="input-label" for="roles-input">Target roles <span>optional role portfolio</span></label>
+          <textarea id="roles-input" class="compare-input" aria-label="Target roles" placeholder="Role: People Analytics Analyst&#10;Must have Python and SQL...&#10;---&#10;Role: Data Analyst&#10;Must have Python and data visualization..."></textarea>
+          <div class="toolbar"><button id="compare-button" class="secondary" type="button">Compare roles</button><span id="compare-status" class="status" aria-live="polite">Use this when you are deciding where to focus first.</span></div>
+          <div id="comparison-panel" class="comparison-panel" hidden><div id="comparison-grid" class="comparison-grid"></div></div>
+        </div>
         <div class="summary-grid" aria-live="polite">
           <article class="summary-card"><span class="label">Evidence fit</span><strong id="fit-score" class="summary-value">—</strong><span class="summary-note">weighted requirement overlap</span></article>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
@@ -391,6 +415,11 @@ HTML = r"""<!doctype html>
       const analyzeButton = document.getElementById("analyze-button");
       const exampleButton = document.getElementById("example-button");
       const clearButton = document.getElementById("clear-button");
+      const compareButton = document.getElementById("compare-button");
+      const rolesInput = document.getElementById("roles-input");
+      const compareStatus = document.getElementById("compare-status");
+      const comparisonPanel = document.getElementById("comparison-panel");
+      const comparisonGrid = document.getElementById("comparison-grid");
       const status = document.getElementById("status");
       const matrix = document.getElementById("matrix");
       const detail = document.getElementById("detail");
@@ -415,6 +444,13 @@ HTML = r"""<!doctype html>
         met: "Requirement appears met",
         not_met: "Explicitly not met",
         unknown: "Needs verification"
+      };
+      const readinessLabels = {
+        apply_and_refine: "Apply and refine",
+        apply_after_targeted_proof: "Targeted proof first",
+        verify_before_applying: "Verify before applying",
+        blocked_by_constraint: "Eligibility issue",
+        build_evidence_before_prioritizing: "Build evidence first"
       };
       const importanceLabels = {
         must: "Must have",
@@ -555,6 +591,38 @@ HTML = r"""<!doctype html>
           gapList.appendChild(card);
         });
       }
+      function renderComparison(payload) {
+        clearNode(comparisonGrid);
+        (payload.roles || []).forEach(function (item) {
+          const summary = item.summary || {};
+          const card = make("article", "comparison-card");
+          const rank = make("div", "comparison-rank");
+          rank.append(make("span", "", "Priority " + item.priority_rank), make("span", "", readinessLabels[summary.readiness_status] || "Preparation route"));
+          card.appendChild(rank);
+          card.appendChild(make("h3", "", item.role_label || "Target role"));
+          card.appendChild(make("p", "comparison-basis", item.priority_basis || "Preparation priority based on the supplied evidence."));
+          const metrics = make("div", "comparison-metrics");
+          [["Readiness", percent(summary.application_readiness_score)], ["Evidence fit", percent(summary.evidence_fit_score)], ["Confidence", percent(summary.assessment_confidence)], ["Eligibility", summary.blocking_constraint_count ? String(summary.blocking_constraint_count) + " to verify" : "Clear"]].forEach(function (pair) {
+            const metric = make("div", "comparison-metric");
+            metric.append(make("span", "", pair[0]), make("strong", "", pair[1]));
+            metrics.appendChild(metric);
+          });
+          card.appendChild(metrics);
+          const action = item.top_action ? item.top_action.action : "No priority action was generated from the supplied text.";
+          card.appendChild(make("p", "comparison-action", "Next move: " + action));
+          const inspect = make("button", "secondary", "Inspect this role");
+          inspect.type = "button";
+          inspect.addEventListener("click", function () {
+            jobInput.value = item.role_text || "";
+            render(item.analysis);
+            status.textContent = "Loaded " + (item.role_label || "the selected role") + " into the detailed view.";
+            jobInput.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+          card.appendChild(inspect);
+          comparisonGrid.appendChild(card);
+        });
+        comparisonPanel.hidden = !(payload.roles || []).length;
+      }
       function render(payload) {
         latest = payload;
         const summary = payload.summary || {};
@@ -580,17 +648,34 @@ HTML = r"""<!doctype html>
           render(await response.json());
         } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
       }
+      async function compare() {
+        const roles = rolesInput.value.split(/\r?\n\s*---+\s*\r?\n/).map(function (value) { return value.trim(); }).filter(Boolean);
+        if (roles.length < 2) { compareStatus.textContent = "Add at least two roles, separated by a line containing --- ."; return; }
+        if (roles.length > 3) { compareStatus.textContent = "Compare up to three roles at a time."; return; }
+        if (!candidateInput.value.trim()) { compareStatus.textContent = "Add a candidate profile before comparing roles."; return; }
+        compareStatus.textContent = "Comparing the supplied roles…";
+        compareButton.disabled = true;
+        try {
+          const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value }) });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || "comparison unavailable");
+          renderComparison(payload);
+          compareStatus.textContent = "Comparison ready. Rankings describe preparation priority, not hiring odds.";
+        } catch (error) { compareStatus.textContent = "Comparison unavailable. Check the role separators and try again."; }
+        finally { compareButton.disabled = false; }
+      }
       function reset() {
-        jobInput.value = ""; candidateInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart);
+        jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
-        semanticPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
+        semanticPanel.hidden = true; comparisonPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
         [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
-        decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
+        decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; compareStatus.textContent = "Use this when you are deciding where to focus first."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
       }
       exampleButton.addEventListener("click", function () { jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       analyzeButton.addEventListener("click", analyze);
+      compareButton.addEventListener("click", compare);
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
       deepReviewButton.disabled = !llmEnabled;
@@ -658,6 +743,25 @@ class Handler(BaseHTTPRequestHandler):
                     {"error": "review_failed", "detail": str(exc)}, status=502
                 )
                 return
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                self._send_json(
+                    {"error": "invalid_request", "detail": str(exc)}, status=400
+                )
+                return
+            self._send_json(result)
+            return
+        if parsed.path == "/api/compare":
+            try:
+                length = min(int(self.headers.get("Content-Length", "0")), 160_000)
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                roles = payload.get("roles", [])
+                if not isinstance(roles, list):
+                    raise TypeError("roles must be a list")
+                result = compare_roles(
+                    [str(role)[:40_000] for role in roles[:5]],
+                    str(payload.get("candidate_text", ""))[:40_000],
+                    payload.get("evidence"),
+                )
             except (TypeError, ValueError, json.JSONDecodeError) as exc:
                 self._send_json(
                     {"error": "invalid_request", "detail": str(exc)}, status=400
