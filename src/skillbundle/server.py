@@ -121,6 +121,7 @@ HTML = r"""<!doctype html>
      .occupation-candidate { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
      .occupation-candidate strong { display: block; }
      .occupation-candidate span, .occupation-review-meta { color: var(--muted); font-size: .75rem; }
+     .occupation-candidate-note { display: block; max-width: 620px; margin-top: 5px; line-height: 1.4; }
      .occupation-candidate button { padding: 8px 12px; font-size: .8rem; box-shadow: none; }
      .occupation-review blockquote { margin: 8px 0 0; font-size: .85rem; line-height: 1.45; }
      .occupation-review a { color: var(--blue); }
@@ -642,10 +643,20 @@ HTML = r"""<!doctype html>
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "occupation search unavailable");
           if (!(payload.candidates || []).length) { occupationCandidates.appendChild(make("p", "occupation-context-empty", "No title-based suggestion was found. Try a broader occupation name.")); occupationStatus.textContent = "No standard occupation suggestion found."; return; }
-          occupationStatus.textContent = "Choose the closest standard occupation. Suggestions require your confirmation.";
+          occupationStatus.textContent = payload.mapping_status === "editorial_candidate_crosswalk"
+            ? "These are candidate occupation families. Review the notes and confirm one from the job tasks."
+            : "Choose the closest standard occupation. Suggestions require your confirmation.";
           (payload.candidates || []).forEach(function (candidate) {
             const card = make("article", "occupation-candidate");
-            const copy = make("div", "", ""); copy.append(make("strong", "", candidate.title), make("span", "", (candidate.onet_soc_code || "Code unavailable") + " · title evidence only"));
+            const basis = candidate.mapping_status === "candidate_family"
+              ? "Candidate occupation family · confirmation required"
+              : "Title evidence only · confirmation required";
+            const copy = make("div", "", "");
+            copy.append(
+              make("strong", "", candidate.title),
+              make("span", "", (candidate.onet_soc_code || "Code unavailable") + " · " + basis)
+            );
+            if (candidate.mapping_note) copy.append(make("small", "occupation-candidate-note", candidate.mapping_note));
             const button = make("button", "secondary", "Use this occupation"); button.type = "button"; button.addEventListener("click", function () { loadOccupationContext(candidate.onet_soc_code); });
             card.append(copy, button); occupationCandidates.appendChild(card);
           });

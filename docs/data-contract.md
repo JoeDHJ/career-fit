@@ -115,6 +115,10 @@ The dictionary, taxonomy, negation rule, transfer map, extraction method, and im
 
 The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.2`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, a `top_mismatch`, a `top_bundle`, and the full single-role `analysis` for auditability.
 
+## Optional occupation context
+
+When `CAREER_FIT_ATLAS_URL` is configured, the local server proxies `GET /api/occupation-context?query=<title>` to AI Labor Atlas. The response always requires user confirmation. Exact title evidence uses `mapping_status: title_evidence`; a curated nonstandard-title crosswalk uses `mapping_status: editorial_candidate_crosswalk` and returns candidates with `mapping_status: candidate_family`, `mapping_note`, and `match_score: null`. These candidates are possible occupation families, not official equivalences, probabilities, or automatic classifications. Confirmed occupation context is separate from all Career Fit scores and eligibility decisions.
+
 The comparison accepts exactly two or three non-empty role descriptions. A request with fewer than two or more than three roles is rejected with a user-facing validation error.
 
 Roles are ordered by application readiness, then Evidence Fit and Information Confidence. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.

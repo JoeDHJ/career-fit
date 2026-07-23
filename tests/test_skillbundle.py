@@ -267,6 +267,8 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn('id="occupation-review-topic-filter"', page)
         self.assertIn("Select a standard occupation", page)
         self.assertIn("They are not verified facts or representative of all workers", page)
+        self.assertIn("candidate occupation families", page)
+        self.assertIn("mapping_note", page)
 
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(

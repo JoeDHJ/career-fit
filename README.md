@@ -96,6 +96,8 @@ The design rationale and evidence boundaries are summarized in [the literature-t
 
 Career Fit is specific to the job posting you provide. An optional occupation-context panel can connect a confirmed standard occupation to AI Labor Atlas and show public worker comments about pay, interviews, management, workload, growth, and work environment. Start AI Labor Atlas on `http://127.0.0.1:8765`, set `CAREER_FIT_ATLAS_URL` to that address, then search and confirm the closest occupation. The title suggestions are evidence leads, not an automatic classification.
 
+For a small set of common nonstandard titles, Atlas may return a curated candidate occupation family rather than one exact title. Career Fit shows the mapping note and requires confirmation from the job tasks; these candidates do not change job-fit scores.
+
 Worker comments remain separate from the job-specific analysis. They do not change Evidence Fit, Application Readiness, eligibility, or any other Career Fit signal. Comments can be positive, negative, mixed, incomplete, subjective, outdated, or biased; they are not verified facts or representative of all workers. Source, date, scope, and link are preserved where available. See the Atlas [worker review contract](https://github.com/JoeDHJ/ai-labor-atlas/blob/main/docs/review-data.md) for the import boundary.
 
 ## Interpreting the scores
