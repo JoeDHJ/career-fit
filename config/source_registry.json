@@ -1,6 +1,6 @@
 {
   "project": "career-fit",
-  "release": "0.2.0",
+  "release": "0.3.0",
   "scope": {"geography": "US enrichment", "language": "en"},
   "sources": [
     {

@@ -1,15 +1,21 @@
 import json
+import http.client
+import io
 import tempfile
+import threading
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 from skillbundle.benchmark import benchmark_skillspan
-from skillbundle.career import analyze_fit, evidence_from_text
+from skillbundle.career import analyze_fit, compare_roles, evidence_from_text
+from skillbundle.cli import main as cli_main
 from skillbundle.dictionary import extract, load_dictionary
 from skillbundle.metrics import bundle_metrics
 from skillbundle.ner import PerceptronNER
 from skillbundle.normalization import normalize_label
 from skillbundle.requirements import extract_requirements
+from skillbundle.server import Handler, render_page
 from skillbundle.taxonomy import pair_codes
 
 
@@ -135,6 +141,43 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("transferable", statuses)
         self.assertTrue(result["gaps"])
 
+    def test_analyze_fit_rejects_blank_job_and_candidate_text(self):
+        with self.assertRaisesRegex(ValueError, "job_text"):
+            analyze_fit("   ", "Built Python projects.")
+        with self.assertRaisesRegex(ValueError, "candidate_text"):
+            analyze_fit("Must have Python.", "\n\t")
+
+    def test_cli_reports_blank_input_without_traceback(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = cli_main(["analyze", "--job", " ", "--candidate", "Python"])
+        self.assertEqual(code, 2)
+        self.assertIn("Error:", stderr.getvalue())
+        self.assertIn("job_text", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+    def test_cli_rejects_four_roles_without_traceback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            roles_file = Path(temp) / "roles.json"
+            roles_file.write_text(
+                json.dumps(["Role one", "Role two", "Role three", "Role four"]),
+                encoding="utf-8",
+            )
+            stderr = io.StringIO()
+            with redirect_stderr(stderr):
+                code = cli_main(
+                    [
+                        "compare",
+                        "--roles-file",
+                        str(roles_file),
+                        "--candidate",
+                        "Built Python projects.",
+                    ]
+                )
+        self.assertEqual(code, 2)
+        self.assertIn("at most three", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_structured_evidence_can_raise_evidence_strength(self):
         evidence = [
             {
@@ -186,7 +229,7 @@ class CareerFitTests(unittest.TestCase):
         )
         self.assertEqual(unresolved["hard_constraints"][0]["status"], "unknown")
 
-    def test_v02_exposes_three_job_seeker_signals_and_actions(self):
+    def test_v03_exposes_three_job_seeker_signals_and_actions(self):
         result = analyze_fit(
             "Must have Python and SQL.", "Built Python research projects."
         )
@@ -194,9 +237,111 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("capability_signal_score", summary)
         self.assertIn("proof_signal_score", summary)
         self.assertIn("application_readiness_score", summary)
-        self.assertEqual(result["schema_version"], "career_fit.v0.2")
+        self.assertEqual(result["schema_version"], "career_fit.v0.3")
         self.assertTrue(result["next_actions"])
         self.assertIn("expected_artifact", result["next_actions"][0])
+
+    def test_role_fingerprint_exposes_dimensions_and_bundles(self):
+        result = analyze_fit(
+            "Must have Python and SQL. Strongly preferred stakeholder communication.",
+            "Built Python research projects and presented findings to stakeholders.",
+        )
+        fingerprint = result["role_fingerprint"]
+        self.assertEqual(fingerprint["taxonomy_id"], "deming_kahn_10_ai")
+        self.assertTrue(fingerprint["categories"])
+        self.assertTrue(fingerprint["skill_bundles"])
+        self.assertEqual(fingerprint["skill_bundles"][0]["skills"], ["Python", "SQL"])
+        self.assertIn("dimensions", result["interpretation"])
+
+    def test_client_page_exposes_role_fingerprint_explanations(self):
+        page = render_page()
+        self.assertIn('id="fingerprint-panel"', page)
+        self.assertIn("Role fingerprint", page)
+        self.assertIn("They do not estimate market value", page)
+
+    def test_client_page_exposes_confirmed_occupation_review_context(self):
+        page = render_page()
+        self.assertIn('id="occupation-query"', page)
+        self.assertIn("What workers say", page)
+        self.assertIn('id="occupation-review-source-filter"', page)
+        self.assertIn('id="occupation-review-topic-filter"', page)
+        self.assertIn("Select a standard occupation", page)
+        self.assertIn("They are not verified facts or representative of all workers", page)
+        self.assertIn("candidate occupation families", page)
+        self.assertIn("mapping_note", page)
+
+    def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
+        result = compare_roles(
+            [
+                "Role: Data Analyst\nMust have Python and data visualization.",
+                "Role: Java Developer\nMust have Java and cloud computing.",
+            ],
+            "Built Python research projects and created data visualizations.",
+        )
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.2")
+        self.assertEqual(result["role_count"], 2)
+        self.assertEqual(result["roles"][0]["priority_rank"], 1)
+        self.assertEqual(result["roles"][0]["role_label"], "Data Analyst")
+        self.assertEqual(result["roles"][1]["role_label"], "Java Developer")
+        self.assertIn("analysis", result["roles"][0])
+        self.assertIn("priority_basis", result["roles"][0])
+
+    def test_role_comparison_rejects_oversized_batches(self):
+        with self.assertRaises(ValueError):
+            compare_roles(["Role one"], "Python")
+        with self.assertRaisesRegex(ValueError, "at most three"):
+            compare_roles(["Role"] * 4, "Python")
+
+    def test_api_reports_blank_inputs_and_four_role_requests(self):
+        from http.server import ThreadingHTTPServer
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+
+        def post(path, payload):
+            connection = http.client.HTTPConnection(
+                "127.0.0.1", server.server_port
+            )
+            body = json.dumps(payload).encode("utf-8")
+            connection.request(
+                "POST",
+                path,
+                body=body,
+                headers={"Content-Type": "application/json"},
+            )
+            response = connection.getresponse()
+            result = json.loads(response.read().decode("utf-8"))
+            status = response.status
+            connection.close()
+            return status, result
+
+        try:
+            status, result = post(
+                "/api/analyze",
+                {"job_text": " ", "candidate_text": "Built Python projects."},
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("job_text", result["detail"])
+            status, result = post(
+                "/api/analyze",
+                {"job_text": "Must have Python.", "candidate_text": "\t"},
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("candidate_text", result["detail"])
+            status, result = post(
+                "/api/compare",
+                {
+                    "roles": ["Role one", "Role two", "Role three", "Role four"],
+                    "candidate_text": "Built Python projects.",
+                },
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("at most three", result["detail"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
 
 if __name__ == "__main__":

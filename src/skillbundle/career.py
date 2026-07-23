@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
+from itertools import combinations
 from typing import Any
 
 from .dictionary import extract
 from .requirements import IMPORTANCE_WEIGHTS, extract_requirements, parse_number
+from .taxonomy import category_map
 
 
 EVIDENCE_WEIGHTS = {
@@ -75,6 +77,187 @@ CATEGORY_BASELINE_TRANSFER = {
     "general_computer_skill",
     "ai_skill",
 }
+
+
+def _category_profile(
+    requirements: list[dict[str, Any]],
+    evidence: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Summarize a role and candidate profile across the analytical taxonomy.
+
+    The profile is intentionally a descriptive mismatch view. It does not treat
+    a category as a substitute for a named skill, and it keeps categories with
+    no evidence visible so a user can distinguish a real gap from missing text.
+    """
+    taxonomy = category_map()
+    required_by_category: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    evidence_by_category: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in requirements:
+        if not item.get("hard_constraint") and item.get("analysis_category_code"):
+            required_by_category[str(item["analysis_category_code"])].append(item)
+    for item in evidence:
+        if item.get("analysis_category_code") and not item.get("negated"):
+            evidence_by_category[str(item["analysis_category_code"])].append(item)
+
+    codes = sorted(
+        set(required_by_category) | set(evidence_by_category),
+        key=lambda code: (
+            -sum(
+                _number(item.get("importance_weight"))
+                for item in required_by_category[code]
+            ),
+            str(taxonomy.get(code, {}).get("name", code)),
+        ),
+    )
+    profiles = []
+    for code in codes:
+        items = required_by_category[code]
+        weight = sum(_number(item.get("importance_weight")) for item in items)
+        matched = sum(
+            _number(item.get("match_score")) * _number(item.get("importance_weight"))
+            for item in items
+        )
+        coverage = matched / weight if weight else 0.0
+        status_counts = Counter(str(item.get("status", "unknown")) for item in items)
+        profiles.append(
+            {
+                "category_code": code,
+                "category_name": taxonomy.get(code, {}).get("name", code),
+                "definition": taxonomy.get(code, {}).get("definition", ""),
+                "required_count": len(items),
+                "required_weight": round(weight, 3),
+                "matched_count": sum(
+                    status_counts.get(status, 0)
+                    for status in ("direct", "direct_weak", "transferable")
+                ),
+                "direct_count": status_counts.get("direct", 0),
+                "transferable_count": status_counts.get("transferable", 0),
+                "missing_count": status_counts.get("missing", 0),
+                "evidence_count": len(evidence_by_category[code]),
+                "evidence_coverage": round(coverage, 3),
+                "gap_score": round(max(0.0, 1.0 - coverage), 3),
+                "status_counts": dict(status_counts),
+            }
+        )
+    return profiles
+
+
+def _bundle_action(
+    left: dict[str, Any], right: dict[str, Any], left_status: str, right_status: str
+) -> tuple[str, str]:
+    names = (str(left["canonical_skill"]), str(right["canonical_skill"]))
+    missing = [
+        name
+        for name, status in zip(names, (left_status, right_status))
+        if status in {"missing", "unknown"}
+    ]
+    transferable = [
+        name
+        for name, status in zip(names, (left_status, right_status))
+        if status == "transferable"
+    ]
+    if len(missing) == 2:
+        return (
+            "foundation_gap",
+            f"Build one small work sample that demonstrates {names[0]} and {names[1]} together.",
+        )
+    if missing:
+        return (
+            "proof_gap",
+            f"Add reviewable proof for {missing[0]} in a task that also uses {names[1] if missing[0] == names[0] else names[0]}.",
+        )
+    if transferable:
+        return (
+            "translation_gap",
+            f"Translate {transferable[0]} into a concrete result alongside {names[1] if transferable[0] == names[0] else names[0]}.",
+        )
+    return (
+        "bundle_strength",
+        f"Show the context and result that connect {names[0]} with {names[1]}.",
+    )
+
+
+def _skill_bundles(requirements: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return the most decision-relevant skill pairs within one posting.
+
+    These are co-occurring requirements in the supplied role, not estimates of
+    market complementarity or wage value. Pair actions are deliberately framed
+    as portfolio and translation suggestions for job seekers.
+    """
+    skills = [item for item in requirements if item.get("requirement_type") == "skill"]
+    pairs = []
+    seen: set[tuple[str, str]] = set()
+    for left, right in combinations(skills, 2):
+        ids = tuple(sorted((str(left.get("skill_id")), str(right.get("skill_id")))))
+        if ids in seen or ids[0] == ids[1]:
+            continue
+        seen.add(ids)
+        left_status = str(left.get("status", "unknown"))
+        right_status = str(right.get("status", "unknown"))
+        gap_type, action = _bundle_action(left, right, left_status, right_status)
+        priority = min(
+            _number(left.get("importance_weight"), 0.2),
+            _number(right.get("importance_weight"), 0.2),
+        )
+        match = min(_number(left.get("match_score")), _number(right.get("match_score")))
+        pairs.append(
+            {
+                "bundle_id": "__".join(ids),
+                "skills": [left.get("canonical_skill"), right.get("canonical_skill")],
+                "categories": sorted(
+                    {
+                        str(left.get("analysis_category_code")),
+                        str(right.get("analysis_category_code")),
+                    }
+                ),
+                "statuses": [left_status, right_status],
+                "priority_score": round(priority, 3),
+                "bundle_match_score": round(match, 3),
+                "gap_type": gap_type,
+                "action": action,
+                "is_supported": left_status in {"direct", "direct_weak"}
+                and right_status in {"direct", "direct_weak"},
+            }
+        )
+    pairs.sort(
+        key=lambda item: (
+            -item["priority_score"],
+            item["bundle_match_score"],
+            item["bundle_id"],
+        )
+    )
+    return pairs[:10]
+
+
+def _role_fingerprint(
+    requirements: list[dict[str, Any]], evidence: list[dict[str, Any]]
+) -> dict[str, Any]:
+    profiles = _category_profile(requirements, evidence)
+    dimensions = sorted(
+        (item for item in profiles if item["required_count"] and item["gap_score"] > 0),
+        key=lambda item: (
+            -item["required_weight"] * item["gap_score"],
+            item["category_name"],
+        ),
+    )
+    return {
+        "taxonomy_id": "deming_kahn_10_ai",
+        "taxonomy_version": "v1.0.0",
+        "method": "Requirement categories are descriptive dimensions. Named skills remain the unit of evidence and transfer.",
+        "categories": profiles,
+        "mismatch_dimensions": [
+            {
+                "category_code": item["category_code"],
+                "category_name": item["category_name"],
+                "gap_score": item["gap_score"],
+                "required_count": item["required_count"],
+                "evidence_coverage": item["evidence_coverage"],
+            }
+            for item in dimensions[:5]
+        ],
+        "skill_bundles": _skill_bundles(requirements),
+        "caveat": "A category profile shows where the supplied texts overlap. It is not a measure of innate ability, hiring probability, or employer preference beyond this posting.",
+    }
 
 
 def _number(value: Any, default: float = 0.0) -> float:
@@ -432,11 +615,19 @@ def _readiness_status(score: int, blocking: list[dict[str, Any]]) -> str:
     return "build_evidence_before_prioritizing"
 
 
+def _require_non_empty_text(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a non-empty text input")
+    return value
+
+
 def analyze_fit(
     job_text: str,
     candidate_text: str,
     evidence: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    job_text = _require_non_empty_text(job_text, "job_text")
+    candidate_text = _require_non_empty_text(candidate_text, "candidate_text")
     requirements = extract_requirements(job_text)
     candidate_evidence = _normalize_evidence(
         evidence if evidence is not None else evidence_from_text(candidate_text)
@@ -605,8 +796,9 @@ def analyze_fit(
             item.get("canonical_skill", ""),
         )
     )
+    role_fingerprint = _role_fingerprint(assessments, active_evidence)
     return {
-        "schema_version": "career_fit.v0.2",
+        "schema_version": "career_fit.v0.3",
         "product": "Career Fit",
         "mode": "single_job",
         "requirements": assessments,
@@ -614,6 +806,7 @@ def analyze_fit(
         "hard_constraints": hard_constraints,
         "gaps": gaps,
         "next_actions": gaps[:6],
+        "role_fingerprint": role_fingerprint,
         "summary": {
             "evidence_fit_score": soft_fit,
             "role_fit_score": soft_fit,
@@ -638,10 +831,111 @@ def analyze_fit(
             "readiness": "Application Readiness is a preparation triage measure that combines must-have evidence, proof strength, and unresolved gates. It is not a hiring probability.",
             "confidence": "Information Confidence reflects the clarity and completeness of the supplied texts. It is not a calibrated statistical probability.",
             "actions": "Actions prioritize the next useful proof or verification step under the available evidence; they do not estimate a causal hiring effect.",
+            "dimensions": "The role fingerprint shows multidimensional requirement overlap. It keeps named skills separate from broad categories and does not measure latent ability.",
+            "bundles": "Skill bundles are requirements that appear together in this posting. They are useful for choosing one integrated proof artifact, not for estimating the market value of a combination.",
         },
         "analysis_notes": [
             "Negated skill statements are retained for auditability and excluded from matching.",
             "Missing evidence is not proof that a candidate lacks the underlying ability.",
             "Hard constraints are reported separately because soft skill overlap cannot offset an unresolved gate.",
         ],
+    }
+
+
+def _role_label(job_text: str, index: int) -> str:
+    lines = [line.strip() for line in job_text.splitlines() if line.strip()]
+    if not lines:
+        return f"Target role {index}"
+    first = lines[0]
+    if ":" in first and first.casefold().split(":", 1)[0] in {
+        "role",
+        "title",
+        "position",
+    }:
+        first = first.split(":", 1)[1].strip()
+    return first[:100] or f"Target role {index}"
+
+
+def _priority_basis(summary: dict[str, Any]) -> str:
+    decision = summary.get("decision")
+    if decision == "strong_evidence_overlap":
+        return "Closest current preparation match; focus on proof packaging."
+    if decision == "targeted_proof_needed":
+        return "Promising target; build the highest-priority proof before investing further."
+    if decision == "verify_before_applying":
+        return "Resolve an eligibility question before prioritizing this application."
+    if decision == "blocked_by_constraint":
+        return "An apparent eligibility barrier should be resolved first."
+    return "Build evidence before treating this role as a priority."
+
+
+def compare_roles(
+    roles: list[str],
+    candidate_text: str,
+    evidence: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Rank a small set of target roles using the same auditable fit engine.
+
+    The result is a preparation priority, not a hiring or income forecast. Roles
+    are ordered by application readiness, then evidence fit and information
+    confidence so ties are deterministic without inventing a new score.
+    """
+    if not isinstance(roles, list):
+        raise TypeError("roles must be a list of job-description strings")
+    cleaned = []
+    for role in roles:
+        if not isinstance(role, str):
+            raise TypeError("roles must contain job-description strings")
+        if role.strip():
+            cleaned.append(role.strip())
+    if len(cleaned) < 2:
+        raise ValueError("compare_roles requires at least two non-empty roles")
+    if len(cleaned) > 3:
+        raise ValueError("compare_roles supports at most three roles")
+
+    entries = []
+    for index, job_text in enumerate(cleaned, start=1):
+        analysis = analyze_fit(job_text, candidate_text, evidence)
+        summary = analysis["summary"]
+        entries.append(
+            {
+                "role_id": f"role-{index:02d}",
+                "role_label": _role_label(job_text, index),
+                "role_text": job_text,
+                "summary": summary,
+                "priority_basis": _priority_basis(summary),
+                "top_action": analysis["next_actions"][0]
+                if analysis["next_actions"]
+                else None,
+                "top_mismatch": analysis["role_fingerprint"]["mismatch_dimensions"][0]
+                if analysis["role_fingerprint"]["mismatch_dimensions"]
+                else None,
+                "top_bundle": analysis["role_fingerprint"]["skill_bundles"][0]
+                if analysis["role_fingerprint"]["skill_bundles"]
+                else None,
+                "analysis": analysis,
+            }
+        )
+
+    entries.sort(
+        key=lambda item: (
+            -int(item["summary"].get("application_readiness_score", 0)),
+            -int(item["summary"].get("evidence_fit_score", 0)),
+            -int(item["summary"].get("assessment_confidence", 0)),
+            str(item["role_label"]).casefold(),
+        )
+    )
+    for rank, item in enumerate(entries, start=1):
+        item["priority_rank"] = rank
+    return {
+        "schema_version": "career_fit.compare.v0.2",
+        "product": "Career Fit",
+        "mode": "role_comparison",
+        "role_count": len(entries),
+        "roles": entries,
+        "interpretation": {
+            "priority": "Roles are ordered by preparation readiness, then evidence fit and information confidence. This is not a hiring-probability ranking.",
+            "transfer": "Transferable evidence remains visible as a bridge and is never treated as direct equivalence.",
+            "missing": "A lower-ranked role may reflect missing proof or an unresolved gate rather than lower underlying ability.",
+        },
     }

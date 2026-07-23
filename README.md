@@ -23,7 +23,7 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.2 engine:
+Given a job description and a candidate profile, the v0.3 product:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
@@ -31,7 +31,10 @@ Given a job description and a candidate profile, the v0.2 engine:
 4. distinguishes direct evidence, thin proof, transferable evidence, and missing evidence;
 5. calculates Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence;
 6. ranks proof, translation, bridge, foundation, and verification gaps;
-7. proposes an expected proof artifact and an evidence prompt for each priority action.
+7. proposes an expected proof artifact and an evidence prompt for each priority action;
+8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting.
+
+It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using the existing readiness, evidence-fit, and information-confidence signals, then lets the user inspect any role in the full requirement matrix.
 
 ## Quick start
 
@@ -42,6 +45,9 @@ python -m pip install -e .
 
 # Analyze one role locally
 career-fit analyze --job-file examples\single_job\people_analytics_job.txt --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json
+
+# Compare a small target-role portfolio
+career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt
 
 # Launch the visual explorer
 career-fit serve
@@ -72,11 +78,27 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 - the requirement–evidence matrix makes every assessment inspectable;
 - the profile chart shows the shape of evidence overlap across requirements;
 - action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
+- the Role Fingerprint shows category-level mismatch without replacing named-skill evidence;
+- skill-bundle cards turn co-occurring requirements into integrated proof-artifact ideas;
 - plain-language interpretation cards explain what the metrics can and cannot mean.
 
-![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.jpg)
+![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.png)
 
-![Career Fit requirement matrix](docs/assets/career-fit-matrix.jpg)
+![Career Fit requirement matrix](docs/assets/career-fit-matrix.png)
+
+![Career Fit role fingerprint](docs/assets/career-fit-fingerprint.png)
+
+![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
+
+The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
+
+### Optional occupation context
+
+Career Fit is specific to the job posting you provide. An optional occupation-context panel can connect a confirmed standard occupation to AI Labor Atlas and show public worker comments about pay, interviews, management, workload, growth, and work environment. Start AI Labor Atlas on `http://127.0.0.1:8765`, set `CAREER_FIT_ATLAS_URL` to that address, then search and confirm the closest occupation. The title suggestions are evidence leads, not an automatic classification.
+
+For a small set of common nonstandard titles, Atlas may return a curated candidate occupation family rather than one exact title. Career Fit shows the mapping note and requires confirmation from the job tasks; these candidates do not change job-fit scores.
+
+Worker comments remain separate from the job-specific analysis. They do not change Evidence Fit, Application Readiness, eligibility, or any other Career Fit signal. Comments can be positive, negative, mixed, incomplete, subjective, outdated, or biased; they are not verified facts or representative of all workers. Source, date, scope, and link are preserved where available. See the Atlas [worker review contract](https://github.com/JoeDHJ/ai-labor-atlas/blob/main/docs/review-data.md) for the import boundary.
 
 ## Interpreting the scores
 
@@ -106,7 +128,7 @@ Readiness = 100 × (0.50 must-have match
 
 An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
 
-The machine-readable output uses schema `career_fit.v0.2`; details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
+The single-role machine-readable output uses schema `career_fit.v0.3`; role comparison uses `career_fit.compare.v0.2`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 
@@ -118,6 +140,7 @@ The demo uses a versioned English dictionary with a transparent seed layer and a
 - `tools/build_onet_enrichment.py` regenerates the enrichment layer from the registered O*NET 30.3 text release.
 - `config/source_registry.json` records public sources and redistribution notes for ESCO, O*NET, and SkillSpan.
 - `src/skillbundle/career.py` stores explicit transfer crosswalks and evidence rules.
+- `src/skillbundle/career.py` also creates the descriptive Role Fingerprint and posting-specific skill bundles.
 
 Raw third-party data is not silently bundled. Check each source’s current license and attribution requirements before redistribution.
 
@@ -142,7 +165,7 @@ tests/                extraction, negation, constraints, and fit tests
 
 - expand the reviewed multilingual skill dictionary and occupational crosswalks;
 - add resume-to-evidence import with explicit user confirmation;
-- support multiple target roles and career pathways while preserving each audit trail;
+- evaluate a separate career-pathway graph only after defining its transition data and validation strategy;
 - add calibrated validation only if an appropriate, consented outcome dataset becomes available;
 - publish sensitivity checks for taxonomy, importance weights, transfer rules, and missing-evidence assumptions.
 
