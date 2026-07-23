@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: JoeDHJ/ai-labor-atlas
-          ref: ${{ inputs.atlas_ref || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'codex/mobile-alias-validation' && 'codex/alias-release-validation') || 'main' }}
+          ref: ${{ inputs.atlas_ref || ((github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'codex/mobile-alias-validation' || github.ref_name == 'codex/mobile-alias-validation') && 'codex/alias-release-validation') || 'main' }}
           path: ai-labor-atlas
           token: ${{ github.token }}
       - uses: actions/setup-python@v5
