@@ -642,7 +642,14 @@ HTML = r"""<!doctype html>
           const response = await fetch("/api/occupation-context?query=" + encodeURIComponent(query));
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "occupation search unavailable");
-          if (!(payload.candidates || []).length) { occupationCandidates.appendChild(make("p", "occupation-context-empty", "No title-based suggestion was found. Try a broader occupation name.")); occupationStatus.textContent = "No standard occupation suggestion found."; return; }
+          const hasCandidates = (payload.candidates || []).length > 0;
+          const isCandidateFamily = payload.mapping_status === "editorial_candidate_crosswalk";
+          if (isCandidateFamily && !hasCandidates) {
+            occupationCandidates.appendChild(make("p", "occupation-context-empty", "This occupation family was recognized, but the current Atlas data release has no candidate occupations to display. Run the full data build or try another title."));
+            occupationStatus.textContent = "Occupation family recognized; no candidate occupations are available in this Atlas release.";
+            return;
+          }
+          if (!hasCandidates) { occupationCandidates.appendChild(make("p", "occupation-context-empty", "No title-based suggestion was found. Try a broader occupation name.")); occupationStatus.textContent = "No standard occupation suggestion found."; return; }
           occupationStatus.textContent = payload.mapping_status === "editorial_candidate_crosswalk"
             ? "These are candidate occupation families. Review the notes and confirm one from the job tasks."
             : "Choose the closest standard occupation. Suggestions require your confirmation.";

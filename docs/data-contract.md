@@ -119,6 +119,10 @@ The comparison endpoint and CLI command use `schema_version: career_fit.compare.
 
 When `CAREER_FIT_ATLAS_URL` is configured, the local server proxies `GET /api/occupation-context?query=<title>` to AI Labor Atlas. The response always requires user confirmation. Exact title evidence uses `mapping_status: title_evidence`; a curated nonstandard-title crosswalk uses `mapping_status: editorial_candidate_crosswalk` and returns candidates with `mapping_status: candidate_family`, `mapping_note`, and `match_score: null`. These candidates are possible occupation families, not official equivalences, probabilities, or automatic classifications. Confirmed occupation context is separate from all Career Fit scores and eligibility decisions.
 
+## Local narrow-screen browser regression
+
+With AI Labor Atlas serving a demo release on port 8765 and Career Fit configured to use it on port 8766, run `powershell -ExecutionPolicy Bypass -File tools/verify_mobile_layout.ps1` from this repository. The script uses the Playwright CLI through `npx`, checks both pages at a 390px viewport for horizontal overflow, verifies the alias-empty release message, and verifies that an alias candidate card exposes its mapping note and confirmation control. It stores no screenshots or browser artifacts in the repository and removes its temporary session directory. GitHub Actions runs the Python unit and compile checks; it does not run this browser check.
+
 The comparison accepts exactly two or three non-empty role descriptions. A request with fewer than two or more than three roles is rejected with a user-facing validation error.
 
 Roles are ordered by application readiness, then Evidence Fit and Information Confidence. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.

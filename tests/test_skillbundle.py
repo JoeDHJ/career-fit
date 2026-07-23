@@ -270,6 +270,19 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("candidate occupation families", page)
         self.assertIn("mapping_note", page)
 
+    def test_client_page_distinguishes_empty_alias_crosswalk(self):
+        page = render_page()
+        empty_alias_message = (
+            "This occupation family was recognized, but the current Atlas data "
+            "release has no candidate occupations to display. Run the full data "
+            "build or try another title."
+        )
+        self.assertIn(empty_alias_message, page)
+        self.assertLess(
+            page.index('if (isCandidateFamily && !hasCandidates)'),
+            page.index('if (!hasCandidates) { occupationCandidates.appendChild'),
+        )
+
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(
             [
