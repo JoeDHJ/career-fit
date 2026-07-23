@@ -1,6 +1,6 @@
 # Career Fit data contract
 
-The v0.3 JSON response uses `schema_version: career_fit.v0.3`. Field names are explicit so the output can be audited or used by a downstream notebook. The v0.3 release adds a descriptive Role Fingerprint without changing the meaning of the existing scores.
+The v0.4 JSON response uses `schema_version: career_fit.v0.4`. Field names are explicit so the output can be audited or used by a downstream notebook. This release adds provisional review state, user corrections, explicit coverage components, and an insufficient-information boundary.
 
 ## Requirement record
 
@@ -32,7 +32,7 @@ The v0.3 JSON response uses `schema_version: career_fit.v0.3`. Field names are e
 }
 ```
 
-Hard gates use requirement types such as `professional_license`, `work_authorization`, `education`, and `experience_floor`. They carry `hard_constraint: true`, `status` values `met`, `not_met`, or `unknown`, and are not included in the soft-fit denominator.
+Hard gates use requirement types such as `professional_license`, `work_authorization`, `education`, and `experience_floor`. They carry `hard_constraint: true`, `status` values `met`, `not_met`, or `unknown`, and are not included in the soft-fit denominator. Free-text extraction is conservative: education uses ordered levels, experience floors require matching area terms, and ambiguous gates remain `unknown` until the user confirms them.
 
 Experience floors additionally expose `required_years` and, when available, `experience_area`.
 
@@ -60,6 +60,8 @@ Experience floors additionally expose `required_years` and, when available, `exp
 ```
 
 Supported evidence types are `work`, `research_project`, `portfolio`, `github_project`, `course`, `certificate`, `self_reported`, and `unknown`. Mentions detected inside a conservative negative statement remain in the evidence list with `negated: true` and `evidence_status: negated_statement`, but are excluded from matching.
+
+The review panel may add evidence with `evidence_status: user_confirmed_self_report`. This remains `evidence_type: self_reported` and is never silently upgraded to direct work evidence.
 
 ## Gap and action record
 
@@ -89,11 +91,18 @@ The summary includes:
 - `capability_signal_score`: direct and transferable overlap;
 - `proof_signal_score`: concreteness and reviewability of evidence;
 - `application_readiness_score`: preparation triage under the supplied information;
-- `assessment_confidence`: information completeness and extraction quality;
+- `analysis_status`: `scored` or `insufficient_information`;
+- `input_completeness_score`: mapped requirement coverage;
+- `evidence_coverage_score`: requirements with mapped evidence;
+- `eligibility_verification_score`: hard gates with known status;
+- `review_status`: `provisional` or `user_confirmed`;
+- `review_required`: whether the extraction should be checked before relying on the plan;
 - `readiness_status` and `decision`: human-readable routing labels;
 - requirement, evidence, and hard-gate counts.
 
-None of these fields is a calibrated hiring probability.
+None of these fields is a confidence probability or calibrated hiring probability. When `analysis_status` is `insufficient_information`, fit and readiness scores are `null` and `analysis_reasons` explains what to add.
+
+The response also includes `review_queue` and a `review` object. A review can remove extracted requirement IDs, add dictionary-backed soft requirements, confirm hard-gate statuses, and add explicitly self-reported evidence. The server recomputes all derived scores from the reviewed structure; clients cannot directly submit a replacement score.
 
 ## Role Fingerprint
 
@@ -117,7 +126,7 @@ The comparison endpoint and CLI command use `schema_version: career_fit.compare.
 
 ## Optional occupation context
 
-When `CAREER_FIT_ATLAS_URL` is configured, the local server proxies `GET /api/occupation-context?query=<title>` to AI Labor Atlas. The response always requires user confirmation. Exact title evidence uses `mapping_status: title_evidence`; a curated nonstandard-title crosswalk uses `mapping_status: editorial_candidate_crosswalk` and returns candidates with `mapping_status: candidate_family`, `mapping_note`, and `match_score: null`. These candidates are possible occupation families, not official equivalences, probabilities, or automatic classifications. Confirmed occupation context is separate from all Career Fit scores and eligibility decisions.
+When `CAREER_FIT_ATLAS_URL` is configured, the local server proxies `GET /api/occupation-context?query=<title>` to AI Labor Atlas. The response always requires user confirmation. Exact title evidence uses `mapping_status: title_evidence`; a curated nonstandard-title crosswalk uses `mapping_status: editorial_candidate_crosswalk` and returns candidates with `mapping_status: candidate_family`, `mapping_note`, and `match_score: null`. These candidates are possible occupation families, not official equivalences, probabilities, or automatic classifications. Confirmed occupation context is separate from all Career Fit scores and eligibility decisions. A confirmed response includes `market_context.v0.1` with descriptive wages, employment, openings, projected change, AI exposure, representative tasks, adjacent occupations, and data-vintage provenance.
 
 ## Local narrow-screen browser regression
 
@@ -125,4 +134,4 @@ With AI Labor Atlas serving a demo release on port 8765 and Career Fit configure
 
 The comparison accepts exactly two or three non-empty role descriptions. A request with fewer than two or more than three roles is rejected with a user-facing validation error.
 
-Roles are ordered by application readiness, then Evidence Fit and Information Confidence. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.
+Roles are ordered by application readiness, then Evidence Fit and mapped input coverage. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.

@@ -2,7 +2,7 @@
 
 ## Product boundary
 
-Career Fit is a decision-support tool for job seekers. The v0.3 product supports one detailed job description and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
+Career Fit is a decision-support tool for job seekers. The v0.4 product supports one detailed job description and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
 
 The product has three audiences:
 
@@ -17,7 +17,7 @@ job description + candidate profile
   -> skill, negation, and hard-gate extraction
   -> requirement and evidence records
   -> direct / thin / transferable / missing matching
-  -> capability, proof, readiness, and confidence signals
+  -> capability, proof, readiness, and explicit coverage components
   -> multidimensional role fingerprint and posting-specific skill bundles
   -> ranked gap-to-action plan
   -> local JSON API + interactive explorer
@@ -41,7 +41,7 @@ The signals are deliberately separable because a person can have capability with
 1. Evidence before keywords. A keyword mention is weak unless context makes the evidence reviewable.
 2. Negation is first-class. A statement such as “no direct HR-data experience” cannot increase the HR-data match.
 3. Constraints are not skills. Licenses, work authorization, degrees, and experience floors are checked separately.
-4. Transfer is visible. Explicit crosswalks and same-category baselines are labeled, never silently promoted to direct evidence.
+4. Transfer is visible. Explicit crosswalks are labeled and never silently promoted to direct evidence; broad category membership remains a descriptive fingerprint only.
 5. Missing text is not missing ability. Every gap card explains this limitation.
 6. Actions are preparation advice. The engine does not claim a known causal hiring effect.
 7. Local by default. Candidate inputs stay in the local process in the demo.

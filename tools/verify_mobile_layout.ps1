@@ -59,10 +59,38 @@ try {
         'JSON.stringify({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})'
     ))
     Assert-NoHorizontalOverflow "AI Labor Atlas" $atlasMeasurement
+    $atlasAccessibility = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({count:document.querySelectorAll('.bubble').length,role:document.querySelector('.bubble').getAttribute('role'),tabindex:document.querySelector('.bubble').getAttribute('tabindex'),demo:document.querySelector('.dataset-notice').textContent})"
+    ))
+    $atlasKeyboard = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{var list=document.querySelectorAll('.bubble');var target=list.length>1?list[1]:list[0];target.focus();target.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));return JSON.stringify({detail:document.querySelector('#detail-title').textContent,title:(target.getAttribute('aria-label')||'').slice(7)})})()"
+    ))
+    if ($atlasAccessibility.count -lt 1 -or $atlasAccessibility.role -ne "button" -or $atlasAccessibility.tabindex -ne "0" -or $atlasKeyboard.detail -ne $atlasKeyboard.title -or $atlasAccessibility.demo -notlike "*DEMO DATASET*") {
+        throw "AI Labor Atlas keyboard semantics or demo-data disclosure failed."
+    }
     Invoke-PlaywrightCli @("close") | Out-Null
 
     Invoke-PlaywrightCli @("open", $CareerFitUrl) | Out-Null
     Invoke-PlaywrightCli @("resize", "$Width", "$Height") | Out-Null
+    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,500))") | Out-Null
+    $reviewMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({reviewVisible:!document.querySelector('#review-panel').hidden,coverageVisible:!document.querySelector('#coverage-panel').hidden,inputCoverage:document.querySelector('#input-coverage-score').textContent})"
+    ))
+    if (-not $reviewMeasurement.reviewVisible -or -not $reviewMeasurement.coverageVisible -or [string]::IsNullOrWhiteSpace($reviewMeasurement.inputCoverage)) {
+        throw "Career Fit did not expose the provisional review and coverage panels."
+    }
+    Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('#apply-review-button').click();return true})()") | Out-Null
+    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,1200))") | Out-Null
+    $reviewedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({status:document.querySelector('#status').textContent,reviewStatus:document.querySelector('#review-status').textContent})"
+    ))
+    if ($reviewedMeasurement.status -notlike "*Reviewed analysis*" -or $reviewedMeasurement.reviewStatus -notlike "*applied*") {
+        throw "Career Fit did not recalculate from the review state."
+    }
     Invoke-PlaywrightCli @(
         "eval",
         "(()=>{const i=document.querySelector('#occupation-query');i.value='Data Analyst';document.querySelector('#occupation-search-button').click();return true})()"
@@ -91,6 +119,15 @@ try {
     Assert-NoHorizontalOverflow "Career Fit" $careerMeasurement
     if ($careerMeasurement.candidateCards -lt 1 -or $careerMeasurement.mappingNotes -lt 1 -or -not $careerMeasurement.confirmationControls) {
         throw "Career Fit alias candidate cards, mapping notes, or confirmation controls were not visible."
+    }
+    Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('.occupation-candidate button').click();return true})()") | Out-Null
+    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,300))") | Out-Null
+    $marketMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({visible:!document.querySelector('#market-context').hidden,metricCount:document.querySelectorAll('#market-metrics .market-metric').length,provenance:(document.querySelector('#market-provenance')||{}).textContent||''})"
+    ))
+    if (-not $marketMeasurement.visible -or $marketMeasurement.metricCount -lt 3 -or [string]::IsNullOrWhiteSpace($marketMeasurement.provenance)) {
+        throw "Career Fit did not expose the separate Atlas market context."
     }
 
     Write-Output "Mobile layout check passed at ${Width}px for AI Labor Atlas and Career Fit."

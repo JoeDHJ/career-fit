@@ -23,7 +23,7 @@ M_j = 0.35 C_j + 0.25 E_j + 0.20 P_j + 0.10 R_j + 0.10 D_j
 
 Where:
 
-- `C` is coverage: 1.0 for direct evidence, 0.55 for explicit transfer evidence, 0.45 for the same-category baseline, and 0 for missing evidence;
+- `C` is coverage: 1.0 for direct evidence, 0.55 for explicit transfer evidence, and 0 for missing evidence;
 - `E` is evidence strength, weighted by evidence type;
 - `P` is a conservative proficiency signal;
 - `R` is recency;
@@ -89,7 +89,7 @@ A missing mention is not evidence that a person lacks the capability. The interf
 
 ## 9. Dictionary expansion and mapping discipline
 
-The English dictionary combines a small transparent seed layer with exact labels from O*NET 30.3. The enrichment includes Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Each enrichment entry retains its O*NET element ID, source file, source taxonomy, mapping method, match mode, and baseline confidence.
+The English dictionary combines a small transparent seed layer with exact labels from O*NET 30.3. The enrichment includes Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Each enrichment entry retains its O*NET element ID, source file, source taxonomy, mapping method, match mode, and baseline extraction confidence. Broad taxonomy membership is not counted as transferable evidence; only explicit, versioned skill crosswalks can affect the core fit score.
 
 O*NET labels are mapped into the ten-category analytical layer only when the mapping rule is explicit. Named software uses exact-label matching; common-word software names such as React, Go, and Zoom also require nearby software context. Generic aliases such as bare Word, Project, and Access are not matched on their own. The dictionary does not treat occupational importance ratings as proof that a candidate has a skill, and it does not infer synonyms beyond the small alias list for common software names. Unmatched language remains unmatched rather than being forced into a category.
 
