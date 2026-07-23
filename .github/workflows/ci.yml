@@ -19,3 +19,60 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python -m compileall -q src
       - run: ruff check .
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JoeDHJ/ai-labor-atlas
+          ref: main
+          path: ai-labor-atlas
+          token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install both projects
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./ai-labor-atlas
+          python -m pip install -e .
+      - name: Install Chromium for Playwright CLI
+        run: npx --yes playwright install --with-deps chromium
+      - name: Build Atlas demo release
+        working-directory: ai-labor-atlas
+        run: python -m ai_labor_atlas.cli build --demo
+      - name: Run 390px browser regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          atlas_pid=""
+          career_pid=""
+          cleanup() {
+            if [[ -n "$career_pid" ]]; then kill "$career_pid" 2>/dev/null || true; fi
+            if [[ -n "$atlas_pid" ]]; then kill "$atlas_pid" 2>/dev/null || true; fi
+            if [[ -n "$career_pid" ]]; then wait "$career_pid" 2>/dev/null || true; fi
+            if [[ -n "$atlas_pid" ]]; then wait "$atlas_pid" 2>/dev/null || true; fi
+          }
+          trap cleanup EXIT
+          python -m ai_labor_atlas.cli serve > "$RUNNER_TEMP/atlas-browser.log" 2>&1 &
+          atlas_pid=$!
+          CAREER_FIT_ATLAS_URL=http://127.0.0.1:8765 python -m skillbundle.cli serve > "$RUNNER_TEMP/career-fit-browser.log" 2>&1 &
+          career_pid=$!
+          for url in http://127.0.0.1:8765/ http://127.0.0.1:8766/; do
+            ready=""
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent "$url" > /dev/null; then ready="yes"; break; fi
+              sleep 1
+            done
+            if [[ "$ready" != "yes" ]]; then
+              cat "$RUNNER_TEMP/atlas-browser.log" || true
+              cat "$RUNNER_TEMP/career-fit-browser.log" || true
+              exit 1
+            fi
+          done
+          pwsh -NoProfile -ExecutionPolicy Bypass -File tools/verify_mobile_layout.ps1
