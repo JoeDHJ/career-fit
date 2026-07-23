@@ -1,4 +1,4 @@
-# Career Fit v0.3 requirements
+# Career Fit v0.4 requirements
 
 ## User problem
 
@@ -15,18 +15,20 @@ Career Fit must make those distinctions legible and actionable without claiming 
 5. Support numeric and common spelled-out experience floors such as “five years of experience.”
 6. Detect conservative local negation in candidate text and exclude negated skill mentions from matching while retaining them for auditability.
 7. Match requirements as direct, thin direct, transferable, or missing evidence.
-8. Expose the matching method, including direct skill ID, reviewable transfer crosswalk, and same-category baseline.
-9. Calculate Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence.
+8. Expose the matching method, including direct skill ID and reviewable explicit transfer crosswalks.
+9. Calculate Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and explicit input/evidence/eligibility coverage components.
 10. Keep hard-gate status separate from soft evidence overlap and expose met, not_met, and unknown states.
-11. Generate ranked gaps classified as proof, translation, bridge, foundation, or verification gaps.
-12. Give each priority gap a time horizon, effort estimate, action type, expected artifact, and evidence prompt.
-13. Expose the complete assessment as JSON and render it in a local interactive page.
-14. Keep all user-facing project content in English, including the page, CLI labels, documentation, examples, and screenshots.
-15. Preserve the legacy SkillBundle extraction and benchmark commands during the rename.
-16. Compare two to three target roles for one candidate using the same deterministic analysis and expose the preparation-priority basis.
-17. Expose a Role Fingerprint that separates category-level mismatch from named-skill evidence.
-18. Identify posting-specific skill bundles and turn them into integrated proof-artifact suggestions.
-19. Keep bundle co-occurrence separate from claims about market value, productivity, wages, or hiring probability.
+11. Mark a result `insufficient_information` instead of presenting a fit score when fewer than two requirements, too-short job or candidate text, or no candidate evidence is supplied.
+12. Let users review extracted requirements, confirm hard gates, add known requirements, and add explicitly self-reported evidence before recalculating.
+13. Generate ranked gaps classified as proof, translation, bridge, foundation, or verification gaps.
+14. Give each priority gap a time horizon, effort estimate, action type, expected artifact, and evidence prompt.
+15. Expose the complete assessment as JSON and render it in a local interactive page.
+16. Keep all user-facing project content in English, including the page, CLI labels, documentation, examples, and screenshots.
+17. Preserve the legacy SkillBundle extraction and benchmark commands during the rename.
+18. Compare two to three target roles for one candidate using the same deterministic analysis and expose the preparation-priority basis.
+19. Expose a Role Fingerprint that separates category-level mismatch from named-skill evidence.
+20. Identify posting-specific skill bundles and turn them into integrated proof-artifact suggestions.
+21. Keep bundle co-occurrence separate from claims about market value, productivity, wages, or hiring probability.
 
 ## Non-goals
 

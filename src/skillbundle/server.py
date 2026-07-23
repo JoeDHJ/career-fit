@@ -131,6 +131,16 @@ HTML = r"""<!doctype html>
      .occupation-review-filter-row label { display: grid; gap: 5px; color: var(--muted); font-size: .7rem; }
      .occupation-review-filter-row select { width: 100%; min-width: 0; padding: 7px 8px; font-size: .76rem; }
      .occupation-context-empty { color: var(--muted); font-size: .82rem; }
+     .market-context { display: grid; gap: 12px; margin-top: 10px; padding: 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 13px; }
+     .market-context[hidden] { display: none; }
+     .market-metrics, .market-adjacent { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+     .market-metric, .market-adjacent-card { display: grid; gap: 4px; padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; }
+     .market-metric span, .market-adjacent-card small { color: var(--muted); font-size: .7rem; }
+     .market-metric strong { font-size: .95rem; }
+     .market-tasks { color: var(--muted); font-size: .78rem; }
+     .market-tasks ul { margin: 5px 0 0; padding-left: 18px; }
+     .market-adjacent { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+     .market-adjacent-card strong { font-size: .82rem; }
      .occupation-disclosure { margin-top: 13px; color: var(--muted); font-size: .72rem; }
      .occupation-disclosure summary { cursor: pointer; }
      .occupation-disclosure p { max-width: 680px; margin: 8px 0 0; line-height: 1.45; }
@@ -299,6 +309,24 @@ HTML = r"""<!doctype html>
     .summary-card:nth-child(3) .summary-value { color: var(--green); }
     .summary-value { display: block; margin: 8px 0 4px; color: var(--text); font-size: clamp(1.8rem, 3vw, 2.35rem); font-weight: 680; letter-spacing: -.05em; }
     .summary-note { color: var(--muted); font-size: .78rem; }
+    .coverage-panel, .review-panel { margin-top: 24px; padding: 22px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 15px; }
+    .coverage-panel[hidden], .review-panel[hidden] { display: none; }
+    .coverage-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .coverage-card { display: grid; gap: 5px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .coverage-card span, .coverage-card small { color: var(--muted); font-size: .76rem; }
+    .coverage-card strong { font-size: 1.5rem; }
+    .review-panel { background: var(--surface); }
+    .review-requirements, .review-added-list { display: grid; gap: 8px; }
+    .review-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
+    .review-item-copy { display: grid; gap: 3px; min-width: 0; }
+    .review-item-copy small { color: var(--muted); }
+    .review-item select, .review-evidence-input, .review-add-row input { min-width: 0; padding: 9px 10px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+    .review-evidence-row, .review-add-row { display: flex; gap: 8px; align-items: end; margin-top: 12px; }
+    .review-evidence-row { grid-column: 1 / -1; }
+    .review-evidence-row input { flex: 1; }
+    .review-add-row label { display: grid; flex: 1; gap: 5px; color: var(--muted); font-size: .78rem; }
+    .review-add-row label span { font-size: .7rem; }
+    .review-added-list { margin-top: 10px; color: var(--muted); font-size: .8rem; }
     .signal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .signal-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 18px; align-items: center; padding: 21px; box-shadow: none; overflow: hidden; position: relative; }
     .signal-card::after { display: none; }
@@ -347,8 +375,10 @@ HTML = r"""<!doctype html>
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid, .comparison-grid { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
+    @media (max-width: 700px) { .coverage-grid { grid-template-columns: 1fr; } .review-item { grid-template-columns: 1fr; } .review-evidence-row, .review-add-row { align-items: stretch; flex-direction: column; } .review-evidence-row input, .review-add-row input { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   </style>
-</head>
+  </head>
 <body>
   <main class="shell">
     <header class="topbar">
@@ -402,6 +432,13 @@ HTML = r"""<!doctype html>
           <div id="occupation-candidates" class="occupation-candidates"></div>
           <div id="occupation-context-result" hidden>
             <p id="occupation-context-title" class="occupation-interpretation"></p>
+            <div id="market-context" class="market-context" hidden>
+              <div class="section-head"><div><span class="eyebrow">Market context</span><h4>Descriptive signals for this occupation</h4></div><p id="market-context-interpretation"></p></div>
+              <div id="market-metrics" class="market-metrics"></div>
+              <div id="market-tasks" class="market-tasks"></div>
+              <div id="market-adjacent" class="market-adjacent"></div>
+              <small id="market-provenance" class="detail-copy"></small>
+            </div>
             <div class="occupation-review-filter-row">
               <label for="occupation-review-source-filter">Source
                 <select id="occupation-review-source-filter"><option value="all">All sources</option></select>
@@ -424,8 +461,23 @@ HTML = r"""<!doctype html>
         <div class="summary-grid" aria-live="polite">
           <article class="summary-card"><span class="label">Evidence fit</span><strong id="fit-score" class="summary-value">—</strong><span class="summary-note">weighted requirement overlap</span></article>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
-          <article class="summary-card"><span class="label">Information confidence</span><strong id="confidence-score" class="summary-value">—</strong><span class="summary-note">clarity and evidence completeness</span></article>
+          <article class="summary-card"><span class="label">Input coverage</span><strong id="input-coverage-score" class="summary-value">—</strong><span class="summary-note">mapped requirements, not probability</span></article>
           <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
+        </div>
+        <div id="coverage-panel" class="coverage-panel" hidden>
+          <div class="section-head"><div><span class="eyebrow">Coverage, not confidence</span><h3>What the current text supports</h3></div><p>These components show what was mapped from the supplied inputs. They are not calibrated probabilities and do not measure hiring likelihood.</p></div>
+          <div class="coverage-grid">
+            <article class="coverage-card"><span>Job requirement coverage</span><strong id="requirement-coverage-score">—</strong><small>named requirements identified</small></article>
+            <article class="coverage-card"><span>Evidence coverage</span><strong id="evidence-coverage-score">—</strong><small>requirements with mapped evidence</small></article>
+            <article class="coverage-card"><span>Eligibility verification</span><strong id="eligibility-coverage-score">—</strong><small>hard gates with known status</small></article>
+          </div>
+        </div>
+        <div id="review-panel" class="review-panel" hidden>
+          <div class="section-head"><div><span class="eyebrow">Review before relying</span><h3>Confirm the extraction</h3></div><p>The first result is provisional. Remove false requirements, add missed ones, confirm eligibility gates, and add self-reported evidence before using the plan.</p></div>
+          <div id="review-requirements" class="review-requirements"></div>
+          <div class="review-add-row"><label for="added-requirement-input">Add a missed requirement <span>known skills only</span><input id="added-requirement-input" type="text" placeholder="e.g. SQL" /></label><button id="add-requirement-button" class="secondary" type="button">Add requirement</button></div>
+          <div id="review-added-list" class="review-added-list"></div>
+          <div class="toolbar"><button id="apply-review-button" type="button">Recalculate after review</button><span id="review-status" class="status" aria-live="polite">Review the items above before relying on the result.</span></div>
         </div>
         <div id="fingerprint-panel" class="fingerprint-panel" hidden>
           <div class="section-head"><div><span class="eyebrow">Role fingerprint</span><h3>See the dimensions behind the role.</h3></div><p>Categories organize the posting; named skills remain the evidence unit. This is a descriptive mismatch view, not an ability test.</p></div>
@@ -507,6 +559,12 @@ HTML = r"""<!doctype html>
       const occupationCandidates = document.getElementById("occupation-candidates");
       const occupationContextResult = document.getElementById("occupation-context-result");
       const occupationContextTitle = document.getElementById("occupation-context-title");
+      const marketContext = document.getElementById("market-context");
+      const marketContextInterpretation = document.getElementById("market-context-interpretation");
+      const marketMetrics = document.getElementById("market-metrics");
+      const marketTasks = document.getElementById("market-tasks");
+      const marketAdjacent = document.getElementById("market-adjacent");
+      const marketProvenance = document.getElementById("market-provenance");
       const occupationReviews = document.getElementById("occupation-reviews");
       const occupationDisclosure = document.getElementById("occupation-disclosure-text");
       const occupationReviewSourceFilter = document.getElementById("occupation-review-source-filter");
@@ -526,13 +584,24 @@ HTML = r"""<!doctype html>
       const decisionLabel = document.getElementById("decision-label");
       const fitScore = document.getElementById("fit-score");
       const readinessScore = document.getElementById("readiness-score");
-      const confidenceScore = document.getElementById("confidence-score");
       const blockedCount = document.getElementById("blocked-count");
       const deepReviewButton = document.getElementById("deep-review-button");
       const semanticStatus = document.getElementById("semantic-status");
       const semanticPanel = document.getElementById("semantic-panel");
       const semanticSummary = document.getElementById("semantic-summary");
       const semanticList = document.getElementById("semantic-list");
+      const coveragePanel = document.getElementById("coverage-panel");
+      const inputCoverageScore = document.getElementById("input-coverage-score");
+      const requirementCoverageScore = document.getElementById("requirement-coverage-score");
+      const evidenceCoverageScore = document.getElementById("evidence-coverage-score");
+      const eligibilityCoverageScore = document.getElementById("eligibility-coverage-score");
+      const reviewPanel = document.getElementById("review-panel");
+      const reviewRequirements = document.getElementById("review-requirements");
+      const reviewAddedList = document.getElementById("review-added-list");
+      const addedRequirementInput = document.getElementById("added-requirement-input");
+      const addRequirementButton = document.getElementById("add-requirement-button");
+      const applyReviewButton = document.getElementById("apply-review-button");
+      const reviewStatus = document.getElementById("review-status");
       const llmEnabled = __LLM_ENABLED__;
       const statusLabels = {
         direct: "Direct evidence",
@@ -558,6 +627,7 @@ HTML = r"""<!doctype html>
       };
       let latest = null;
       let latestOccupationContext = null;
+      let reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
 
       function reviewSourceLabel(value) {
         return { user_submitted: "User submitted", reddit: "Reddit", indeed: "Indeed", other: "Other public source" }[value] || "Public source";
@@ -568,8 +638,36 @@ HTML = r"""<!doctype html>
       function reviewTopicLabel(value) {
         return { pay_benefits: "Pay and benefits", interview_management: "Interview and management", work_environment: "Work environment", workload: "Workload", growth: "Growth", tasks_tools: "Tasks and tools", other: "Other" }[value] || value;
       }
+      function marketNumber(value, suffix) { return value == null || value === "" ? "Not available" : String(value) + (suffix || ""); }
+      function marketMoney(value) { return value == null || value === "" ? "Not available" : "$" + Math.round(Number(value)).toLocaleString("en-US"); }
+      function renderMarketContext(payload) {
+        const context = payload.market_context || {};
+        const metrics = context.metrics || {};
+        marketContext.hidden = !Object.keys(metrics).length;
+        clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent);
+        if (marketContext.hidden) return;
+        marketContextInterpretation.textContent = context.interpretation || "Descriptive market context only; it does not change the job-specific score.";
+        [["Median wage", marketMoney(metrics.median_annual_wage)], ["Employment", marketNumber(metrics.employment_2024)], ["Annual openings", marketNumber(metrics.annual_openings_2024_2034)], ["Projected change", marketNumber(metrics.employment_change_2024_2034_pct, "%")], ["AI exposure", marketNumber(metrics.ai_exposure)], ["Occupation", context.title || "Not available"]].forEach(function (item) {
+          const card = make("article", "market-metric"); card.append(make("span", "", item[0]), make("strong", "", item[1])); marketMetrics.appendChild(card);
+        });
+        const tasks = context.representative_tasks || [];
+        marketTasks.appendChild(make("strong", "", tasks.length ? "Representative tasks" : "No representative tasks available"));
+        if (tasks.length) { const list = document.createElement("ul"); tasks.forEach(function (item) { list.appendChild(make("li", "", item.task_statement)); }); marketTasks.appendChild(list); }
+        const adjacent = context.adjacent_occupations || [];
+        if (adjacent.length) {
+          marketAdjacent.appendChild(make("strong", "", "Descriptive adjacent occupations"));
+          adjacent.slice(0, 4).forEach(function (item) {
+            const card = make("article", "market-adjacent-card");
+            card.append(make("strong", "", item.title || "Occupation"), make("small", "", "Similarity " + marketNumber(item.structured_similarity)), make("small", "", "Wage " + marketMoney((item.labor_market || {}).median_annual_wage)), make("small", "", item.training_hint || "Use shared tasks to choose a focused proof sample."));
+            marketAdjacent.appendChild(card);
+          });
+        }
+        const provenance = context.provenance || {};
+        marketProvenance.textContent = "Data: O*NET " + (provenance.onet_version || "not specified") + " · Wage " + (provenance.wage_vintage || "not specified") + " · Projections " + (provenance.projection_vintage || "not specified") + ".";
+      }
       function renderOccupationReviews(payload) {
         latestOccupationContext = payload;
+        renderMarketContext(payload);
         clearNode(occupationReviews);
         const context = payload.reviews || {};
         occupationDisclosure.textContent = context.disclosure || "Reviews are user-generated and may be incomplete, subjective, outdated, or biased. They are not verified facts or representative of all workers. Source links and dates are shown where available.";
@@ -684,8 +782,9 @@ HTML = r"""<!doctype html>
       }
       function clearNode(node) { while (node.firstChild) node.removeChild(node.firstChild); }
       function setText(node, value) { node.textContent = value == null ? "—" : String(value); }
-      function percent(value) { return Math.round(Number(value || 0)) + "/100"; }
+      function percent(value) { return value == null ? "Unavailable" : Math.round(Number(value)) + "/100"; }
       function setRing(ringId, value, labelId) {
+        if (value == null) { document.getElementById(ringId).style.setProperty("--ring-progress", "0%"); setText(document.getElementById(labelId), "—"); return; }
         const number = Math.max(0, Math.min(100, Number(value || 0)));
         document.getElementById(ringId).style.setProperty("--ring-progress", number + "%");
         setText(document.getElementById(labelId), Math.round(number));
@@ -724,7 +823,6 @@ HTML = r"""<!doctype html>
         const labels = {
           direct_skill_id: "Direct evidence",
           reviewable_transfer_crosswalk: "Transferable evidence",
-          same_category_baseline: "Related skill category",
           candidate_constraint_rule: "Eligibility check",
         };
         return labels[value] || "Requirement and evidence comparison";
@@ -834,6 +932,59 @@ HTML = r"""<!doctype html>
           bundleGrid.appendChild(card);
         });
       }
+      function renderAddedReviewItems() {
+        clearNode(reviewAddedList);
+        reviewState.added_requirements.forEach(function (item) {
+          reviewAddedList.appendChild(make("span", "", "Added requirement: " + item.text));
+        });
+        reviewState.added_evidence.forEach(function (item) {
+          reviewAddedList.appendChild(make("span", "", "Self-reported evidence for " + item.canonical_skill + ": " + item.source_text));
+        });
+      }
+      function renderReview(payload) {
+        const queue = payload.review_queue || [];
+        reviewPanel.hidden = false;
+        clearNode(reviewRequirements);
+        queue.forEach(function (item) {
+          const row = make("div", "review-item");
+          const copy = make("div", "review-item-copy");
+          copy.append(make("strong", "", item.canonical_skill || item.original_text), make("small", "", item.original_text || "Extracted requirement"));
+          row.appendChild(copy);
+          if (item.hard_constraint) {
+            const select = document.createElement("select");
+            select.setAttribute("aria-label", "Confirm " + (item.canonical_skill || "eligibility requirement"));
+            [["unknown", "Needs verification"], ["met", "I confirm it is met"], ["not_met", "I confirm it is not met"]].forEach(function (optionValue) {
+              const option = make("option", "", optionValue[1]); option.value = optionValue[0]; select.appendChild(option);
+            });
+            select.value = reviewState.constraint_status_overrides[item.requirement_id] || item.status || "unknown";
+            select.addEventListener("change", function () { reviewState.constraint_status_overrides[item.requirement_id] = select.value; reviewStatus.textContent = "Eligibility confirmation recorded. Recalculate when the review is complete."; });
+            row.appendChild(select);
+          } else {
+            const label = make("label", "review-check", "Keep this extracted requirement");
+            const checkbox = document.createElement("input"); checkbox.type = "checkbox"; checkbox.checked = !reviewState.removed_requirement_ids.includes(item.requirement_id);
+            checkbox.addEventListener("change", function () {
+              if (checkbox.checked) reviewState.removed_requirement_ids = reviewState.removed_requirement_ids.filter(function (value) { return value !== item.requirement_id; });
+              else if (!reviewState.removed_requirement_ids.includes(item.requirement_id)) reviewState.removed_requirement_ids.push(item.requirement_id);
+              reviewStatus.textContent = "Requirement selection recorded. Recalculate when the review is complete.";
+            });
+            label.prepend(checkbox); row.appendChild(label);
+            const evidenceRow = make("div", "review-evidence-row");
+            const evidenceInput = make("input", "review-evidence-input"); evidenceInput.type = "text"; evidenceInput.placeholder = "Optional: add a self-reported evidence note"; evidenceInput.setAttribute("aria-label", "Add evidence for " + item.canonical_skill);
+            const evidenceButton = make("button", "secondary", "Add evidence note"); evidenceButton.type = "button";
+            evidenceButton.addEventListener("click", function () {
+              const sourceText = evidenceInput.value.trim();
+              if (!sourceText) { reviewStatus.textContent = "Write a short evidence note first."; return; }
+              reviewState.added_evidence = reviewState.added_evidence.filter(function (value) { return value.skill_id !== item.skill_id; });
+              reviewState.added_evidence.push({ skill_id: item.skill_id, canonical_skill: item.canonical_skill, analysis_category_code: item.analysis_category_code, source_text: sourceText });
+              evidenceInput.value = ""; reviewStatus.textContent = "Self-reported evidence recorded. It will remain labeled as self-reported.";
+            });
+            evidenceRow.append(evidenceInput, evidenceButton); row.appendChild(evidenceRow);
+          }
+          reviewRequirements.appendChild(row);
+        });
+        renderAddedReviewItems();
+        reviewStatus.textContent = payload.review && payload.review.status === "user_confirmed" ? "User confirmations applied. You can review and recalculate again." : "The current result is provisional until you confirm the extracted items.";
+      }
       function renderComparison(payload) {
         clearNode(comparisonGrid);
         (payload.roles || []).forEach(function (item) {
@@ -845,7 +996,7 @@ HTML = r"""<!doctype html>
           card.appendChild(make("h3", "", item.role_label || "Target role"));
           card.appendChild(make("p", "comparison-basis", item.priority_basis || "Preparation priority based on the supplied evidence."));
           const metrics = make("div", "comparison-metrics");
-          [["Readiness", percent(summary.application_readiness_score)], ["Evidence fit", percent(summary.evidence_fit_score)], ["Confidence", percent(summary.assessment_confidence)], ["Eligibility", summary.blocking_constraint_count ? String(summary.blocking_constraint_count) + " to verify" : "Clear"]].forEach(function (pair) {
+          [["Readiness", percent(summary.application_readiness_score)], ["Evidence fit", percent(summary.evidence_fit_score)], ["Input coverage", percent(summary.input_completeness_score)], ["Eligibility", summary.blocking_constraint_count ? String(summary.blocking_constraint_count) + " to verify" : "Clear"]].forEach(function (pair) {
             const metric = make("div", "comparison-metric");
             metric.append(make("span", "", pair[0]), make("strong", "", pair[1]));
             metrics.appendChild(metric);
@@ -873,26 +1024,50 @@ HTML = r"""<!doctype html>
         const summary = payload.summary || {};
         setText(fitScore, percent(summary.evidence_fit_score));
         setText(readinessScore, percent(summary.application_readiness_score));
-        setText(confidenceScore, percent(summary.assessment_confidence));
+        setText(inputCoverageScore, percent(summary.input_completeness_score));
         setText(blockedCount, summary.blocking_constraint_count);
+        coveragePanel.hidden = false;
+        setText(requirementCoverageScore, percent(summary.input_completeness_score));
+        setText(evidenceCoverageScore, percent(summary.evidence_coverage_score));
+        setText(eligibilityCoverageScore, percent(summary.eligibility_verification_score));
         setText(decisionLabel, summary.decision_label);
         setRing("capability-ring", summary.capability_signal_score, "capability-signal");
         setRing("proof-ring", summary.proof_signal_score, "proof-signal");
         setRing("readiness-ring", summary.application_readiness_score, "readiness-signal");
         renderMatrix(payload.requirements || []);
-        renderChart(payload.requirements || []);
+        if (summary.analysis_status === "insufficient_information") clearNode(fitChart); else renderChart(payload.requirements || []);
         renderGaps(payload.next_actions || payload.gaps || []);
         renderFingerprint(payload.role_fingerprint);
-        status.textContent = "Analysis ready · " + (summary.requirement_count || 0) + " requirements mapped";
+        renderReview(payload);
+        status.textContent = (summary.analysis_status === "insufficient_information" ? "More input needed · " : summary.review_status === "provisional" ? "Provisional analysis · " : "Reviewed analysis · ") + (summary.requirement_count || 0) + " requirements mapped";
       }
       async function analyze() {
         if (!jobInput.value.trim() || !candidateInput.value.trim()) { status.textContent = "Both texts are required."; return; }
+        const currentSignature = jobInput.value + "\n---\n" + candidateInput.value;
+        if (reviewState.base_signature && reviewState.base_signature !== currentSignature) reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
         status.textContent = "Analyzing your inputs…";
         try {
-          const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value }) });
+          const request = { job_text: jobInput.value, candidate_text: candidateInput.value };
+          if (reviewState.applied) request.review = reviewState;
+          const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) throw new Error("request failed");
           render(await response.json());
         } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
+      }
+      async function applyReview() {
+        if (!latest) { reviewStatus.textContent = "Run an analysis before reviewing the extraction."; return; }
+        reviewState.applied = true;
+        reviewState.base_signature = jobInput.value + "\n---\n" + candidateInput.value;
+        reviewStatus.textContent = "Recalculating from the reviewed inputsâ€¦";
+        await analyze();
+      }
+      function addRequirement() {
+        const text = addedRequirementInput.value.trim();
+        if (!text) { reviewStatus.textContent = "Enter a requirement before adding it."; return; }
+        reviewState.added_requirements.push({ text: text });
+        addedRequirementInput.value = "";
+        renderAddedReviewItems();
+        reviewStatus.textContent = "The added requirement will be mapped when you recalculate.";
       }
       function downloadPlan() {
         if (!latest) { status.textContent = "Run an analysis before downloading the plan."; return; }
@@ -924,19 +1099,20 @@ HTML = r"""<!doctype html>
       }
       function reset() {
         latest = null;
+        reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
         jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
-        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; clearNode(semanticList); semanticSummary.textContent = "";
-        clearNode(occupationCandidates); occupationContextResult.hidden = true; occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
+        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); semanticSummary.textContent = "";
+        clearNode(occupationCandidates); occupationContextResult.hidden = true; marketContext.hidden = true; clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent); occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
         latestOccupationContext = null;
-        [fitScore, readinessScore, confidenceScore, blockedCount].forEach(function (node) { node.textContent = "—"; });
+        [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
         downloadButton.disabled = true;
         deepReviewButton.disabled = true;
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
         decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; compareStatus.textContent = "Use this when you are deciding where to focus first."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
       }
-      exampleButton.addEventListener("click", function () { jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
+      exampleButton.addEventListener("click", function () { reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" }; jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
       occupationSearchButton.addEventListener("click", findOccupations);
@@ -944,6 +1120,8 @@ HTML = r"""<!doctype html>
       downloadButton.addEventListener("click", downloadPlan);
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
+      addRequirementButton.addEventListener("click", addRequirement);
+      applyReviewButton.addEventListener("click", applyReview);
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";
       jobInput.value = DEFAULT_JOB;
@@ -989,7 +1167,7 @@ def _fetch_atlas_context(params: dict[str, str]) -> tuple[dict[str, object], int
     url = f"{ATLAS_URL}/api/occupation-context?{urlencode(params)}"
     request = Request(url, headers={"Accept": "application/json"})
     try:
-        with build_opener(ProxyHandler({})).open(request, timeout=3) as response:
+        with build_opener(ProxyHandler({})).open(request, timeout=8) as response:
             payload = json.loads(response.read(240_000).decode("utf-8"))
             return payload, response.status
     except HTTPError as exc:
@@ -1021,6 +1199,29 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        request_limits = {
+            "/api/deep-review": 120_000,
+            "/api/compare": 160_000,
+            "/api/analyze": 160_000,
+        }
+        if parsed.path in request_limits:
+            try:
+                request_length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self._send_json(
+                    {"error": "invalid_request", "detail": "invalid Content-Length"},
+                    status=400,
+                )
+                return
+            if request_length < 0 or request_length > request_limits[parsed.path]:
+                self._send_json(
+                    {
+                        "error": "request_too_large",
+                        "detail": f"request body must be at most {request_limits[parsed.path]} bytes",
+                    },
+                    status=413,
+                )
+                return
         if parsed.path == "/api/deep-review":
             try:
                 length = min(int(self.headers.get("Content-Length", "0")), 120_000)
@@ -1088,6 +1289,7 @@ class Handler(BaseHTTPRequestHandler):
                 str(payload.get("job_text", "")),
                 str(payload.get("candidate_text", "")),
                 payload.get("evidence"),
+                payload.get("review"),
             )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             self._send_json(

@@ -3,6 +3,12 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      atlas_ref:
+        description: "AI Labor Atlas branch, tag, or commit to use for integration verification"
+        required: false
+        default: main
 
 jobs:
   test:
@@ -27,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: JoeDHJ/ai-labor-atlas
-          ref: main
+          ref: ${{ inputs.atlas_ref || 'main' }}
           path: ai-labor-atlas
           token: ${{ github.token }}
       - uses: actions/setup-python@v5

@@ -85,6 +85,114 @@ class CareerFitTests(unittest.TestCase):
         result = analyze_fit("Must have Java.", "Built Python projects.")
         self.assertEqual(result["requirements"][0]["status"], "missing")
 
+    def test_hard_gates_stay_unknown_when_level_or_domain_is_not_proven(self):
+        education = analyze_fit(
+            "Master's degree required.", "I have a Bachelor's degree."
+        )
+        self.assertEqual(education["hard_constraints"][0]["status"], "not_met")
+        both_degrees = analyze_fit(
+            "Master's degree required.",
+            "I have a Bachelor's degree and a Master's degree.",
+        )
+        self.assertEqual(both_degrees["hard_constraints"][0]["status"], "met")
+        higher_degree = analyze_fit(
+            "Bachelor's degree required.",
+            "I have a Master's degree.",
+        )
+        self.assertEqual(higher_degree["hard_constraints"][0]["status"], "met")
+        field = analyze_fit(
+            "Master's degree in computer science required.",
+            "I have a Master's degree in history.",
+        )
+        self.assertEqual(field["hard_constraints"][0]["status"], "unknown")
+        experience = analyze_fit(
+            "5 years of people analytics experience required.",
+            "I have 8 years of software engineering experience.",
+        )
+        self.assertEqual(experience["hard_constraints"][0]["status"], "unknown")
+        no_sponsorship = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not need sponsorship and am authorized to work in the United States.",
+        )
+        self.assertEqual(no_sponsorship["hard_constraints"][0]["status"], "met")
+        no_sponsorship_rephrase = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not require sponsorship.",
+        )
+        self.assertEqual(no_sponsorship_rephrase["hard_constraints"][0]["status"], "met")
+        contradictory = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not need sponsorship, but I am not authorized to work.",
+        )
+        self.assertEqual(contradictory["hard_constraints"][0]["status"], "not_met")
+
+    def test_hard_gates_without_candidate_evidence_do_not_produce_a_total_score(self):
+        result = analyze_fit(
+            "Bachelor's degree required. Five years of operations experience required.",
+            "I am interested in this role.",
+        )
+        self.assertEqual(result["summary"]["analysis_status"], "insufficient_information")
+        self.assertIsNone(result["summary"]["application_readiness_score"])
+        self.assertIn("No candidate evidence was identified.", result["summary"]["analysis_reasons"])
+
+    def test_low_information_input_does_not_produce_a_reliable_score(self):
+        result = analyze_fit("Must have Python.", "Built Python projects.")
+        self.assertEqual(result["summary"]["analysis_status"], "insufficient_information")
+        self.assertIsNone(result["summary"]["evidence_fit_score"])
+        self.assertEqual(result["summary"]["decision"], "insufficient_information")
+        keyword_stack = analyze_fit(
+            "Must have Python and SQL.",
+            "Python SQL data tools and reporting experience",
+        )
+        self.assertEqual(keyword_stack["summary"]["analysis_status"], "insufficient_information")
+        self.assertIsNone(keyword_stack["summary"]["evidence_fit_score"])
+
+    def test_structured_evidence_can_support_a_short_profile(self):
+        result = analyze_fit(
+            "Must have Python and SQL.",
+            "Python",
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "source_text": "Built a Python data pipeline.",
+                }
+            ],
+        )
+        self.assertEqual(result["summary"]["analysis_status"], "scored")
+
+    def test_user_review_can_remove_add_and_confirm_without_silent_score_edits(self):
+        base = analyze_fit(
+            "Must have Python and SQL. Bachelor's degree required.",
+            "Built Python projects.",
+        )
+        education = next(
+            item for item in base["hard_constraints"] if item["requirement_type"] == "education"
+        )
+        sql = next(item for item in base["requirements"] if item.get("canonical_skill") == "SQL")
+        reviewed = analyze_fit(
+            "Must have Python and SQL. Bachelor's degree required.",
+            "Built Python projects.",
+            review={
+                "removed_requirement_ids": [sql["requirement_id"]],
+                "constraint_status_overrides": {education["requirement_id"]: "met"},
+                "added_evidence": [
+                    {
+                        "skill_id": "software.sql",
+                        "canonical_skill": "SQL",
+                        "analysis_category_code": "specific_software_skill",
+                        "source_text": "Built a SQL reporting workflow.",
+                    }
+                ],
+            },
+        )
+        self.assertEqual(reviewed["review"]["status"], "user_confirmed")
+        self.assertTrue(reviewed["review"]["changes"])
+        self.assertEqual(
+            next(item for item in reviewed["hard_constraints"] if item["requirement_type"] == "education")["matching_method"],
+            "user_confirmed_constraint",
+        )
+
     def test_supervised_ner_trains_and_extracts(self):
         rows = [{"tokens": ["Use", "Python"], "tags_skill": ["O", "B-SKILL"]}]
         model = PerceptronNER()
@@ -228,6 +336,11 @@ class CareerFitTests(unittest.TestCase):
             "The profile does not state current United States work authorization.",
         )
         self.assertEqual(unresolved["hard_constraints"][0]["status"], "unknown")
+        no_sponsorship = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not need sponsorship and am authorized to work in the United States.",
+        )
+        self.assertEqual(no_sponsorship["hard_constraints"][0]["status"], "met")
 
     def test_v03_exposes_three_job_seeker_signals_and_actions(self):
         result = analyze_fit(
@@ -237,7 +350,7 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("capability_signal_score", summary)
         self.assertIn("proof_signal_score", summary)
         self.assertIn("application_readiness_score", summary)
-        self.assertEqual(result["schema_version"], "career_fit.v0.3")
+        self.assertEqual(result["schema_version"], "career_fit.v0.4")
         self.assertTrue(result["next_actions"])
         self.assertIn("expected_artifact", result["next_actions"][0])
 
@@ -258,6 +371,10 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn('id="fingerprint-panel"', page)
         self.assertIn("Role fingerprint", page)
         self.assertIn("They do not estimate market value", page)
+        self.assertIn('id="review-panel"', page)
+        self.assertIn('id="input-coverage-score"', page)
+        self.assertIn('id="market-context"', page)
+        self.assertNotIn("Information confidence", page)
 
     def test_client_page_exposes_confirmed_occupation_review_context(self):
         page = render_page()
@@ -351,6 +468,16 @@ class CareerFitTests(unittest.TestCase):
             )
             self.assertEqual(status, 400)
             self.assertIn("at most three", result["detail"])
+            status, result = post(
+                "/api/analyze",
+                {
+                    "job_text": "Must have Python and SQL.",
+                    "candidate_text": "Built Python research projects.",
+                    "review": {"removed_requirement_ids": ["req-002"]},
+                },
+            )
+            self.assertEqual(status, 200)
+            self.assertEqual(result["review"]["status"], "user_confirmed")
         finally:
             server.shutdown()
             server.server_close()

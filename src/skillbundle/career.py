@@ -6,7 +6,12 @@ from itertools import combinations
 from typing import Any
 
 from .dictionary import extract
-from .requirements import IMPORTANCE_WEIGHTS, extract_requirements, parse_number
+from .requirements import (
+    IMPORTANCE_WEIGHTS,
+    education_level,
+    extract_requirements,
+    parse_number,
+)
 from .taxonomy import category_map
 
 
@@ -66,17 +71,26 @@ TRANSFER_SKILL_IDS = {
     },
     "skill.leadership": {"skill.supervision", "skill.project_management"},
 }
-CATEGORY_BASELINE_TRANSFER = {
-    "cognitive_skill",
-    "social_skill",
-    "character_skill",
-    "writing_skill",
-    "customer_project_management_skill",
-    "people_management_skill",
-    "financial_skill",
-    "general_computer_skill",
-    "ai_skill",
-}
+# Broad category membership is useful for the role fingerprint, but it is not
+# strong enough to count as evidence for the core fit score. Only explicit,
+# versioned skill crosswalks above can produce transferable evidence.
+MIN_REQUIREMENTS_FOR_SCORING = 2
+MIN_JOB_TEXT_LENGTH = 20
+MIN_CANDIDATE_TEXT_LENGTH = 20
+VALID_CONSTRAINT_STATUSES = {"met", "not_met", "unknown"}
+_CANDIDATE_ACTION_CUES = re.compile(
+    r"\b(?:built|created|developed|designed|implemented|led|managed|delivered|"
+    r"analyzed|automated|improved|used|researched|coordinated|wrote|maintained|"
+    r"deployed|taught|supervised|conducted|measured|produced|supported|owned|"
+    r"optimized|worked)\b",
+    re.IGNORECASE,
+)
+_CANDIDATE_CONTEXT_CUES = re.compile(
+    r"\b(?:project|pipeline|dashboard|dataset|workflow|system|application|"
+    r"report|research|role|team|client|user|record|result|outcome|experience|"
+    r"year|month)\w*\b|%|\b\d+(?:\.\d+)?\b",
+    re.IGNORECASE,
+)
 
 
 def _category_profile(
@@ -392,6 +406,8 @@ def evidence_from_text(text: str) -> list[dict[str, Any]]:
 
 
 def _normalize_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if not isinstance(evidence, list) or len(evidence) > 100:
+        raise ValueError("evidence must be a list with at most 100 items")
     normalized = []
     for index, item in enumerate(evidence, start=1):
         copied = dict(item)
@@ -408,68 +424,160 @@ def _normalize_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return normalized
 
 
+def _negative_gate_statement(text: str, terms: str) -> bool:
+    return bool(
+        re.search(
+            rf"\b(no|without|not|lack(?:s|ing)?)\b[^.!?;\n]{{0,45}}\b(?:{terms})\b",
+            text.casefold(),
+        )
+    )
+
+
+def _education_field_matches(required_field: str | None, candidate_text: str) -> bool:
+    if not required_field:
+        return True
+    required_tokens = {
+        token
+        for token in re.findall(r"[a-z0-9]+", required_field.casefold())
+        if len(token) > 2
+    }
+    candidate_lower = candidate_text.casefold()
+    return bool(required_tokens) and required_tokens.issubset(
+        set(re.findall(r"[a-z0-9]+", candidate_lower))
+    )
+
+
+def _experience_area_matches(required_area: str | None, candidate_clause: str) -> bool:
+    if not required_area:
+        return True
+    stopwords = {
+        "and",
+        "of",
+        "the",
+        "in",
+        "with",
+        "related",
+        "professional",
+        "years",
+        "year",
+        "experience",
+    }
+    required_tokens = {
+        token
+        for token in re.findall(r"[a-z0-9]+", required_area.casefold())
+        if len(token) > 2 and token not in stopwords
+    }
+    candidate_tokens = set(re.findall(r"[a-z0-9]+", candidate_clause.casefold()))
+    return bool(required_tokens) and required_tokens.issubset(candidate_tokens)
+
+
 def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
+    """Return a conservative gate status; ambiguous text stays unknown."""
+
     lowered = candidate_text.casefold()
     requirement_type = requirement["requirement_type"]
     if requirement_type == "professional_license":
-        positive = re.search(
-            r"\b(licensed|licence|license|certified|certification)\b", lowered
-        )
-        negative = re.search(
-            r"\b(no|without|lack(?:s|ing)?|not)\b[^.!?;\n]{0,35}\b(license|licence|certification|certified)\b",
+        label = str(requirement.get("canonical_skill", "license"))
+        terms = r"license|licence|certification|certified"
+        if _negative_gate_statement(lowered, terms):
+            return "not_met"
+        exact_terms = [
+            token
+            for token in re.findall(r"[a-z0-9]+", label.casefold())
+            if token not in {"a", "an", "the", "valid", "current", "professional"}
+        ]
+        if not exact_terms:
+            return "unknown"
+        if all(re.search(rf"\b{re.escape(token)}\b", lowered) for token in exact_terms):
+            return "met"
+        return "unknown"
+
+    if requirement_type == "work_authorization":
+        if re.search(
+            r"\b(?:not authorized|no work authorization|without authorization|"
+            r"lack(?:s|ing)?\s+(?:any\s+)?(?:work\s+)?authorization|"
+            r"(?:do not|don't|does not|doesn't)\s+have\s+(?:any\s+)?"
+            r"(?:work\s+)?authorization|cannot work|unable to work|no valid visa)\b",
             lowered,
-        )
-    elif requirement_type == "work_authorization":
-        positive = re.search(
-            r"\b(authorized to work|authorization to work|work authorization|eligible to work|"
-            r"right to work|work permit|valid visa|does not require sponsorship|no sponsorship required)\b",
-            lowered,
-        )
-        negative = re.search(
-            r"\b(?:not authorized|no work authorization|without authorization|requires sponsorship|"
-            r"need(?:s)? sponsorship|no valid visa)\b",
-            lowered,
-        )
-        missing_statement = re.search(
+        ):
+            return "not_met"
+        if re.search(
             r"\b(?:does not state|not stated|not mentioned|no mention)\b"
             r"[^.!?;\n]{0,45}\b(?:authorization|authorized|permit|visa|right to work)\b",
             lowered,
-        )
-    elif requirement_type == "education":
-        positive = re.search(
-            r"\b(bachelor|master|ph\.?d|doctorate|doctoral)\b", lowered
-        )
-        negative = re.search(
-            r"\b(no|without|not|lack(?:s|ing)?)\b[^.!?;\n]{0,25}\b(bachelor|master|ph\.?d|doctorate|doctoral)\b",
+        ):
+            return "unknown"
+        no_sponsorship = re.search(
+            r"\b(?:i\s+)?(?:do not|don't|does not|doesn't)\s+"
+            r"(?:need|require)(?:s)?\s+(?:any\s+)?sponsorship\b|"
+            r"\bno sponsorship required\b",
             lowered,
         )
-    elif requirement_type == "experience_floor":
-        required = int(requirement.get("required_years", 0))
-        years = re.findall(
-            r"\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+years?\b",
+        contradictory_sponsorship = re.search(
+            r"\b(?:but|however|although)\b[^.!?;\n]{0,80}"
+            r"\b(?:need|needs|require|requires)\s+sponsorship\b",
             lowered,
         )
-        positive = any((parse_number(value) or 0) >= required for value in years)
-        negative = None
-    else:
-        positive = None
-        negative = None
-    if negative:
-        return "not_met"
-    if requirement_type == "work_authorization" and missing_statement:
+        if no_sponsorship and contradictory_sponsorship:
+            return "unknown"
+        if no_sponsorship:
+            return "met"
+        if re.search(
+            r"\b(?:requires sponsorship|needs sponsorship)\b",
+            lowered,
+        ):
+            return "not_met"
+        if re.search(
+            r"\b(?:authorized to work|authorization to work|work authorization|eligible to work|"
+            r"right to work|work permit|valid visa|does not require sponsorship|no sponsorship required)\b",
+            lowered,
+        ):
+            return "met"
         return "unknown"
-    if positive:
-        return "met"
+
+    if requirement_type == "education":
+        if _negative_gate_statement(
+            lowered, r"bachelor|master|ph\.?d|doctorate|doctoral"
+        ):
+            return "not_met"
+        required_level = requirement.get("education_level") or education_level(
+            str(requirement.get("canonical_skill", ""))
+        )
+        candidate_level = education_level(lowered)
+        if required_level is None or candidate_level is None:
+            return "unknown"
+        if not _education_field_matches(
+            str(requirement.get("education_field"))
+            if requirement.get("education_field")
+            else None,
+            lowered,
+        ):
+            return "unknown"
+        return "met" if candidate_level >= required_level else "not_met"
+
+    if requirement_type == "experience_floor":
+        required = int(requirement.get("required_years", 0))
+        required_area = requirement.get("experience_area")
+        for match in re.finditer(
+            r"\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+"
+            r"years?\s+(?:of\s+)?(?P<area>[^.!?;\n]{0,100}?)\bexperience\b[^.!?;\n]*",
+            lowered,
+        ):
+            years = parse_number(match.group(1)) or 0
+            if years >= required and _experience_area_matches(
+                str(required_area) if required_area else None, match.group(0)
+            ):
+                return "met"
+        return "unknown"
+
     return "unknown"
 
 
 def _match_evidence(
     requirement: dict[str, Any],
     evidence_by_skill: dict[str, list[dict[str, Any]]],
-    evidence_by_category: dict[str, list[dict[str, Any]]],
 ) -> dict[str, Any]:
     skill_id = str(requirement.get("skill_id"))
-    category = str(requirement.get("analysis_category_code"))
     direct = [
         item for item in evidence_by_skill.get(skill_id, []) if not item.get("negated")
     ]
@@ -492,22 +600,6 @@ def _match_evidence(
                 0.65,
             )
             matching_method = "reviewable_transfer_crosswalk"
-        elif category in CATEGORY_BASELINE_TRANSFER:
-            category_items = [
-                item
-                for item in evidence_by_category.get(category, [])
-                if not item.get("negated") and str(item.get("skill_id")) != skill_id
-            ]
-            if category_items:
-                selected, coverage, status, proficiency = (
-                    category_items,
-                    0.45,
-                    "transferable",
-                    0.55,
-                )
-                matching_method = "same_category_baseline"
-            else:
-                selected, coverage, status, proficiency = [], 0.0, "missing", 0.0
         else:
             selected, coverage, status, proficiency = [], 0.0, "missing", 0.0
     if selected:
@@ -621,18 +713,176 @@ def _require_non_empty_text(value: object, field_name: str) -> str:
     return value
 
 
+def _has_substantive_candidate_text(value: str) -> bool:
+    return bool(
+        len(value.strip()) >= MIN_CANDIDATE_TEXT_LENGTH
+        and _CANDIDATE_ACTION_CUES.search(value)
+        and _CANDIDATE_CONTEXT_CUES.search(value)
+    )
+
+
+def _review_list(value: object, field_name: str, limit: int = 30) -> list[dict[str, Any]]:
+    if value in (None, []):
+        return []
+    if not isinstance(value, list) or len(value) > limit:
+        raise ValueError(f"{field_name} must be a list with at most {limit} items")
+    if not all(isinstance(item, dict) for item in value):
+        raise ValueError(f"{field_name} must contain objects")
+    return [dict(item) for item in value]
+
+
+def _apply_review(
+    requirements: list[dict[str, Any]],
+    review: dict[str, Any] | None,
+) -> tuple[list[dict[str, Any]], dict[str, str], list[dict[str, Any]]]:
+    """Apply explicit user corrections without allowing silent score edits."""
+
+    if review is None:
+        return requirements, {}, []
+    if not isinstance(review, dict):
+        raise TypeError("review must be an object")
+    by_id = {str(item["requirement_id"]): item for item in requirements}
+    removed = review.get("removed_requirement_ids", [])
+    if not isinstance(removed, list) or len(removed) > 30:
+        raise ValueError("removed_requirement_ids must be a list with at most 30 items")
+    removed_ids = {str(value) for value in removed}
+    unknown_ids = removed_ids - set(by_id)
+    if unknown_ids:
+        raise ValueError("removed_requirement_ids contains an unknown requirement")
+    kept = [item for item in requirements if str(item["requirement_id"]) not in removed_ids]
+    changes: list[dict[str, Any]] = [
+        {"action": "removed_requirement", "requirement_id": item}
+        for item in sorted(removed_ids)
+    ]
+
+    added = review.get("added_requirements", [])
+    if not isinstance(added, list) or len(added) > 10:
+        raise ValueError("added_requirements must be a list with at most 10 items")
+    existing_skills = {
+        str(item.get("skill_id")) for item in kept if item.get("skill_id")
+    }
+    for raw in added:
+        if not isinstance(raw, dict) or not str(raw.get("text", "")).strip():
+            raise ValueError("each added requirement needs non-empty text")
+        extracted = extract_requirements(str(raw["text"]).strip())
+        soft = [item for item in extracted if not item.get("hard_constraint")]
+        if not soft:
+            raise ValueError("added requirements must identify a known soft skill")
+        for item in soft[:3]:
+            if item.get("skill_id") in existing_skills:
+                continue
+            copied = dict(item)
+            copied["requirement_id"] = f"user-req-{len(kept) + 1:03d}"
+            copied["extraction_method"] = "user_added"
+            copied["extraction_confidence"] = 1.0
+            copied["review_status"] = "user_added"
+            copied["source_context"] = str(raw["text"]).strip()
+            kept.append(copied)
+            existing_skills.add(str(copied.get("skill_id")))
+            changes.append(
+                {
+                    "action": "added_requirement",
+                    "requirement_id": copied["requirement_id"],
+                    "skill_id": copied.get("skill_id"),
+                }
+            )
+
+    overrides = review.get("constraint_status_overrides", {})
+    if overrides in (None, {}):
+        overrides = {}
+    if not isinstance(overrides, dict) or len(overrides) > 30:
+        raise ValueError("constraint_status_overrides must be an object")
+    for requirement_id, status in overrides.items():
+        item = next(
+            (candidate for candidate in kept if candidate["requirement_id"] == str(requirement_id)),
+            None,
+        )
+        if item is None or not item.get("hard_constraint"):
+            raise ValueError("constraint status override must target a hard requirement")
+        if status not in VALID_CONSTRAINT_STATUSES:
+            raise ValueError("constraint status must be met, not_met, or unknown")
+        item["review_status"] = "user_confirmed"
+        item["user_confirmed_status"] = status
+        changes.append(
+            {
+                "action": "confirmed_constraint",
+                "requirement_id": str(requirement_id),
+                "status": status,
+            }
+        )
+    return kept, {str(key): str(value) for key, value in overrides.items()}, changes
+
+
+def _user_added_evidence(review: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not review:
+        return []
+    rows = _review_list(review.get("added_evidence", []), "added_evidence", 30)
+    output = []
+    for index, row in enumerate(rows, start=1):
+        source_text = str(row.get("source_text", "")).strip()
+        skill_id = str(row.get("skill_id", "")).strip()
+        canonical = str(row.get("canonical_skill", "")).strip()
+        if not source_text or not skill_id or not canonical:
+            raise ValueError("each added evidence item needs skill_id, canonical_skill, and source_text")
+        output.append(
+            {
+                "evidence_id": f"user-evidence-{index:03d}",
+                "skill_id": skill_id,
+                "canonical_skill": canonical,
+                "analysis_category_code": str(row.get("analysis_category_code", "")),
+                "evidence_type": "self_reported",
+                "source_text": source_text[:500],
+                "mapping_method": "user_added_evidence",
+                "extraction_confidence": 1.0,
+                "evidence_status": "user_confirmed_self_report",
+                "negated": False,
+            }
+        )
+    return output
+
+
+def _coverage_components(
+    requirements: list[dict[str, Any]],
+    active_evidence: list[dict[str, Any]],
+    signal_coverage: float,
+) -> dict[str, int]:
+    hard = [item for item in requirements if item.get("hard_constraint")]
+    known_hard = [item for item in hard if item.get("status") in {"met", "not_met"}]
+    return {
+        "input_completeness_score": round(
+            100 * min(1.0, len(requirements) / MIN_REQUIREMENTS_FOR_SCORING)
+        ),
+        "evidence_coverage_score": round(100 * signal_coverage),
+        "eligibility_verification_score": round(
+            100 * len(known_hard) / len(hard)
+        )
+        if hard
+        else 100,
+        "evidence_item_count": len(active_evidence),
+        "requirement_count": len(requirements),
+    }
+
+
 def analyze_fit(
     job_text: str,
     candidate_text: str,
     evidence: list[dict[str, Any]] | None = None,
+    review: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     job_text = _require_non_empty_text(job_text, "job_text")
     candidate_text = _require_non_empty_text(candidate_text, "candidate_text")
-    requirements = extract_requirements(job_text)
+    requirements, review_overrides, review_changes = _apply_review(
+        extract_requirements(job_text), review
+    )
     candidate_evidence = _normalize_evidence(
         evidence if evidence is not None else evidence_from_text(candidate_text)
     )
+    candidate_evidence.extend(_user_added_evidence(review))
     active_evidence = [item for item in candidate_evidence if not item.get("negated")]
+    explicit_evidence_supplied = bool(evidence) or any(
+        item.get("evidence_status") == "user_confirmed_self_report"
+        for item in active_evidence
+    )
     evidence_by_skill: dict[str, list[dict[str, Any]]] = defaultdict(list)
     evidence_by_category: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for item in active_evidence:
@@ -650,21 +900,28 @@ def analyze_fit(
     direct_count = 0
     for requirement in requirements:
         if requirement["hard_constraint"]:
-            status = _constraint_status(requirement, candidate_text)
+            status = review_overrides.get(
+                str(requirement["requirement_id"]),
+                _constraint_status(requirement, candidate_text),
+            )
             item = {
                 **requirement,
                 "status": status,
                 "status_label": STATUS_LABELS[status],
                 "match_score": 1.0 if status == "met" else 0.0,
                 "evidence_ids": [],
-                "matching_method": "candidate_constraint_rule",
+                "matching_method": (
+                    "user_confirmed_constraint"
+                    if str(requirement["requirement_id"]) in review_overrides
+                    else "candidate_constraint_rule"
+                ),
             }
             hard_constraints.append(item)
             assessments.append(item)
             continue
         skill_requirement_count += 1
         assessment = _match_evidence(
-            requirement, evidence_by_skill, evidence_by_category
+            requirement, evidence_by_skill
         )
         if assessment["status"] == "direct":
             direct_count += 1
@@ -681,12 +938,6 @@ def analyze_fit(
             gaps.append(gap)
 
     soft_fit = round(100 * weighted_total / weight_total) if weight_total else 0
-    job_clarity = min(1.0, len(requirements) / 6) if requirements else 0.0
-    candidate_quality = (
-        sum(_evidence_score(item) for item in active_evidence) / len(active_evidence)
-        if active_evidence
-        else 0.0
-    )
     signal_coverage = (
         sum(
             1.0
@@ -701,9 +952,7 @@ def analyze_fit(
         if skill_requirement_count
         else 0.0
     )
-    assessment_confidence = round(
-        100 * (0.35 * job_clarity + 0.35 * candidate_quality + 0.30 * signal_coverage)
-    )
+    coverage = _coverage_components(requirements, active_evidence, signal_coverage)
 
     capability_signal = (
         sum(
@@ -796,9 +1045,58 @@ def analyze_fit(
             item.get("canonical_skill", ""),
         )
     )
+    analysis_reasons = []
+    if len(requirements) < MIN_REQUIREMENTS_FOR_SCORING:
+        analysis_reasons.append(
+            f"Only {len(requirements)} requirement(s) were identified; at least {MIN_REQUIREMENTS_FOR_SCORING} are needed for a reliable score."
+        )
+    if len(job_text.strip()) < MIN_JOB_TEXT_LENGTH:
+        analysis_reasons.append("The job description is too short to support a reliable analysis.")
+    if not _has_substantive_candidate_text(candidate_text) and not explicit_evidence_supplied:
+        analysis_reasons.append(
+            "The candidate profile needs a concrete action, context, or result to support a reliable evidence assessment."
+        )
+    if not active_evidence:
+        analysis_reasons.append("No candidate evidence was identified.")
+    scoring_available = not analysis_reasons
+    if not scoring_available:
+        gaps.insert(
+            0,
+            {
+                "requirement_id": "input-review",
+                "canonical_skill": "Input review",
+                "gap_type": "input_gap",
+                "action_type": "complete_inputs",
+                "importance_level": "must",
+                "impact_score": 1.0,
+                "priority": "high",
+                "time_horizon": "before relying on the report",
+                "estimated_effort": "2–5 minutes",
+                "action": "Add a fuller job description and candidate evidence, then review the extracted requirements before using any score.",
+                "expected_artifact": "At least two named job requirements and one concrete candidate example.",
+                "evidence_prompt": "Which task, tool, result, or eligibility fact should be added?",
+                "basis": "The supplied text does not contain enough structured information for a reliable fit score.",
+            },
+        )
+    review_status = "user_confirmed" if review else "provisional"
+    summary_scores: dict[str, Any] = {
+        "evidence_fit_score": soft_fit if scoring_available else None,
+        "role_fit_score": soft_fit if scoring_available else None,
+        "application_readiness_score": readiness_score if scoring_available else None,
+        "capability_signal_score": round(100 * capability_signal)
+        if scoring_available
+        else None,
+        "proof_signal_score": round(100 * proof_signal) if scoring_available else None,
+    }
+    if not scoring_available:
+        readiness = "insufficient_information"
+        decision = "insufficient_information"
+        decision_label = (
+            "Cannot form a reliable analysis yet. Review the input requirements and add more evidence before relying on a score."
+        )
     role_fingerprint = _role_fingerprint(assessments, active_evidence)
     return {
-        "schema_version": "career_fit.v0.3",
+        "schema_version": "career_fit.v0.4",
         "product": "Career Fit",
         "mode": "single_job",
         "requirements": assessments,
@@ -806,14 +1104,33 @@ def analyze_fit(
         "hard_constraints": hard_constraints,
         "gaps": gaps,
         "next_actions": gaps[:6],
+        "review": {
+            "status": review_status,
+            "changes": review_changes,
+            "requires_user_confirmation": True,
+            "instructions": "Confirm hard constraints, remove false requirements, add missing requirements, and add self-reported evidence before relying on the report.",
+        },
+        "review_queue": [
+            {
+                "requirement_id": item["requirement_id"],
+                "canonical_skill": item["canonical_skill"],
+                "skill_id": item.get("skill_id"),
+                "analysis_category_code": item.get("analysis_category_code"),
+                "requirement_type": item["requirement_type"],
+                "hard_constraint": bool(item.get("hard_constraint")),
+                "status": item.get("status", "unknown"),
+                "original_text": item.get("original_text", ""),
+            }
+            for item in assessments
+        ],
         "role_fingerprint": role_fingerprint,
         "summary": {
-            "evidence_fit_score": soft_fit,
-            "role_fit_score": soft_fit,
-            "application_readiness_score": readiness_score,
-            "capability_signal_score": round(100 * capability_signal),
-            "proof_signal_score": round(100 * proof_signal),
-            "assessment_confidence": assessment_confidence,
+            **summary_scores,
+            **coverage,
+            "analysis_status": "scored" if scoring_available else "insufficient_information",
+            "analysis_reasons": analysis_reasons,
+            "review_status": review_status,
+            "review_required": True,
             "readiness_status": readiness,
             "decision": decision,
             "decision_label": decision_label,
@@ -829,7 +1146,7 @@ def analyze_fit(
             "capability": "Capability Signal describes overlap between the supplied experience and the role's skill language. Transferable evidence is a lead, not proof of equivalence.",
             "proof": "Proof Signal describes how concrete and reviewable the supplied evidence is. A low signal can mean an evidence-packaging problem rather than an ability problem.",
             "readiness": "Application Readiness is a preparation triage measure that combines must-have evidence, proof strength, and unresolved gates. It is not a hiring probability.",
-            "confidence": "Information Confidence reflects the clarity and completeness of the supplied texts. It is not a calibrated statistical probability.",
+            "coverage": "Coverage components describe how much of the supplied job, evidence, and eligibility information was mapped. They are not confidence probabilities and are not calibrated model reliability estimates.",
             "actions": "Actions prioritize the next useful proof or verification step under the available evidence; they do not estimate a causal hiring effect.",
             "dimensions": "The role fingerprint shows multidimensional requirement overlap. It keeps named skills separate from broad categories and does not measure latent ability.",
             "bundles": "Skill bundles are requirements that appear together in this posting. They are useful for choosing one integrated proof artifact, not for estimating the market value of a combination.",
@@ -858,6 +1175,8 @@ def _role_label(job_text: str, index: int) -> str:
 
 def _priority_basis(summary: dict[str, Any]) -> str:
     decision = summary.get("decision")
+    if decision == "insufficient_information":
+        return "Add and confirm enough job requirements and candidate evidence before comparing this role."
     if decision == "strong_evidence_overlap":
         return "Closest current preparation match; focus on proof packaging."
     if decision == "targeted_proof_needed":
@@ -877,8 +1196,8 @@ def compare_roles(
     """Rank a small set of target roles using the same auditable fit engine.
 
     The result is a preparation priority, not a hiring or income forecast. Roles
-    are ordered by application readiness, then evidence fit and information
-    confidence so ties are deterministic without inventing a new score.
+    are ordered by application readiness, then evidence fit and mapped input
+    coverage so ties are deterministic without inventing a confidence score.
     """
     if not isinstance(roles, list):
         raise TypeError("roles must be a list of job-description strings")
@@ -919,9 +1238,26 @@ def compare_roles(
 
     entries.sort(
         key=lambda item: (
-            -int(item["summary"].get("application_readiness_score", 0)),
-            -int(item["summary"].get("evidence_fit_score", 0)),
-            -int(item["summary"].get("assessment_confidence", 0)),
+            -float(
+                item["summary"].get("application_readiness_score")
+                if item["summary"].get("application_readiness_score") is not None
+                else -1
+            ),
+            -float(
+                item["summary"].get("evidence_fit_score")
+                if item["summary"].get("evidence_fit_score") is not None
+                else -1
+            ),
+            -float(
+                item["summary"].get("evidence_coverage_score")
+                if item["summary"].get("evidence_coverage_score") is not None
+                else -1
+            ),
+            -float(
+                item["summary"].get("input_completeness_score")
+                if item["summary"].get("input_completeness_score") is not None
+                else -1
+            ),
             str(item["role_label"]).casefold(),
         )
     )
@@ -934,7 +1270,7 @@ def compare_roles(
         "role_count": len(entries),
         "roles": entries,
         "interpretation": {
-            "priority": "Roles are ordered by preparation readiness, then evidence fit and information confidence. This is not a hiring-probability ranking.",
+            "priority": "Roles are ordered by preparation readiness, then evidence fit and mapped input coverage. This is not a hiring-probability ranking.",
             "transfer": "Transferable evidence remains visible as a bridge and is never treated as direct equivalence.",
             "missing": "A lower-ranked role may reflect missing proof or an unresolved gate rather than lower underlying ability.",
         },

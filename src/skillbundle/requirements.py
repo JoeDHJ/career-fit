@@ -36,12 +36,68 @@ NUMBER_WORDS = {
     "ten": 10,
 }
 
+EDUCATION_LEVELS = {
+    "bachelor": 1,
+    "master": 2,
+    "ph.d.": 3,
+    "phd": 3,
+    "doctorate": 3,
+    "doctoral": 3,
+}
+
 
 def parse_number(value: str) -> int | None:
     value = value.casefold().strip()
     if value.isdigit():
         return int(value)
     return NUMBER_WORDS.get(value)
+
+
+def education_level(value: str) -> int | None:
+    """Return an ordered education level for conservative gate checks."""
+
+    lowered = value.casefold().replace("’", "'")
+    if re.search(r"\bph\.?\s*d\.?\b", lowered):
+        return 3
+    levels = [
+        level
+        for label, level in EDUCATION_LEVELS.items()
+        if re.search(rf"\b{re.escape(label)}\b", lowered)
+    ]
+    return max(levels) if levels else None
+
+
+def _clean_constraint_label(value: str) -> str:
+    value = re.sub(r"\s+", " ", value).strip(" ,.-:")
+    value = re.sub(
+        r"^(?:a|an|the|valid|current|active|relevant|professional)\s+",
+        "",
+        value,
+        flags=re.IGNORECASE,
+    )
+    return value
+
+
+def _license_label(clause: str) -> str:
+    match = re.search(
+        r"\b([A-Za-z0-9][A-Za-z0-9&./ -]{0,60}?\b(?:license|licence|certification|certificate))\b",
+        clause,
+        re.IGNORECASE,
+    )
+    return _clean_constraint_label(match.group(1)) if match else "license"
+
+
+def _education_field(clause: str, label: re.Match[str]) -> str | None:
+    tail = clause[label.end() :]
+    match = re.search(
+        r"\b(?:in|of)\s+([A-Za-z][A-Za-z0-9&./ -]{1,60}?)(?=\s+(?:is|required|preferred|mandatory|minimum|or\b)|[.,;]|$)",
+        tail,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+    field = re.sub(r"\s+", " ", match.group(1)).strip(" ,.-")
+    return field or None
 
 
 def _importance(context: str) -> str:
@@ -145,6 +201,7 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
                 canonical,
                 match.group(0).strip(),
                 source_context=_context(text, match.start(), match.end()),
+                review_required=True,
                 **extra,
             )
         )
@@ -155,11 +212,11 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
         re.IGNORECASE,
     ):
         if REQUIRED_MARKERS.search(match.group(0)):
-            label = re.search(
-                r"license|licence|certification|certificate", match.group(0), re.I
+            add_constraint(
+                "professional_license",
+                _license_label(match.group(0)),
+                match,
             )
-            if label:
-                add_constraint("professional_license", label.group(0), match)
 
     for match in re.finditer(
         r"[^.!?;\n]*\b(?:authorized to work|authorization to work|work authorization|"
@@ -183,7 +240,13 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
                 re.I,
             )
             if label:
-                add_constraint("education", label.group(0), match)
+                add_constraint(
+                    "education",
+                    label.group(0),
+                    match,
+                    education_level=education_level(label.group(0)),
+                    education_field=_education_field(match.group(0), label),
+                )
 
     for match in re.finditer(
         r"\b(?P<number>\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+"

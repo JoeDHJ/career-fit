@@ -23,18 +23,18 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.3 product:
+Given a job description and a candidate profile, the v0.4 product:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
 3. maps candidate statements to auditable evidence objects;
 4. distinguishes direct evidence, thin proof, transferable evidence, and missing evidence;
-5. calculates Evidence Fit, Capability Signal, Proof Signal, Application Readiness, and Information Confidence;
+5. calculates Evidence Fit, Capability Signal, Proof Signal, and Application Readiness, while reporting input, evidence, and eligibility coverage separately;
 6. ranks proof, translation, bridge, foundation, and verification gaps;
 7. proposes an expected proof artifact and an evidence prompt for each priority action;
 8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting.
 
-It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using the existing readiness, evidence-fit, and information-confidence signals, then lets the user inspect any role in the full requirement matrix.
+It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using readiness, evidence fit, and mapped input coverage; it does not invent a confidence probability.
 
 ## Quick start
 
@@ -74,7 +74,8 @@ Candidate text is sent only when the review button is used. A local OpenAI-compa
 The local page is designed to feel useful to a first-time job seeker while keeping the labor-economics logic visible:
 
 - three animated signal rings separate capability, proof, and application readiness;
-- the scorecard shows Evidence Fit, Application Readiness, Information Confidence, and unresolved Hard Gates;
+- the scorecard shows Evidence Fit, Application Readiness, mapped input coverage, and unresolved Hard Gates;
+- the review panel lets a user remove false requirements, add known missed skills, confirm hard constraints, and add explicitly labeled self-reported evidence before recalculating;
 - the requirement–evidence matrix makes every assessment inspectable;
 - the profile chart shows the shape of evidence overlap across requirements;
 - action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
@@ -94,7 +95,7 @@ The design rationale and evidence boundaries are summarized in [the literature-t
 
 ### Optional occupation context
 
-Career Fit is specific to the job posting you provide. An optional occupation-context panel can connect a confirmed standard occupation to AI Labor Atlas and show public worker comments about pay, interviews, management, workload, growth, and work environment. Start AI Labor Atlas on `http://127.0.0.1:8765`, set `CAREER_FIT_ATLAS_URL` to that address, then search and confirm the closest occupation. The title suggestions are evidence leads, not an automatic classification.
+Career Fit is specific to the job posting you provide. An optional occupation-context panel can connect a confirmed standard occupation to AI Labor Atlas and show a separate Market Context card with wages, employment, openings, projected change, AI exposure, representative tasks, and descriptive adjacent occupations, alongside public worker comments. Start AI Labor Atlas on `http://127.0.0.1:8765`, set `CAREER_FIT_ATLAS_URL` to that address, then search and confirm the closest occupation. The title suggestions are evidence leads, not an automatic classification.
 
 For a small set of common nonstandard titles, Atlas may return a curated candidate occupation family rather than one exact title. Career Fit shows the mapping note and requires confirmation from the job tasks; these candidates do not change job-fit scores.
 
@@ -128,7 +129,9 @@ Readiness = 100 × (0.50 must-have match
 
 An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
 
-The single-role machine-readable output uses schema `career_fit.v0.3`; role comparison uses `career_fit.compare.v0.2`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
+The first response is provisional. The review panel must be used to confirm hard constraints and correct extracted requirements before relying on the plan. Education is compared by ordered level, experience floors require matching experience-area text, and ambiguous free-text gates remain `unknown`. If fewer than two requirements are mapped, the job text or candidate profile is too short, or no candidate evidence is identified, the response is marked `insufficient_information` and no fit or readiness score is presented. Input completeness, evidence coverage, and eligibility verification are coverage components—not calibrated confidence probabilities.
+
+The single-role machine-readable output uses schema `career_fit.v0.4`; role comparison uses `career_fit.compare.v0.2`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 
