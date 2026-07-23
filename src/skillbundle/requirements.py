@@ -36,6 +36,60 @@ NUMBER_WORDS = {
     "ten": 10,
 }
 
+EXPERIENCE_CLAIM_RE = re.compile(
+    r"\b(?P<number>\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+"
+    r"years?\s+(?:(?:of\s+)?(?P<pre_area>[A-Za-z][^.!?;\n]{0,80}?)\s+)?"
+    r"experience(?P<post_area>[^.!?;\n]*)",
+    re.IGNORECASE,
+)
+
+
+def _clean_experience_area(value: str) -> str | None:
+    value = re.sub(r"\s+", " ", value).strip(" ,.-:")
+    value = re.sub(r"^(?:of|in|with|within|related to)\s+", "", value, flags=re.I)
+    value = re.split(
+        r"\b(?:required|required to|must|mandatory|preferred|preferably|plus|bonus|nice to have)\b",
+        value,
+        maxsplit=1,
+        flags=re.I,
+    )[0].strip(" ,.-:")
+    if value.casefold() in {
+        "",
+        "of",
+        "in",
+        "with",
+        "within",
+        "related to",
+        "relevant",
+        "professional",
+        "general",
+        "overall",
+    }:
+        return None
+    return value or None
+
+
+def experience_claims(text: str) -> list[dict[str, object]]:
+    """Extract both ``N years of X experience`` and ``N years of experience in X``."""
+
+    claims: list[dict[str, object]] = []
+    for match in EXPERIENCE_CLAIM_RE.finditer(text):
+        years = parse_number(match.group("number"))
+        if years is None:
+            continue
+        pre_area = _clean_experience_area(match.group("pre_area") or "")
+        post_area = _clean_experience_area(match.group("post_area") or "")
+        claims.append(
+            {
+                "years": years,
+                "area": pre_area or post_area,
+                "source_text": match.group(0),
+                "start": match.start(),
+                "end": match.end(),
+            }
+        )
+    return claims
+
 EDUCATION_LEVELS = {
     "bachelor": 1,
     "master": 2,
@@ -219,6 +273,16 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
             )
 
     for match in re.finditer(
+        r"[^.!?;\n]*\b(?:background check|background-check|background screening)\b[^.!?;\n]*",
+        text,
+        re.IGNORECASE,
+    ):
+        if REQUIRED_MARKERS.search(match.group(0)) or re.search(
+            r"\b(?:pass|passing|clear)\b", match.group(0), re.IGNORECASE
+        ):
+            add_constraint("background_check", "Background check", match)
+
+    for match in re.finditer(
         r"[^.!?;\n]*\b(?:authorized to work|authorization to work|work authorization|"
         r"work permit|eligible to work|right to work|visa sponsorship|requires? sponsorship)\b"
         r"[^.!?;\n]*",
@@ -248,16 +312,9 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
                     education_field=_education_field(match.group(0), label),
                 )
 
-    for match in re.finditer(
-        r"\b(?P<number>\d+|one|two|three|four|five|six|seven|eight|nine|ten)\+?\s+"
-        r"years?\s+(?:of\s+)?(?P<area>[^.!?;\n]{0,80}?)\bexperience\b[^.!?;\n]*",
-        text,
-        re.IGNORECASE,
-    ):
-        years = parse_number(match.group("number"))
-        if years is None:
-            continue
-        area = re.sub(r"\s+", " ", match.group("area")).strip(" ,.-")
+    for claim in experience_claims(text):
+        years = int(claim["years"])
+        area = str(claim["area"]) if claim.get("area") else None
         canonical = f"{years}+ years"
         if area:
             canonical += f" of {area} experience"
@@ -266,8 +323,8 @@ def extract_requirements(text: str) -> list[dict[str, object]]:
         add_constraint(
             "experience_floor",
             canonical,
-            match,
+            EXPERIENCE_CLAIM_RE.match(text, int(claim["start"])),
             required_years=years,
-            experience_area=area or None,
+            experience_area=area,
         )
     return requirements

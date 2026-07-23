@@ -19,6 +19,30 @@ from skillbundle.server import Handler, render_page
 from skillbundle.taxonomy import pair_codes
 
 
+def assert_no_pre_review_score_values(testcase, value):
+    prohibited = {
+        "coverage",
+        "evidence_strength",
+        "evidence_coverage",
+        "match_score",
+        "impact_score",
+        "priority_score",
+        "bundle_match_score",
+        "required_weight",
+        "gap_score",
+        "extraction_confidence",
+    }
+    if isinstance(value, dict):
+        for key, child in value.items():
+            is_documentation_text = key == "coverage" and isinstance(child, str)
+            if (key.endswith("_score") or key in prohibited) and child is not None and not is_documentation_text:
+                testcase.fail(f"pre-review score field was not redacted: {key}={child!r}")
+            assert_no_pre_review_score_values(testcase, child)
+    elif isinstance(value, list):
+        for child in value:
+            assert_no_pre_review_score_values(testcase, child)
+
+
 class CareerFitTests(unittest.TestCase):
     def test_extract_longest_match_and_offsets(self):
         text = "Manage customer service projects using Python and SQL."
@@ -126,6 +150,110 @@ class CareerFitTests(unittest.TestCase):
         )
         self.assertEqual(contradictory["hard_constraints"][0]["status"], "not_met")
 
+    def test_hard_gate_negations_and_post_experience_areas_are_conservative(self):
+        needs_authorization = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I need a work permit and my application is pending.",
+        )
+        self.assertEqual(needs_authorization["hard_constraints"][0]["status"], "unknown")
+        contradictory_authorization = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not require sponsorship, but my work authorization is pending.",
+        )
+        self.assertEqual(contradictory_authorization["hard_constraints"][0]["status"], "unknown")
+        background_not_passed = analyze_fit(
+            "A background check is required.",
+            "I have not passed a background check yet.",
+        )
+        self.assertEqual(background_not_passed["hard_constraints"][0]["status"], "not_met")
+        background_failed = analyze_fit(
+            "A background check is required.",
+            "I failed a background check.",
+        )
+        self.assertEqual(background_failed["hard_constraints"][0]["status"], "not_met")
+        background_in_progress = analyze_fit(
+            "A background check is required.",
+            "I have not completed a background check yet, but I can pass one.",
+        )
+        self.assertEqual(background_in_progress["hard_constraints"][0]["status"], "unknown")
+        for future_claim in (
+            "I can pass a background check.",
+            "I will pass a background check.",
+            "I would pass a background check.",
+        ):
+            future = analyze_fit("A background check is required.", future_claim)
+            self.assertEqual(future["hard_constraints"][0]["status"], "unknown")
+        higher_degree = analyze_fit(
+            "Master's degree required.",
+            "I do not have a Bachelor's degree, but I have a Master's degree.",
+        )
+        self.assertEqual(higher_degree["hard_constraints"][0]["status"], "met")
+        missing_required_degree = analyze_fit(
+            "Master's degree required.",
+            "I do not have a Master's degree, but I have a Bachelor's degree.",
+        )
+        self.assertEqual(missing_required_degree["hard_constraints"][0]["status"], "not_met")
+        post_experience = analyze_fit(
+            "Five years of experience in people analytics required.",
+            "I have eight years of experience in people analytics.",
+        )
+        self.assertEqual(post_experience["hard_constraints"][0]["status"], "met")
+        nursing_license = analyze_fit(
+            "An active nursing license is required.",
+            "Registered nurse with an active license.",
+        )
+        self.assertEqual(nursing_license["hard_constraints"][0]["status"], "met")
+
+    def test_untrusted_evidence_provenance_and_nonfinite_numbers_fail_closed(self):
+        result = analyze_fit(
+            "Must have Python and SQL.",
+            "Python SQL",
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "evidence_type": "work",
+                    "source_text": "A user supplied claim.",
+                    "verification_status": "externally_verified",
+                    "evidence_status": "verified",
+                }
+            ],
+            review={"scope": "role_requirements", "applied": True},
+        )
+        evidence = next(item for item in result["evidence"] if item["skill_id"] == "software.python")
+        self.assertEqual(evidence["verification_status"], "user_declared")
+        self.assertEqual(evidence["evidence_status"], "user_declared_structured_evidence")
+        with self.assertRaises(ValueError):
+            analyze_fit(
+                "Must have Python and SQL.",
+                "Python SQL",
+                evidence=[
+                    {
+                        "skill_id": "software.python",
+                        "canonical_skill": "Python",
+                        "evidence_type": "work",
+                        "source_text": "A user supplied claim.",
+                        "recency_years": "inf",
+                    }
+                ],
+                review={"scope": "role_requirements", "applied": True},
+            )
+        with self.assertRaisesRegex(ValueError, "non-negative"):
+            analyze_fit(
+                "Must have Python and SQL.",
+                "Python SQL",
+                evidence=[
+                    {
+                        "skill_id": "software.python",
+                        "canonical_skill": "Python",
+                        "evidence_type": "work",
+                        "source_text": "A user supplied claim.",
+                        "duration_months": -1,
+                    }
+                ],
+                review={"scope": "role_requirements", "applied": True},
+            )
+
     def test_hard_gates_without_candidate_evidence_do_not_produce_a_total_score(self):
         result = analyze_fit(
             "Bachelor's degree required. Five years of operations experience required.",
@@ -147,6 +275,135 @@ class CareerFitTests(unittest.TestCase):
         self.assertEqual(keyword_stack["summary"]["analysis_status"], "insufficient_information")
         self.assertIsNone(keyword_stack["summary"]["evidence_fit_score"])
 
+    def test_scores_stay_hidden_until_role_requirements_are_confirmed(self):
+        job = "Must have Python and SQL. Strongly preferred stakeholder communication."
+        candidate = "Built Python and SQL reporting projects and presented findings to stakeholders."
+        provisional = analyze_fit(job, candidate)
+        self.assertEqual(provisional["summary"]["analysis_status"], "review_required")
+        self.assertEqual(provisional["summary"]["score_visibility"], "hidden")
+        self.assertIsNone(provisional["summary"]["evidence_fit_score"])
+        self.assertIsNone(provisional["summary"]["input_completeness_score"])
+        self.assertEqual(provisional["summary"]["eligibility_status"], "no_gate_detected")
+        self.assertIsNone(provisional["summary"]["eligibility_verification_score"])
+        self.assertIsNone(provisional["summary"]["evidence_coverage_score"])
+        self.assertTrue(
+            all(item.get("importance_weight") is None for item in provisional["requirements"])
+        )
+        self.assertTrue(
+            all(item.get("extraction_confidence") is None for item in provisional["requirements"])
+        )
+        self.assertTrue(
+            all(item.get("extraction_confidence") is None for item in provisional["evidence"])
+        )
+        self.assertTrue(all(item.get("match_score") is None for item in provisional["requirements"]))
+        self.assertTrue(all(item.get("impact_score") is None for item in provisional["gaps"]))
+        self.assertEqual(provisional["role_fingerprint"]["mismatch_dimensions"], [])
+        self.assertTrue(
+            all(item.get("bundle_match_score") is None for item in provisional["role_fingerprint"]["skill_bundles"])
+        )
+        assert_no_pre_review_score_values(self, provisional)
+        reviewed = analyze_fit(job, candidate, review={"scope": "role_requirements", "applied": True})
+        self.assertEqual(reviewed["summary"]["analysis_status"], "scored")
+        self.assertEqual(reviewed["summary"]["score_visibility"], "visible")
+        self.assertIsNotNone(reviewed["summary"]["evidence_fit_score"])
+
+    def test_claim_only_evidence_does_not_look_like_reviewable_proof(self):
+        claim = analyze_fit(
+            "Must have Python and SQL.",
+            "Python SQL",
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "evidence_type": "self_reported",
+                    "source_text": "I can use Python.",
+                }
+            ],
+            review={"scope": "role_requirements", "applied": True},
+        )
+        item = next(item for item in claim["requirements"] if item["canonical_skill"] == "Python")
+        self.assertEqual(item["status"], "claimed")
+        self.assertEqual(item["claimed_evidence_ids"], ["evidence-001"])
+        self.assertEqual(item["reviewable_evidence_ids"], [])
+        self.assertLess(claim["summary"]["proof_signal_score"], 50)
+
+        proof = analyze_fit(
+            "Must have Python and SQL.",
+            "Python SQL",
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "evidence_type": "work",
+                    "source_text": "Built a Python reporting workflow.",
+                    "result": "Reduced manual reporting time by 30%.",
+                    "duration_months": 12,
+                }
+            ],
+            review={"scope": "role_requirements", "applied": True},
+        )
+        proof_item = next(item for item in proof["requirements"] if item["canonical_skill"] == "Python")
+        self.assertEqual(proof_item["status"], "direct")
+        self.assertGreater(proof["summary"]["proof_signal_score"], claim["summary"]["proof_signal_score"])
+
+    def test_weak_extra_evidence_cannot_lower_a_stronger_primary(self):
+        strong = {
+            "skill_id": "software.python",
+            "canonical_skill": "Python",
+            "evidence_type": "work",
+            "source_text": "Built a Python data pipeline.",
+            "result": "Processed 1.3 million records.",
+            "duration_months": 18,
+        }
+        weak = {
+            "skill_id": "software.python",
+            "canonical_skill": "Python",
+            "evidence_type": "self_reported",
+            "source_text": "I know Python.",
+        }
+        strong_result = analyze_fit("Must have Python and SQL.", "Python SQL", evidence=[strong], review={"scope": "role_requirements", "applied": True})
+        combined_result = analyze_fit("Must have Python and SQL.", "Python SQL", evidence=[strong, weak], review={"scope": "role_requirements", "applied": True})
+        strong_item = strong_result["requirements"][0]
+        combined_item = combined_result["requirements"][0]
+        self.assertGreaterEqual(combined_item["match_score"], strong_item["match_score"])
+        self.assertEqual(combined_item["primary_evidence_id"], "evidence-001")
+        self.assertEqual(combined_item["evidence_aggregation"], "primary_plus_top_two_supporting")
+
+    def test_review_can_change_importance_and_add_structured_evidence(self):
+        job = "Must have Python. Strongly preferred SQL."
+        base = analyze_fit(job, "I have worked on reporting.")
+        sql = next(item for item in base["requirements"] if item["canonical_skill"] == "SQL")
+        reviewed = analyze_fit(
+            job,
+            "I have worked on reporting.",
+            review={
+                "scope": "role_requirements",
+                "applied": True,
+                "importance_overrides": {sql["requirement_id"]: "preferred"},
+                "added_evidence": [
+                    {
+                        "skill_id": "software.python",
+                        "canonical_skill": "Python",
+                        "analysis_category_code": "specific_software_skill",
+                        "evidence_type": "github_project",
+                        "source_text": "A public Python reporting repository.",
+                        "result": "Documented a reproducible workflow.",
+                        "duration_months": 6,
+                        "recency_years": 1,
+                    }
+                ],
+            },
+        )
+        self.assertEqual(reviewed["summary"]["analysis_status"], "scored")
+        self.assertEqual(
+            next(item for item in reviewed["requirements"] if item["canonical_skill"] == "SQL")["importance_level"],
+            "preferred",
+        )
+        evidence = next(item for item in reviewed["evidence"] if item["evidence_id"] == "user-evidence-001")
+        self.assertEqual(evidence["evidence_type"], "github_project")
+        self.assertEqual(evidence["verification_status"], "user_declared")
+        self.assertEqual(evidence["duration_months"], 6.0)
+
     def test_structured_evidence_can_support_a_short_profile(self):
         result = analyze_fit(
             "Must have Python and SQL.",
@@ -158,6 +415,7 @@ class CareerFitTests(unittest.TestCase):
                     "source_text": "Built a Python data pipeline.",
                 }
             ],
+            review={"scope": "role_requirements", "applied": True},
         )
         self.assertEqual(result["summary"]["analysis_status"], "scored")
 
@@ -174,6 +432,8 @@ class CareerFitTests(unittest.TestCase):
             "Must have Python and SQL. Bachelor's degree required.",
             "Built Python projects.",
             review={
+                "scope": "role_requirements",
+                "applied": True,
                 "removed_requirement_ids": [sql["requirement_id"]],
                 "constraint_status_overrides": {education["requirement_id"]: "met"},
                 "added_evidence": [
@@ -205,6 +465,7 @@ class CareerFitTests(unittest.TestCase):
         result = analyze_fit(
             "Must have Python and SQL. A valid professional license is required.",
             "Built Python projects and analyzed data.",
+            review={"scope": "role_requirements", "applied": True},
         )
         self.assertGreater(result["summary"]["role_fit_score"], 0)
         self.assertEqual(result["summary"]["blocking_constraint_count"], 1)
@@ -298,7 +559,12 @@ class CareerFitTests(unittest.TestCase):
                 "duration_months": 18,
             }
         ]
-        result = analyze_fit("Must have Python.", "Python", evidence=evidence)
+        result = analyze_fit(
+            "Must have Python and SQL. Strongly preferred communication.",
+            "Python",
+            evidence=evidence,
+            review={"scope": "role_requirements", "applied": True},
+        )
         item = result["requirements"][0]
         self.assertEqual(item["status"], "direct")
         self.assertGreater(item["evidence_strength"], 0.9)
@@ -350,7 +616,7 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("capability_signal_score", summary)
         self.assertIn("proof_signal_score", summary)
         self.assertIn("application_readiness_score", summary)
-        self.assertEqual(result["schema_version"], "career_fit.v0.4")
+        self.assertEqual(result["schema_version"], "career_fit.v0.5")
         self.assertTrue(result["next_actions"])
         self.assertIn("expected_artifact", result["next_actions"][0])
 
@@ -400,6 +666,19 @@ class CareerFitTests(unittest.TestCase):
             page.index('if (!hasCandidates) { occupationCandidates.appendChild'),
         )
 
+    def test_client_page_exposes_review_first_and_structured_evidence_flow(self):
+        page = render_page()
+        self.assertIn('id="candidate-file"', page)
+        self.assertIn('id="candidate-language"', page)
+        self.assertIn("English-first", page)
+        self.assertIn("Scores remain hidden until this step is submitted.", page)
+        self.assertIn("Review first", page)
+        self.assertIn("importance_overrides", page)
+        self.assertIn("evidenceTypeLabels", page)
+        self.assertIn("candidate_evidence", page)
+        self.assertIn("No gate detected", page)
+        self.assertIn("canShowNonScoreActions", page)
+
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(
             [
@@ -407,8 +686,19 @@ class CareerFitTests(unittest.TestCase):
                 "Role: Java Developer\nMust have Java and cloud computing.",
             ],
             "Built Python research projects and created data visualizations.",
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "evidence_type": "research_project",
+                    "source_text": "Built Python research projects.",
+                    "evidence_status": "user_declared_structured_evidence",
+                    "verification_status": "user_declared",
+                }
+            ],
+            review={"scope": "candidate_evidence", "applied": True},
         )
-        self.assertEqual(result["schema_version"], "career_fit.compare.v0.2")
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.3")
         self.assertEqual(result["role_count"], 2)
         self.assertEqual(result["roles"][0]["priority_rank"], 1)
         self.assertEqual(result["roles"][0]["role_label"], "Data Analyst")
@@ -416,11 +706,77 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("analysis", result["roles"][0])
         self.assertIn("priority_basis", result["roles"][0])
 
+    def test_role_comparison_reuses_reviewed_candidate_evidence_without_confirming_roles(self):
+        candidate = "Built Python research projects and created data visualizations."
+        candidate_review = analyze_fit(
+            "Must have Python and data visualization.",
+            candidate,
+            evidence=[
+                {
+                    "skill_id": "software.python",
+                    "canonical_skill": "Python",
+                    "evidence_type": "research_project",
+                    "source_text": "Built Python research projects.",
+                    "evidence_status": "user_declared_structured_evidence",
+                    "verification_status": "user_declared",
+                }
+            ],
+            review={"scope": "role_requirements", "applied": True},
+        )
+        result = compare_roles(
+            [
+                "Role: Data Analyst\nMust have Python and data visualization.",
+                "Role: Java Developer\nMust have Java and cloud computing.",
+            ],
+            candidate,
+            evidence=candidate_review["evidence"],
+            review={"scope": "candidate_evidence", "applied": True},
+        )
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.3")
+        self.assertTrue(
+            all(item["summary"]["review_status"] == "candidate_evidence_confirmed" for item in result["roles"])
+        )
+        self.assertTrue(
+            all(item["summary"]["review_required"] for item in result["roles"])
+        )
+        self.assertTrue(
+            all(item["summary"]["evidence_fit_score"] is None for item in result["roles"])
+        )
+        self.assertTrue(all(item["top_bundle"] is None for item in result["roles"]))
+        for item in result["roles"]:
+            assert_no_pre_review_score_values(self, item["analysis"])
+        self.assertEqual(
+            result["interpretation"]["review"],
+            "Candidate evidence can be reused across roles after review, but role requirements and hard gates should be confirmed in the selected role view.",
+        )
+
     def test_role_comparison_rejects_oversized_batches(self):
         with self.assertRaises(ValueError):
             compare_roles(["Role one"], "Python")
         with self.assertRaisesRegex(ValueError, "at most three"):
             compare_roles(["Role"] * 4, "Python")
+        with self.assertRaisesRegex(ValueError, "applied candidate_evidence"):
+            compare_roles(["Role one", "Role two"], "Built Python projects.")
+        with self.assertRaisesRegex(ValueError, "cannot modify role requirements"):
+            compare_roles(
+                ["Role one", "Role two"],
+                "Built Python projects.",
+                evidence=[
+                    {
+                        "skill_id": "software.python",
+                        "canonical_skill": "Python",
+                        "evidence_type": "work",
+                        "source_text": "Built Python projects.",
+                        "evidence_status": "user_declared_structured_evidence",
+                        "verification_status": "user_declared",
+                    }
+                ],
+                review={
+                    "scope": "candidate_evidence",
+                    "applied": True,
+                    "removed_requirement_ids": ["req-001"],
+                },
+            )
 
     def test_api_reports_blank_inputs_and_four_role_requests(self):
         from http.server import ThreadingHTTPServer
@@ -473,11 +829,57 @@ class CareerFitTests(unittest.TestCase):
                 {
                     "job_text": "Must have Python and SQL.",
                     "candidate_text": "Built Python research projects.",
-                    "review": {"removed_requirement_ids": ["req-002"]},
+                    "review": {
+                        "scope": "role_requirements",
+                        "applied": True,
+                        "removed_requirement_ids": ["req-002"],
+                    },
                 },
             )
             self.assertEqual(status, 200)
             self.assertEqual(result["review"]["status"], "user_confirmed")
+            status, result = post(
+                "/api/analyze",
+                {
+                    "job_text": "Must have Python and SQL. Strongly preferred communication.",
+                    "candidate_text": "Built Python and SQL reporting projects and presented findings.",
+                },
+            )
+            self.assertEqual(status, 200)
+            self.assertEqual(result["summary"]["score_visibility"], "hidden")
+            self.assertIsNone(result["summary"]["evidence_coverage_score"])
+            self.assertTrue(all(item["match_score"] is None for item in result["requirements"]))
+            self.assertTrue(all(item["importance_weight"] is None for item in result["requirements"]))
+            self.assertTrue(all(item["impact_score"] is None for item in result["gaps"]))
+            self.assertEqual(result["role_fingerprint"]["mismatch_dimensions"], [])
+            status, result = post(
+                "/api/compare",
+                {
+                    "roles": [
+                        "Role: Data Analyst\nMust have Python and data visualization.",
+                        "Role: Java Developer\nMust have Java and cloud computing.",
+                    ],
+                    "candidate_text": "Built Python research projects and created data visualizations.",
+                    "evidence": [
+                        {
+                            "skill_id": "software.python",
+                            "canonical_skill": "Python",
+                            "evidence_type": "research_project",
+                            "source_text": "Built Python research projects.",
+                            "evidence_status": "user_declared_structured_evidence",
+                            "verification_status": "user_declared",
+                        }
+                    ],
+                    "review": {"scope": "candidate_evidence", "applied": True},
+                },
+            )
+            self.assertEqual(status, 200)
+            self.assertTrue(
+                all(item["summary"]["score_visibility"] == "hidden" for item in result["roles"])
+            )
+            self.assertTrue(
+                all(item["summary"]["evidence_fit_score"] is None for item in result["roles"])
+            )
         finally:
             server.shutdown()
             server.server_close()

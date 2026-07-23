@@ -49,6 +49,19 @@ function Assert-NoHorizontalOverflow {
     }
 }
 
+function Wait-ForCondition {
+    param(
+        [string]$Expression,
+        [int]$TimeoutMs = 6000
+    )
+
+    $waitScript = "new Promise(resolve=>{const deadline=Date.now()+$TimeoutMs;const check=()=>{let ready=false;try{ready=Boolean($Expression)}catch{};if(ready||Date.now()>=deadline){resolve(ready);return;}setTimeout(check,50)};check()})"
+    $value = Read-PlaywrightJson (Invoke-PlaywrightCli @("eval", $waitScript))
+    if (-not [bool]$value) {
+        throw "Timed out waiting for Playwright condition: $Expression"
+    }
+}
+
 try {
     Push-Location $tempDir
 
@@ -74,28 +87,28 @@ try {
 
     Invoke-PlaywrightCli @("open", $CareerFitUrl) | Out-Null
     Invoke-PlaywrightCli @("resize", "$Width", "$Height") | Out-Null
-    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,500))") | Out-Null
+    Wait-ForCondition "document.querySelector('#review-panel') && !document.querySelector('#review-panel').hidden"
     $reviewMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
-        "JSON.stringify({reviewVisible:!document.querySelector('#review-panel').hidden,coverageVisible:!document.querySelector('#coverage-panel').hidden,inputCoverage:document.querySelector('#input-coverage-score').textContent})"
+        "JSON.stringify({reviewVisible:!document.querySelector('#review-panel').hidden,coverageVisible:!document.querySelector('#coverage-panel').hidden,inputCoverage:document.querySelector('#input-coverage-score').textContent,fitBefore:document.querySelector('#fit-score').textContent})"
     ))
-    if (-not $reviewMeasurement.reviewVisible -or -not $reviewMeasurement.coverageVisible -or [string]::IsNullOrWhiteSpace($reviewMeasurement.inputCoverage)) {
+    if (-not $reviewMeasurement.reviewVisible -or -not $reviewMeasurement.coverageVisible -or [string]::IsNullOrWhiteSpace($reviewMeasurement.inputCoverage) -or $reviewMeasurement.fitBefore -ne "Review first") {
         throw "Career Fit did not expose the provisional review and coverage panels."
     }
     Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('#apply-review-button').click();return true})()") | Out-Null
-    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,1200))") | Out-Null
+    Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('Reviewed analysis')"
     $reviewedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
-        "JSON.stringify({status:document.querySelector('#status').textContent,reviewStatus:document.querySelector('#review-status').textContent})"
+        "JSON.stringify({status:document.querySelector('#status').textContent,reviewStatus:document.querySelector('#review-status').textContent,fitAfter:document.querySelector('#fit-score').textContent})"
     ))
-    if ($reviewedMeasurement.status -notlike "*Reviewed analysis*" -or $reviewedMeasurement.reviewStatus -notlike "*applied*") {
+    if ($reviewedMeasurement.status -notlike "*Reviewed analysis*" -or $reviewedMeasurement.reviewStatus -notlike "*applied*" -or $reviewedMeasurement.fitAfter -eq "Review first") {
         throw "Career Fit did not recalculate from the review state."
     }
     Invoke-PlaywrightCli @(
         "eval",
         "(()=>{const i=document.querySelector('#occupation-query');i.value='Data Analyst';document.querySelector('#occupation-search-button').click();return true})()"
     ) | Out-Null
-    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,300))") | Out-Null
+    Wait-ForCondition "document.querySelector('.occupation-context-empty') && document.querySelector('.occupation-context-empty').textContent.includes('recognized')"
     $emptyAlias = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
         "JSON.stringify({message:(document.querySelector('.occupation-context-empty')||{}).textContent||'',status:(document.querySelector('#occupation-status')||{}).textContent||''})"
@@ -111,7 +124,7 @@ try {
         "eval",
         "(()=>{const i=document.querySelector('#occupation-query');i.value='ML Engineer';document.querySelector('#occupation-search-button').click();return true})()"
     ) | Out-Null
-    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,300))") | Out-Null
+    Wait-ForCondition "document.querySelectorAll('.occupation-candidate').length > 0"
     $careerMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
         "JSON.stringify({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,candidateCards:document.querySelectorAll('.occupation-candidate').length,mappingNotes:document.querySelectorAll('.occupation-candidate-note').length,confirmationControls:Array.from(document.querySelectorAll('.occupation-candidate button')).some(button=>button.textContent.includes('Use this occupation'))})"
@@ -121,7 +134,7 @@ try {
         throw "Career Fit alias candidate cards, mapping notes, or confirmation controls were not visible."
     }
     Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('.occupation-candidate button').click();return true})()") | Out-Null
-    Invoke-PlaywrightCli @("eval", "new Promise(r=>setTimeout(r,300))") | Out-Null
+    Wait-ForCondition "document.querySelector('#market-context') && !document.querySelector('#market-context').hidden"
     $marketMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
         "JSON.stringify({visible:!document.querySelector('#market-context').hidden,metricCount:document.querySelectorAll('#market-metrics .market-metric').length,provenance:(document.querySelector('#market-provenance')||{}).textContent||''})"

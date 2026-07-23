@@ -37,6 +37,17 @@ def parser():
         type=Path,
         help="optional JSON list of structured evidence objects",
     )
+    analyze.add_argument(
+        "--review-file",
+        type=Path,
+        help="optional JSON review object; scores are visible only after review",
+    )
+    analyze.add_argument(
+        "--candidate-language",
+        choices=["auto", "en", "es", "zh", "other"],
+        default="auto",
+        help="candidate profile language hint for conservative mapping",
+    )
     compare = sub.add_parser(
         "compare", help="prioritize two to three target roles for one candidate"
     )
@@ -52,6 +63,17 @@ def parser():
         "--evidence-file",
         type=Path,
         help="optional JSON list of structured evidence objects",
+    )
+    compare.add_argument(
+        "--review-file",
+        type=Path,
+        help="optional JSON candidate-evidence review object",
+    )
+    compare.add_argument(
+        "--candidate-language",
+        choices=["auto", "en", "es", "zh", "other"],
+        default="auto",
+        help="candidate profile language hint for conservative mapping",
     )
     item = sub.add_parser("extract", help="extract skills from text")
     item.add_argument("text")
@@ -102,7 +124,16 @@ def main(argv: list[str] | None = None) -> int:
             evidence = None
             if args.evidence_file:
                 evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
-            result = analyze_fit(job_text, candidate_text, evidence)
+            review = None
+            if args.review_file:
+                review = json.loads(args.review_file.read_text(encoding="utf-8"))
+            result = analyze_fit(
+                job_text,
+                candidate_text,
+                evidence,
+                review,
+                args.candidate_language,
+            )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             print(f"Error: {exc}", file=sys.stderr)
             return 2
@@ -126,7 +157,16 @@ def main(argv: list[str] | None = None) -> int:
             evidence = None
             if args.evidence_file:
                 evidence = json.loads(args.evidence_file.read_text(encoding="utf-8"))
-            result = compare_roles(roles, candidate_text, evidence)
+            review = None
+            if args.review_file:
+                review = json.loads(args.review_file.read_text(encoding="utf-8"))
+            result = compare_roles(
+                roles,
+                candidate_text,
+                evidence,
+                review,
+                args.candidate_language,
+            )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             print(f"Error: {exc}", file=sys.stderr)
             return 2

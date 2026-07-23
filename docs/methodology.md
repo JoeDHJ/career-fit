@@ -23,7 +23,7 @@ M_j = 0.35 C_j + 0.25 E_j + 0.20 P_j + 0.10 R_j + 0.10 D_j
 
 Where:
 
-- `C` is coverage: 1.0 for direct evidence, 0.55 for explicit transfer evidence, and 0 for missing evidence;
+- `C` is coverage: 1.0 for direct evidence, 0.55 for explicit transfer evidence, 0.35 for a direct claim, 0.30 for a transferable claim, and 0 for missing evidence;
 - `E` is evidence strength, weighted by evidence type;
 - `P` is a conservative proficiency signal;
 - `R` is recency;
@@ -48,14 +48,14 @@ The baseline evidence weights are:
 | portfolio / GitHub project | 0.80 |
 | course | 0.60 |
 | certificate | 0.55 |
-| self-reported keyword | 0.35 |
-| unknown | 0.25 |
+| self-reported claim | 0.15 |
+| unknown claim | 0.20 |
 
-Measurable results receive a small transparent bonus. Context heuristics used for free text are labeled in the evidence object and do not override explicit structured evidence.
+Measurable results receive a small transparent bonus only for reviewable evidence types. Missing duration and recency are penalized more for claim-only evidence. When several items support one requirement, the engine selects a primary item by evidence type, recency, and depth, then adds at most two supporting items with a small capped contribution. Recency and depth use the strongest supplied supporting value, so a weak extra claim cannot lower a stronger primary. The aggregation method and primary evidence ID are returned in the assessment.
 
 ## 4. Capability Signal
 
-For descriptive triage, direct evidence contributes 1.0, thin direct evidence 0.82, transferable evidence 0.60, and missing evidence 0.0. The signal makes adjacent experience visible while preserving a clear distinction from direct proof.
+For descriptive triage, direct evidence contributes 1.0, thin direct evidence 0.82, transferable evidence 0.60, claim-only evidence 0, and missing evidence 0.0. The signal makes adjacent experience visible while preserving a clear distinction from direct proof.
 
 ## 5. Proof Signal
 
@@ -81,19 +81,25 @@ Application Readiness is:
 
 The hard-gate signal is 1.0 when there are no unresolved gates, 0.35 when a gate is unknown, and 0.0 when a gate is explicitly not met. The result is a preparation route, not a prediction of interview or hiring outcomes.
 
-## 8. Negation and missing evidence
+## 8. Review gate and coverage semantics
+
+The first pass extracts requirements and evidence but sets `score_visibility: hidden`. A user review can remove false requirements, change soft-requirement importance, confirm or reject hard gates, add requirements, and classify evidence. Only a `role_requirements` review unlocks role-specific scores. A `candidate_evidence` review is reusable for comparison but still leaves each role's checklist provisional.
+
+`requirements_identified` is a count of extracted requirements, not a completeness or confidence score. `evidence_coverage_score` counts reviewable direct or transferable evidence; `claimed_evidence_coverage_score` is reported separately. `eligibility_status: no_gate_detected` means no hard gate was detected and therefore has no verification percentage. `unresolved` and `verified` are reserved for roles with detected gates.
+
+## 9. Negation and missing evidence
 
 The candidate parser applies a conservative local negation rule to phrases such as “no,” “without,” “not,” and “not yet” before a matched skill. Negated mentions remain in the output with `negated: true` for auditability but are excluded from the evidence match.
 
 A missing mention is not evidence that a person lacks the capability. The interface therefore calls missing cases foundation gaps only as a preparation hypothesis and asks the user to verify whether the issue is actually a translation or proof gap.
 
-## 9. Dictionary expansion and mapping discipline
+## 10. Dictionary expansion and mapping discipline
 
 The English dictionary combines a small transparent seed layer with exact labels from O*NET 30.3. The enrichment includes Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Each enrichment entry retains its O*NET element ID, source file, source taxonomy, mapping method, match mode, and baseline extraction confidence. Broad taxonomy membership is not counted as transferable evidence; only explicit, versioned skill crosswalks can affect the core fit score.
 
 O*NET labels are mapped into the ten-category analytical layer only when the mapping rule is explicit. Named software uses exact-label matching; common-word software names such as React, Go, and Zoom also require nearby software context. Generic aliases such as bare Word, Project, and Access are not matched on their own. The dictionary does not treat occupational importance ratings as proof that a candidate has a skill, and it does not infer synonyms beyond the small alias list for common software names. Unmatched language remains unmatched rather than being forced into a category.
 
-## 10. Multidimensional role fingerprints and skill bundles
+## 11. Multidimensional role fingerprints and skill bundles
 
 The Role Fingerprint operationalizes a multidimensional mismatch view. For each taxonomy category `c`, the engine reports the importance-weighted evidence coverage of the named requirements that fall in that category:
 
@@ -108,6 +114,6 @@ Skill bundles are pairs of distinct named requirements that occur in the same su
 
 This design draws on the task-based and multidimensional mismatch literature, including [Guvenen, Kuruscu, Tanaka, and Wiczer](https://www.aeaweb.org/articles?id=10.1257/mac.20160241), [Deming and Kahn](https://www.nber.org/papers/w23328), and [Postel-Vinay and Lise](https://doi.org/10.1257/aer.20162002). The papers motivate the dimensions and user workflow; they do not validate Career Fit's descriptive scores.
 
-## 11. Sensitivity and future validation
+## 12. Sensitivity and future validation
 
 The most consequential modeling choices are importance weights, transfer rules, evidence-type weights, and missing-evidence treatment. Future releases should publish sensitivity tables under alternative choices and validate only on a consented, well-defined sample. A high score should never be presented as evidence that a candidate is more productive or more likely to be hired.
