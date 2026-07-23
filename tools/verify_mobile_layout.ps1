@@ -95,6 +95,24 @@ try {
     if (-not $reviewMeasurement.reviewVisible -or -not $reviewMeasurement.coverageVisible -or [string]::IsNullOrWhiteSpace($reviewMeasurement.inputCoverage) -or $reviewMeasurement.fitBefore -ne "Review first") {
         throw "Career Fit did not expose the provisional review and coverage panels."
     }
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{document.querySelector('#job-input').value='Office coordinator. Must have communication and Excel. Preferred: customer service. Schedule meetings and maintain records.';document.querySelector('#candidate-input').value='I am looking for work and do not have a current resume.';document.querySelector('#analyze-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('More input needed')"
+    $guidedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,visible:!document.querySelector('#guided-intake').hidden,requirements:document.querySelectorAll('#guided-intake-requirement option').length,task:!!document.querySelector('#guided-intake-task'),context:!!document.querySelector('#guided-intake-context')})"
+    ))
+    Assert-NoHorizontalOverflow "Career Fit guided intake" $guidedMeasurement
+    if (-not $guidedMeasurement.visible -or $guidedMeasurement.requirements -lt 1 -or -not $guidedMeasurement.task -or -not $guidedMeasurement.context) {
+        throw "Career Fit did not expose the resume-free guided intake controls."
+    }
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{document.querySelector('#guided-intake-task').value='Scheduled appointments and maintained a shared calendar';document.querySelector('#guided-intake-context').value='At a community group';document.querySelector('#guided-intake-result').value='Reduced missed follow-ups';document.querySelector('#guided-intake-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "(document.querySelector('#guided-intake-status')?.textContent || '').includes('recorded')"
     Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('#apply-review-button').click();return true})()") | Out-Null
     Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('Reviewed analysis')"
     $reviewedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(

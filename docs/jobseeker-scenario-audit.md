@@ -16,7 +16,33 @@ Current audit result:
 | Guided intake or manual evidence | 4 | A cautious no-score state for claim-heavy or eligibility-sensitive profiles, followed by structured evidence collection |
 | **Total** | **50** | Every case has at least one next action |
 
-The exact real review path produced `43` scored cases and `7` intentionally insufficient-information cases. When the review-panel harness added explicit user-labeled claim evidence, `49` cases could proceed to a scored preparation plan; the remaining `long_unemployed` case still needs a guided intake because it contains no role-linked evidence at all. This harness is a capability check, not a claim that users supplied evidence automatically.
+The exact real review path produced `43` scored cases and `7` intentionally insufficient-information cases. When the review-panel harness added explicit user-labeled claim evidence, `49` cases could proceed to a scored preparation plan; the remaining `long_unemployed` case is the dedicated resume-free guided-intake path because it contains no role-linked evidence in the starting text. This harness is a capability check, not a claim that users supplied evidence automatically.
+
+## Full 500-journey stress audit
+
+The release gate also expands every maintained profile through ten controlled variants in [tools/audit_500_jobseeker_scenarios.py](../tools/audit_500_jobseeker_scenarios.py): plain text, case changes, spacing changes, added context, added result, added duration, claim language, low-information input, resume-style formatting, and an explicit review-panel evidence journey. That is `50 × 10 = 500` deterministic journeys, not 500 randomly generated people.
+
+The completed run produced:
+
+| Check | Result |
+| --- | ---: |
+| Journeys | 500 / 500 |
+| Baseline `review_required` | 386 |
+| Baseline `insufficient_information` | 114 |
+| Applied review `scored` | 386 |
+| Applied review `insufficient_information` | 114 |
+| Structured or guided evidence `scored` | 486 |
+| Structured or guided evidence `insufficient_information` | 14 |
+| Journeys with a next action | 500 / 500 |
+| Unexpected exceptions or contract issues | 0 |
+
+The 14 cautious journeys are the intended language-limited, evidence-free, or otherwise constrained boundary. They receive the guided intake or manual-evidence route rather than a fabricated score. Every low-information variant now exercises the guided form itself: a task and context example is attached to an extracted requirement where one exists, remains `user_declared`, and unlocks scoring only after the checklist review is applied. All 20 language-review journeys retain a visible language-coverage caveat.
+
+The full audit found no score-visibility leak, missing next action, comparison-count error, or crash. Its remaining limitations are product scope rather than hidden failures: a user may need several examples for a complex role, the English-first dictionary can still miss unfamiliar labels, and user-declared evidence is not external verification.
+
+In addition to the 500 journeys, the runner executes a 32-case hard-gate edge matrix for experience comparison/negation, threshold wording, and post-claim follow-up sentences, historical/expired authorization and licenses, current license synonyms, future claims, unrelated future actions, and background-check wording. All 32 edge cases passed with no issue added to the release result.
+
+The current guided-intake layout is captured in [the resume-free flow screenshot](assets/career-fit-guided-intake.png); it is an illustrative local UI capture, not a user record or performance claim.
 
 ## Scenario coverage
 
@@ -47,6 +73,8 @@ These cases cover early-career applicants, career changers, caregivers, immigran
 5. Non-English profiles could fail silently as “no evidence.” The language selector, API/CLI language hint, `summary.candidate_language`, visible warning, and explicit manual-evidence route make the limitation legible.
 6. The substantive-profile guard missed plain-language verbs such as tracked, scheduled, presented, moved, checked, and reviewed. It now recognizes common action and context terms while still refusing keyword-only claims.
 7. A missed requirement did not have to be in the dictionary. The review panel now accepts a user-supplied soft label such as a niche workflow; it receives a `user.custom.*` ID and can only match after the user labels evidence, without being assigned a research taxonomy category. It also accepts an explicitly written missed eligibility gate, which remains a hard `unknown`/`met`/`not_met` constraint rather than being downgraded to a skill.
+8. Future or conditional eligibility language could be mistaken for current proof. Hard-gate checks now keep modal, date-bound, and conditional claims such as `will`, `would`, `by 2027`, and `if approved` as `unknown`; explicit current negatives remain `not_met`, and current authorization wording is recognized without weakening the verification boundary.
+9. Experience negation and historical/expired eligibility language could be swallowed by broad positive regexes. The gate parser now keeps explicit experience negation, insufficient comparisons, post-claim relevance conflicts, and tightly linked follow-up sentences as `not_met`, preserves positive threshold phrases such as `no less than five years`, treats historical-only authorization or licensure as `unknown`, marks explicit expired/revoked/inactive states as `not_met`, recognizes licensed/not-licensed and eligible/not-eligible synonyms, and treats `current` license wording as equivalent to `active` when the required license terms are present. The 500-journey runner also checks a 32-case hard-gate edge matrix.
 
 ## Full workflow findings
 
@@ -61,7 +89,7 @@ These cases cover early-career applicants, career changers, caregivers, immigran
 
 ## Remaining product boundary
 
-The current release is an evidence-first preparation tool, not a universal multilingual resume parser, a labor-market forecast, or a hiring decision system. The next high-value feature is a guided intake wizard for users with no resume or no mapped evidence. Until that exists, the current input-review action and structured review panel are the safe fallback.
+The current release is an evidence-first preparation tool, not a universal multilingual resume parser, a labor-market forecast, or a hiring decision system. The guided intake supports a first concrete example, not a complete resume reconstruction: users may still need several examples, translation help, or a coach to cover a complex role. User-declared evidence remains a lead for preparation, not external verification.
 
 ## Verification commands
 
@@ -70,6 +98,7 @@ $env:PYTHONPATH = "src"
 python -m pytest -q
 python -m compileall -q src tests tools
 python tools/audit_jobseeker_scenarios.py
+python tools/audit_500_jobseeker_scenarios.py
 ```
 
 The same release cycle also runs the Atlas test suite and the two-product 390px browser regression before publication.

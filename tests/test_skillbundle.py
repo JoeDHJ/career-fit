@@ -204,6 +204,190 @@ class CareerFitTests(unittest.TestCase):
         )
         self.assertEqual(nursing_license["hard_constraints"][0]["status"], "met")
 
+    def test_future_and_conditional_hard_gates_stay_unknown(self):
+        cases = (
+            (
+                "A background check is required.",
+                "I will have completed a background check.",
+                "background_check",
+            ),
+            (
+                "Authorization to work in the United States is required.",
+                "I will be authorized to work next month.",
+                "work_authorization",
+            ),
+            (
+                "Authorization to work in the United States is required.",
+                "I would be authorized to work if approved.",
+                "work_authorization",
+            ),
+            (
+                "Five years of operations experience required.",
+                "I will have five years of operations experience by 2027.",
+                "experience_floor",
+            ),
+            (
+                "Master's degree required.",
+                "I will complete my master's degree next year.",
+                "education",
+            ),
+            (
+                "An active nursing license is required.",
+                "I will obtain a nursing license next year.",
+                "professional_license",
+            ),
+        )
+        for job_text, candidate_text, requirement_type in cases:
+            result = analyze_fit(job_text, candidate_text)
+            gate = next(
+                item
+                for item in result["hard_constraints"]
+                if item["requirement_type"] == requirement_type
+            )
+            self.assertEqual(gate["status"], "unknown", candidate_text)
+
+        current_authorization = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I have current work authorization.",
+        )
+        self.assertEqual(
+            current_authorization["hard_constraints"][0]["status"], "met"
+        )
+        sponsorship_with_future_authorization = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not need sponsorship but I will be authorized next month.",
+        )
+        self.assertEqual(
+            sponsorship_with_future_authorization["hard_constraints"][0]["status"],
+            "unknown",
+        )
+        current_negative_with_future = analyze_fit(
+            "Authorization to work in the United States is required.",
+            "I do not have authorization yet, but I will be authorized next month.",
+        )
+        self.assertEqual(
+            current_negative_with_future["hard_constraints"][0]["status"],
+            "not_met",
+        )
+
+        current_gate_with_unrelated_future_action = (
+            (
+                "Authorization to work in the United States is required.",
+                "I am authorized to work and can start next month.",
+                "work_authorization",
+            ),
+            (
+                "A background check is required.",
+                "I passed a background check and can start next month.",
+                "background_check",
+            ),
+            (
+                "An active nursing license is required.",
+                "I hold an active nursing license and can start next month.",
+                "professional_license",
+            ),
+        )
+        for job_text, candidate_text, requirement_type in (
+            current_gate_with_unrelated_future_action
+        ):
+            result = analyze_fit(job_text, candidate_text)
+            gate = next(
+                item
+                for item in result["hard_constraints"]
+                if item["requirement_type"] == requirement_type
+            )
+            self.assertEqual(gate["status"], "met", candidate_text)
+
+    def test_hard_gate_negation_and_historical_states_do_not_look_current(self):
+        experience_cases = (
+            "I do not have five years of operations experience.",
+            "I lack five years of operations experience.",
+            "I have not reached five years of operations experience.",
+            "I have five years of experience, but not in operations.",
+        )
+        for candidate_text in experience_cases:
+            result = analyze_fit(
+                "Five years of operations experience required.", candidate_text
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], "not_met", candidate_text
+            )
+        for candidate_text in (
+            "I have no less than five years of operations experience.",
+            "I have no fewer than five years of operations experience.",
+            "I have not only five years of operations experience.",
+            "I have more than five years of operations experience.",
+        ):
+            result = analyze_fit(
+                "Five years of operations experience required.", candidate_text
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], "met", candidate_text
+            )
+        for candidate_text in (
+            "I have less than five years of operations experience.",
+            "I have under five years of operations experience.",
+            "I have fewer than five years of operations experience.",
+            "I have five years of operations experience, but none is relevant.",
+            "I have five years of operations experience, but it is not relevant.",
+            "I have five years of operations experience, but none is qualifying.",
+            "I have five years of operations experience; however, I do not meet the requirement.",
+            "I have five years of operations experience. It is not relevant.",
+            "I have five years of operations experience. None is relevant.",
+            "I have five years of operations experience. I do not meet the requirement.",
+        ):
+            result = analyze_fit(
+                "Five years of operations experience required.", candidate_text
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], "not_met", candidate_text
+            )
+
+        authorization_cases = (
+            ("I was authorized to work in the United States.", "unknown"),
+            ("I used to have work authorization.", "unknown"),
+            ("I was authorized to work, but my authorization expired.", "not_met"),
+            ("I am no longer authorized to work.", "not_met"),
+        )
+        for candidate_text, expected_status in authorization_cases:
+            result = analyze_fit(
+                "Authorization to work in the United States is required.",
+                candidate_text,
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], expected_status, candidate_text
+            )
+
+        license_cases = (
+            ("I held an active nursing license.", "unknown"),
+            ("I previously held an active nursing license.", "unknown"),
+            ("My nursing license is expired.", "not_met"),
+            ("I have an inactive nursing license.", "not_met"),
+            ("I hold a current nursing license.", "met"),
+            ("I have a current nursing license.", "met"),
+            ("I am not currently licensed as a nurse.", "not_met"),
+            ("I am currently licensed as a nurse.", "met"),
+        )
+        for candidate_text, expected_status in license_cases:
+            result = analyze_fit(
+                "An active nursing license is required.", candidate_text
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], expected_status, candidate_text
+            )
+
+        for candidate_text in (
+            "I am not eligible to work in the United States.",
+            "I do not hold a valid work permit.",
+        ):
+            result = analyze_fit(
+                "Authorization to work in the United States is required.",
+                candidate_text,
+            )
+            self.assertEqual(
+                result["hard_constraints"][0]["status"], "not_met", candidate_text
+            )
+
     def test_untrusted_evidence_provenance_and_nonfinite_numbers_fail_closed(self):
         result = analyze_fit(
             "Must have Python and SQL.",
@@ -418,6 +602,45 @@ class CareerFitTests(unittest.TestCase):
             review={"scope": "role_requirements", "applied": True},
         )
         self.assertEqual(result["summary"]["analysis_status"], "scored")
+
+    def test_guided_intake_evidence_can_start_a_resume_free_profile(self):
+        job = (
+            "Office coordinator. Must have communication and Excel. "
+            "Preferred: customer service. Schedule meetings and maintain records."
+        )
+        candidate = "I am looking for work and do not have a current resume."
+        baseline = analyze_fit(job, candidate)
+        requirement = next(
+            item
+            for item in baseline["review_queue"]
+            if not item["hard_constraint"]
+        )
+        reviewed = analyze_fit(
+            job,
+            candidate,
+            review={
+                "scope": "role_requirements",
+                "applied": True,
+                "added_evidence": [
+                    {
+                        "skill_id": requirement["skill_id"],
+                        "canonical_skill": requirement["canonical_skill"],
+                        "analysis_category_code": requirement["analysis_category_code"],
+                        "evidence_type": "work",
+                        "source_text": "Scheduled appointments and maintained a shared calendar at a community group.",
+                        "result": "Kept requests organized and reduced missed follow-ups.",
+                    }
+                ],
+            },
+        )
+        self.assertEqual(reviewed["summary"]["analysis_status"], "scored")
+        assessment = next(
+            item
+            for item in reviewed["requirements"]
+            if item["skill_id"] == requirement["skill_id"]
+        )
+        self.assertIn(assessment["status"], {"direct", "direct_weak"})
+        self.assertEqual(reviewed["evidence"][0]["verification_status"], "user_declared")
 
     def test_user_review_can_remove_add_and_confirm_without_silent_score_edits(self):
         base = analyze_fit(
@@ -678,6 +901,10 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("candidate_evidence", page)
         self.assertIn("No gate detected", page)
         self.assertIn("canShowNonScoreActions", page)
+        self.assertIn('id="guided-intake"', page)
+        self.assertIn('id="guided-intake-task"', page)
+        self.assertIn('id="guided-intake-context"', page)
+        self.assertIn("No resume? Start with one example", page)
 
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(

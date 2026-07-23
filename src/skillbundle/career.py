@@ -577,6 +577,240 @@ def _negative_gate_statement(text: str, terms: str) -> bool:
     )
 
 
+_FUTURE_MODAL_PATTERN = (
+    r"(?:will|would|could|can|may|might|expect(?:s|ed)?|"
+    r"plan(?:s|ned)?|hope(?:s|d)?|intend(?:s|ed)?|aim(?:s|ed)?)"
+)
+_FUTURE_TIME_PATTERN = (
+    r"(?:by\s+(?:20\d{2}|next\s+\w+|[a-z]+\s+20\d{2}|"
+    r"the\s+end\s+of\s+\w+)|next\s+\w+|this\s+\w+|"
+    r"in\s+(?:20\d{2}|\d+\s+(?:day|week|month|year)s?)|later)"
+)
+_CONDITIONAL_PATTERN = (
+    r"(?:if|unless|once|when|pending|subject\s+to|waiting\s+for|"
+    r"applied\s+for|in\s+progress)"
+)
+_HISTORICAL_GATE_PATTERN = (
+    r"(?:was|were|used\s+to|previously|formerly|once|had|held)"
+)
+_INVALID_GATE_PATTERN = (
+    r"(?:expired|revoked|inactive|invalid|no\s+longer|"
+    r"not\s+(?:currently|current|valid|active|authorized|eligible|permitted)|"
+    r"no\s+current|without|lack(?:s|ing)?)"
+)
+_CURRENT_GATE_VERB_PATTERN = r"(?:am|is|are|have|has|hold|holds|possess|possesses)"
+_LICENSE_SUBJECT_PATTERN = (
+    r"(?:license|licence|licensed|licensing|certified|certification)"
+)
+_AUTHORIZATION_SUBJECT_PATTERN = (
+    r"(?:authorized(?:\s+to\s+work)?|eligible(?:\s+to\s+work)?|"
+    r"right\s+to\s+work|(?:work\s+)?authorization|permit|valid\s+visa)"
+)
+
+
+def _future_or_conditional_parts(before: str, after: str) -> bool:
+    """Identify claims that describe a future or conditional gate state."""
+
+    before_lower = before.casefold()
+    after_lower = after.casefold()
+    local_before = re.split(
+        r"(?:,|\b(?:and|but|however|although)\b)", before_lower
+    )[-1]
+    local_after = re.split(
+        r"\b(?:and|but|however|although)\b", after_lower, maxsplit=1
+    )[0]
+    leading_future_time = bool(
+        re.match(rf"\s*\b{_FUTURE_TIME_PATTERN}\b", before_lower)
+    )
+    leading_condition = bool(
+        re.match(
+            rf"\s*\b{_CONDITIONAL_PATTERN}\b[^.!?;\n,]*,",
+            before_lower,
+        )
+    )
+    return bool(
+        re.search(rf"\b{_FUTURE_MODAL_PATTERN}\b", local_before)
+        or re.search(rf"\b{_CONDITIONAL_PATTERN}\b", local_before)
+        or re.search(rf"\b{_CONDITIONAL_PATTERN}\b", local_after)
+        or leading_condition
+        or leading_future_time
+        or re.search(rf"\b{_FUTURE_TIME_PATTERN}\b", local_after)
+    )
+
+
+def _future_or_conditional_subject(text: str, subject_pattern: str) -> bool:
+    """Return whether a subject is asserted only in a future/conditional state."""
+
+    for before, after, _ in _subject_contexts(text, subject_pattern):
+        if _future_or_conditional_parts(before, after):
+            return True
+    return False
+
+
+def _subject_contexts(
+    text: str, subject_pattern: str
+) -> list[tuple[str, str, str]]:
+    """Return local before/after clauses and their full sentence for each subject."""
+
+    lowered = text.casefold()
+    contexts: list[tuple[str, str, str]] = []
+    for match in re.finditer(rf"\b(?:{subject_pattern})\b", lowered):
+        sentence_start = max(
+            lowered.rfind(mark, 0, match.start()) for mark in ".!?;\n"
+        ) + 1
+        sentence_end_candidates = [
+            lowered.find(mark, match.end()) for mark in ".!?;\n"
+        ]
+        sentence_end_candidates = [
+            value for value in sentence_end_candidates if value >= 0
+        ]
+        sentence_end = min(sentence_end_candidates, default=len(lowered))
+        contexts.append(
+            (
+                lowered[sentence_start:match.start()],
+                lowered[match.end():sentence_end],
+                lowered[sentence_start:sentence_end],
+            )
+        )
+    return contexts
+
+
+def _subject_has_state(
+    text: str,
+    subject_pattern: str,
+    state_pattern: str,
+    *,
+    include_full_after: bool = False,
+) -> bool:
+    """Find a historical or invalid state attached to a gate subject."""
+
+    state_re = re.compile(rf"\b(?:{state_pattern})\b")
+    for before, after, sentence in _subject_contexts(text, subject_pattern):
+        local_before = re.split(
+            r"(?:,|\b(?:and|but|however|although)\b)", before
+        )[-1]
+        local_after = re.split(
+            r"\b(?:and|but|however|although)\b", after, maxsplit=1
+        )[0]
+        if state_re.search(local_before) or state_re.search(local_after):
+            return True
+        if include_full_after and state_re.search(sentence):
+            return True
+    return False
+
+
+def _subject_has_current_assertion(text: str, subject_pattern: str) -> bool:
+    """Return whether the subject has a present-tense assertion."""
+
+    current_re = re.compile(rf"\b{_CURRENT_GATE_VERB_PATTERN}\b")
+    historical_re = re.compile(rf"\b{_HISTORICAL_GATE_PATTERN}\b")
+    for before, after, _ in _subject_contexts(text, subject_pattern):
+        local_before = re.split(
+            r"(?:,|\b(?:and|but|however|although)\b)", before
+        )[-1]
+        local_after = re.split(
+            r"\b(?:and|but|however|although)\b", after, maxsplit=1
+        )[0]
+        if historical_re.search(local_before):
+            continue
+        if current_re.search(local_before) or current_re.search(local_after):
+            return True
+    return False
+
+
+def _future_or_conditional_experience(
+    candidate_text: str, claim: dict[str, object]
+) -> bool:
+    """Check the clause surrounding an experience claim for temporal uncertainty."""
+
+    lowered = candidate_text.casefold()
+    start = int(claim["start"])
+    end = int(claim["end"])
+    sentence_start = max(
+        lowered.rfind(mark, 0, start) for mark in ".!?\n"
+    ) + 1
+    sentence_end_candidates = [lowered.find(mark, end) for mark in ".!?\n"]
+    sentence_end_candidates = [value for value in sentence_end_candidates if value >= 0]
+    sentence_end = min(sentence_end_candidates, default=len(lowered))
+    return _future_or_conditional_parts(
+        lowered[sentence_start:start], lowered[end:sentence_end]
+    )
+
+
+def _negative_experience_claim(
+    candidate_text: str,
+    claim: dict[str, object],
+    required_area: str | None,
+) -> bool:
+    """Identify a qualifying-looking experience claim that is explicitly negated."""
+
+    lowered = candidate_text.casefold()
+    start = int(claim["start"])
+    end = int(claim["end"])
+    sentence_start = max(
+        lowered.rfind(mark, 0, start) for mark in ".!?\n"
+    ) + 1
+    sentence_end_candidates = [lowered.find(mark, end) for mark in ".!?\n"]
+    sentence_end_candidates = [value for value in sentence_end_candidates if value >= 0]
+    sentence_end = min(sentence_end_candidates, default=len(lowered))
+    before = lowered[sentence_start:start]
+    sentence = lowered[sentence_start:sentence_end]
+    following_end_candidates = [
+        lowered.find(mark, sentence_end + 1) for mark in ".!?\n"
+    ]
+    following_end_candidates = [
+        value for value in following_end_candidates if value >= 0
+    ]
+    following_end = min(following_end_candidates, default=len(lowered))
+    following = re.sub(
+        r"^\s*[.!?]\s*", "", lowered[sentence_end:following_end], count=1
+    )
+    threshold_phrase = re.search(
+        r"\b(?:no\s+(?:less|fewer)\s+than|not\s+(?:less|fewer)\s+than|"
+        r"not\s+only)\b",
+        before,
+    )
+    insufficient_phrase = re.search(
+        r"\b(?:less|fewer)\s+than\b|\b(?:under|below|short\s+of)\b",
+        before,
+    )
+    if insufficient_phrase and not threshold_phrase:
+        return True
+    if not threshold_phrase and re.search(
+        r"\b(?:no|without|not|never|don't|do not|doesn't|does not|"
+        r"lack(?:s|ing)?|failed to)\b(?:\s+\w+){0,8}\s*$",
+        before,
+    ):
+        return True
+    if required_area and not threshold_phrase:
+        area_tokens = [
+            token
+            for token in re.findall(r"[a-z0-9]+", required_area.casefold())
+            if len(token) > 2
+        ]
+        if area_tokens:
+            area_pattern = r"\s+".join(re.escape(token) for token in area_tokens)
+            if re.search(
+                rf"\b(?:no|without|not|never|lack(?:s|ing)?)\b"
+                rf"[^.!?;\n]{{0,45}}\b{area_pattern}\b",
+                sentence,
+            ):
+                return True
+    post_claim_negative = re.compile(
+        r"\b(?:none|nothing)\b|"
+        r"\bnot\s+(?:relevant|qualifying|qualified|applicable)\b|"
+        r"\b(?:do|does|did)\s+not\s+meet\b|"
+        r"\bnot\s+meet(?:ing)?\s+(?:the\s+)?requirement\b",
+    )
+    if post_claim_negative.search(sentence):
+        return True
+    if re.match(r"(?:it|this|that|none|nothing|i)\b", following) and post_claim_negative.search(
+        following
+    ):
+        return True
+    return False
+
+
 def _education_field_matches(required_field: str | None, candidate_text: str) -> bool:
     if not required_field:
         return True
@@ -639,6 +873,7 @@ def _education_occurrences(candidate_text: str) -> list[tuple[int, str, str]]:
                 r"expected)\b",
                 f"{before} {after}".casefold(),
             )
+            or _future_or_conditional_parts(before, after)
         )
         state = "negative" if negated else "in_progress" if in_progress else "positive"
         occurrences.append((level, state, clause))
@@ -678,26 +913,46 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
     requirement_type = requirement["requirement_type"]
     if requirement_type == "professional_license":
         label = str(requirement.get("canonical_skill", "license"))
-        terms = r"license|licence|certification|certified"
+        terms = r"license|licence|licensed|licensing|certification|certified"
         if _negative_gate_statement(lowered, terms):
             return "not_met"
+        if _subject_has_state(
+            lowered,
+            _LICENSE_SUBJECT_PATTERN,
+            _INVALID_GATE_PATTERN,
+            include_full_after=True,
+        ):
+            return "not_met"
+        if _future_or_conditional_subject(
+            lowered, _LICENSE_SUBJECT_PATTERN
+        ):
+            return "unknown"
+        current_license = _subject_has_current_assertion(
+            lowered, _LICENSE_SUBJECT_PATTERN
+        )
+        historical_license = _subject_has_state(
+            lowered, _LICENSE_SUBJECT_PATTERN, _HISTORICAL_GATE_PATTERN
+        )
         exact_terms = [
             token
             for token in re.findall(r"[a-z0-9]+", label.casefold())
-            if token not in {"a", "an", "the", "valid", "current", "professional"}
+            if token
+            not in {"a", "an", "the", "active", "valid", "current", "professional"}
         ]
         if not exact_terms:
             return "unknown"
         token_patterns = {
             "nursing": r"nurs(?:e|ing)",
             "nurse": r"nurs(?:e|ing)",
-            "licence": r"licen[cs]e",
-            "license": r"licen[cs]e",
+            "licence": r"licen[cs](?:e|ed|ing)?",
+            "license": r"licen[cs](?:e|ed|ing)?",
         }
         if all(
             re.search(rf"\b{token_patterns.get(token, re.escape(token))}\b", lowered)
             for token in exact_terms
         ):
+            if historical_license and not current_license:
+                return "unknown"
             return "met"
         return "unknown"
 
@@ -715,10 +970,19 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             r"(?:pass|clear|complete)\s+(?:a\s+|the\s+|one\b)",
             lowered,
         )
+        future_background = bool(
+            future_background
+            or _future_or_conditional_subject(
+                lowered,
+                r"(?:background\s+(?:check|screening)|(?:clean|no)\s+record)",
+            )
+        )
         if negative_background and future_background:
             return "unknown"
         if negative_background:
             return "not_met"
+        if future_background:
+            return "unknown"
         if re.search(
             r"(?:\b(?:passed|cleared|successfully completed|"
             r"completed)\b[^.!?;\n]{0,50}\b(?:a\s+)?(?:background check|"
@@ -732,12 +996,26 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
 
     if requirement_type == "work_authorization":
         if re.search(
-            r"\b(?:not authorized|no work authorization|without authorization|"
+            r"\b(?:not authorized|not eligible|not permitted|no right to work|"
+            r"no work authorization|without authorization|"
             r"lack(?:s|ing)?\s+(?:any\s+)?(?:work\s+)?authorization|"
             r"(?:do not|don't|does not|doesn't)\s+have\s+(?:any\s+)?"
-            r"(?:work\s+)?authorization|cannot work|unable to work|no valid visa)\b",
+            r"(?:work\s+)?(?:authorization|permit|visa)|"
+            r"(?:do not|don't|does not|doesn't|cannot|can't|unable to)\s+"
+            r"(?:hold|possess)\s+(?:a\s+)?(?:valid\s+)?"
+            r"(?:work\s+)?(?:authorization|permit|visa)|"
+            r"cannot work|unable to work|"
+            r"no valid visa|no longer authorized|not currently authorized)\b",
             lowered,
         ):
+            return "not_met"
+        invalid_authorization = _subject_has_state(
+            lowered,
+            _AUTHORIZATION_SUBJECT_PATTERN,
+            _INVALID_GATE_PATTERN,
+            include_full_after=True,
+        )
+        if invalid_authorization:
             return "not_met"
         pending_authorization = re.search(
             r"\b(?:need|needs|require|requires|will need|waiting for|applied for|"
@@ -757,11 +1035,26 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             r"\b(?:need|needs|require|requires)\s+sponsorship\b",
             lowered,
         )
-        if no_sponsorship and (contradictory_sponsorship or pending_authorization):
+        future_authorization = _future_or_conditional_subject(
+            lowered, _AUTHORIZATION_SUBJECT_PATTERN
+        )
+        current_authorization = _subject_has_current_assertion(
+            lowered, _AUTHORIZATION_SUBJECT_PATTERN
+        )
+        historical_authorization = _subject_has_state(
+            lowered, _AUTHORIZATION_SUBJECT_PATTERN, _HISTORICAL_GATE_PATTERN
+        )
+        if no_sponsorship and (
+            contradictory_sponsorship or pending_authorization or future_authorization
+        ):
             return "unknown"
         if no_sponsorship:
             return "met"
         if pending_authorization:
+            return "unknown"
+        if future_authorization:
+            return "unknown"
+        if historical_authorization and not current_authorization:
             return "unknown"
         if re.search(
             r"\b(?:does not state|not stated|not mentioned|no mention)\b"
@@ -776,8 +1069,9 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             return "not_met"
         if re.search(
             r"\b(?:authorized to work|eligible to work|right to work|"
-            r"(?:have|has|hold|holds|possess|possesses)\s+(?:a\s+)?(?:valid\s+)?"
-            r"(?:work\s+)?(?:authorization|permit)|valid visa|"
+            r"(?:have|has|hold|holds|possess|possesses)\s+(?:a\s+)?"
+            r"(?:(?:valid|current|active)\s+)?(?:work\s+)?"
+            r"(?:authorization|permit)|valid visa|"
             r"does not require sponsorship|no sponsorship required)\b",
             lowered,
         ):
@@ -823,6 +1117,7 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
     if requirement_type == "experience_floor":
         required = int(requirement.get("required_years", 0))
         required_area = requirement.get("experience_area")
+        negative_claim_found = False
         for claim in experience_claims(lowered):
             years = int(claim["years"])
             candidate_area = str(claim["area"]) if claim.get("area") else None
@@ -830,7 +1125,18 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
                 str(required_area) if required_area else None,
                 candidate_area or str(claim["source_text"]),
             ):
+                if _future_or_conditional_experience(lowered, claim):
+                    continue
+                if _negative_experience_claim(
+                    lowered,
+                    claim,
+                    str(required_area) if required_area else None,
+                ):
+                    negative_claim_found = True
+                    continue
                 return "met"
+        if negative_claim_found:
+            return "not_met"
         return "unknown"
 
     return "unknown"

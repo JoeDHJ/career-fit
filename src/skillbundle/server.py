@@ -347,6 +347,15 @@ HTML = r"""<!doctype html>
     .review-add-row label { display: grid; flex: 1; gap: 5px; color: var(--muted); font-size: .78rem; }
     .review-add-row label span { font-size: .7rem; }
     .review-added-list { margin-top: 10px; color: var(--muted); font-size: .8rem; }
+    .guided-intake { margin-top: 18px; padding: 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 12px; }
+    .guided-intake[hidden] { display: none; }
+    .guided-intake-copy { margin: -8px 0 14px; color: var(--muted); font-size: .82rem; }
+    .guided-intake-grid { display: grid; grid-template-columns: minmax(130px, .8fr) repeat(3, minmax(140px, 1fr)) 96px 82px 82px minmax(90px, .55fr); gap: 8px; align-items: end; }
+    .guided-intake-grid label { display: grid; gap: 4px; min-width: 0; color: var(--muted); font-size: .68rem; }
+    .guided-intake-grid input, .guided-intake-grid select, .guided-intake-grid textarea { min-width: 0; width: 100%; padding: 8px 9px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: .78rem; }
+    .guided-intake-grid textarea { min-height: 58px; resize: vertical; }
+    .guided-intake-grid button { white-space: nowrap; }
+    .guided-intake-status { margin: 10px 0 0; color: var(--muted); font-size: .78rem; }
     .signal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .signal-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 18px; align-items: center; padding: 21px; box-shadow: none; overflow: hidden; position: relative; }
     .signal-card::after { display: none; }
@@ -394,8 +403,9 @@ HTML = r"""<!doctype html>
     .footer-row { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 1020px) { .guided-intake-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid, .comparison-grid, .workflow { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
-    @media (max-width: 700px) { .coverage-grid { grid-template-columns: 1fr; } .review-item { grid-template-columns: 1fr; } .review-evidence-row, .review-add-row { align-items: stretch; flex-direction: column; } .review-evidence-row input, .review-add-row input { width: 100%; } .review-evidence-grid { grid-template-columns: 1fr 1fr; } .review-evidence-grid button { width: 100%; } }
+    @media (max-width: 700px) { .coverage-grid { grid-template-columns: 1fr; } .review-item { grid-template-columns: 1fr; } .review-evidence-row, .review-add-row { align-items: stretch; flex-direction: column; } .review-evidence-row input, .review-add-row input { width: 100%; } .review-evidence-grid, .guided-intake-grid { grid-template-columns: 1fr 1fr; } .guided-intake-grid label:nth-child(2), .guided-intake-grid label:nth-child(3), .guided-intake-grid label:nth-child(4) { grid-column: 1 / -1; } .guided-intake-grid button { width: 100%; } .review-evidence-grid button { width: 100%; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   </style>
   </head>
@@ -514,6 +524,21 @@ HTML = r"""<!doctype html>
         <div id="review-panel" class="review-panel" hidden>
           <div class="section-head"><div><span class="eyebrow">Step 2 · Review before relying</span><h3>Confirm the extraction</h3></div><p>Keep or remove each requirement, correct its importance, confirm eligibility gates, and label the kind of evidence you want to use. Scores remain hidden until this step is submitted.</p></div>
           <div id="review-requirements" class="review-requirements"></div>
+          <div id="guided-intake" class="guided-intake" hidden>
+            <div class="section-head"><div><span class="eyebrow">No resume? Start with one example</span><h3>Describe work you have actually done</h3></div></div>
+            <p class="guided-intake-copy">Choose a role requirement, then describe one task and where it happened. A result is helpful but optional. This records your own example; it does not verify it or infer ability from personal circumstances.</p>
+            <div class="guided-intake-grid">
+              <label for="guided-intake-requirement">Requirement<select id="guided-intake-requirement" aria-label="Requirement for guided example"></select></label>
+              <label for="guided-intake-task">What did you do?<textarea id="guided-intake-task" rows="2" placeholder="Scheduled appointments or maintained records"></textarea></label>
+              <label for="guided-intake-context">Where or with whom?<textarea id="guided-intake-context" rows="2" placeholder="At a community group, family business, or volunteer role"></textarea></label>
+              <label for="guided-intake-result">What changed? <span>(optional)</span><textarea id="guided-intake-result" rows="2" placeholder="Kept requests organized and reduced missed follow-ups"></textarea></label>
+              <label for="guided-intake-type">Evidence type<select id="guided-intake-type"></select></label>
+              <label for="guided-intake-duration">Months<input id="guided-intake-duration" type="number" min="0" step="1" placeholder="e.g. 6" /></label>
+              <label for="guided-intake-recency">Years ago<input id="guided-intake-recency" type="number" min="0" step="0.5" placeholder="e.g. 1" /></label>
+              <button id="guided-intake-button" class="secondary" type="button">Add example</button>
+            </div>
+            <p id="guided-intake-status" class="guided-intake-status" aria-live="polite">One concrete example is enough to begin.</p>
+          </div>
           <div class="review-add-row"><label for="added-requirement-input">Add a missed requirement <span>known or user-supplied label</span><input id="added-requirement-input" type="text" placeholder="e.g. SQL or Kubernetes" /></label><label for="added-requirement-importance">Importance<select id="added-requirement-importance"><option value="must">Must have</option><option value="strongly_preferred">Strongly preferred</option><option value="preferred">Preferred</option><option value="inferred">Inferred</option></select></label><button id="add-requirement-button" class="secondary" type="button">Add requirement</button></div>
           <div id="review-added-list" class="review-added-list"></div>
           <div class="toolbar"><button id="apply-review-button" type="button">Recalculate after review</button><span id="review-status" class="status" aria-live="polite">Review the items above before relying on the result.</span></div>
@@ -641,6 +666,16 @@ HTML = r"""<!doctype html>
       const reviewPanel = document.getElementById("review-panel");
       const reviewRequirements = document.getElementById("review-requirements");
       const reviewAddedList = document.getElementById("review-added-list");
+      const guidedIntake = document.getElementById("guided-intake");
+      const guidedIntakeRequirement = document.getElementById("guided-intake-requirement");
+      const guidedIntakeTask = document.getElementById("guided-intake-task");
+      const guidedIntakeContext = document.getElementById("guided-intake-context");
+      const guidedIntakeResult = document.getElementById("guided-intake-result");
+      const guidedIntakeType = document.getElementById("guided-intake-type");
+      const guidedIntakeDuration = document.getElementById("guided-intake-duration");
+      const guidedIntakeRecency = document.getElementById("guided-intake-recency");
+      const guidedIntakeButton = document.getElementById("guided-intake-button");
+      const guidedIntakeStatus = document.getElementById("guided-intake-status");
       const addedRequirementInput = document.getElementById("added-requirement-input");
       const addRequirementButton = document.getElementById("add-requirement-button");
       const applyReviewButton = document.getElementById("apply-review-button");
@@ -1015,6 +1050,93 @@ HTML = r"""<!doctype html>
           bundleGrid.appendChild(card);
         });
       }
+      function populateGuidedIntakeTypes() {
+        if (guidedIntakeType.options.length) return;
+        Object.keys(evidenceTypeLabels).forEach(function (value) {
+          const option = make("option", "", evidenceTypeLabels[value]);
+          option.value = value;
+          guidedIntakeType.appendChild(option);
+        });
+        guidedIntakeType.value = "work";
+      }
+      function renderGuidedIntake(payload) {
+        populateGuidedIntakeTypes();
+        const queue = (payload.review_queue || []).filter(function (item) {
+          return !item.hard_constraint && item.skill_id;
+        });
+        const hasActiveEvidence = (payload.evidence || []).some(function (item) {
+          return !item.negated && item.skill_id;
+        });
+        const summary = payload.summary || {};
+        const shouldShow = summary.analysis_status === "insufficient_information" || !hasActiveEvidence;
+        guidedIntake.hidden = !shouldShow;
+        if (!shouldShow) return;
+        clearNode(guidedIntakeRequirement);
+        if (!queue.length) {
+          const option = make("option", "", "Add a soft requirement above, then recalculate");
+          option.value = "";
+          option.disabled = true;
+          option.selected = true;
+          guidedIntakeRequirement.appendChild(option);
+          guidedIntakeButton.disabled = true;
+          guidedIntakeStatus.textContent = "No reviewable skill requirement is available yet. Add a missed requirement above and recalculate first.";
+          return;
+        }
+        queue.forEach(function (item) {
+          const option = make("option", "", item.canonical_skill || item.original_text || "Role requirement");
+          option.value = item.skill_id;
+          guidedIntakeRequirement.appendChild(option);
+        });
+        const existing = reviewState.added_evidence.find(function (item) {
+          return item.intake && queue.some(function (requirement) { return requirement.skill_id === item.skill_id; });
+        });
+        guidedIntakeRequirement.value = existing ? existing.skill_id : queue[0].skill_id;
+        guidedIntakeButton.disabled = false;
+        guidedIntakeStatus.textContent = "One concrete example is enough to begin. Add another requirement example if your experience is broader.";
+      }
+      function addGuidedIntake() {
+        if (!latest) {
+          guidedIntakeStatus.textContent = "Run an analysis before adding an example.";
+          return;
+        }
+        const requirement = (latest.review_queue || []).find(function (item) {
+          return item.skill_id === guidedIntakeRequirement.value && !item.hard_constraint;
+        });
+        const taskText = guidedIntakeTask.value.trim();
+        const contextText = guidedIntakeContext.value.trim();
+        const resultText = guidedIntakeResult.value.trim();
+        if (!requirement) {
+          guidedIntakeStatus.textContent = "Choose a soft role requirement first.";
+          return;
+        }
+        if (!taskText || !contextText) {
+          guidedIntakeStatus.textContent = "Add what you did and where or with whom it happened.";
+          return;
+        }
+        const sourceText = taskText + " Context: " + contextText;
+        reviewState.added_evidence = reviewState.added_evidence.filter(function (item) {
+          return item.skill_id !== requirement.skill_id;
+        });
+        reviewState.added_evidence.push({
+          intake: true,
+          skill_id: requirement.skill_id,
+          canonical_skill: requirement.canonical_skill,
+          analysis_category_code: requirement.analysis_category_code,
+          source_text: sourceText,
+          result: resultText,
+          evidence_type: guidedIntakeType.value,
+          duration_months: guidedIntakeDuration.value,
+          recency_years: guidedIntakeRecency.value
+        });
+        guidedIntakeTask.value = "";
+        guidedIntakeContext.value = "";
+        guidedIntakeResult.value = "";
+        guidedIntakeDuration.value = "";
+        guidedIntakeRecency.value = "";
+        renderAddedReviewItems();
+        guidedIntakeStatus.textContent = "Example recorded. Recalculate after reviewing the checklist to include it.";
+        reviewStatus.textContent = "Guided example recorded. Recalculate when the review is complete.";
+      }
       function renderAddedReviewItems() {
         clearNode(reviewAddedList);
         reviewState.added_requirements.forEach(function (item) {
@@ -1022,7 +1144,8 @@ HTML = r"""<!doctype html>
         });
         reviewState.added_evidence.forEach(function (item) {
           const label = evidenceTypeLabels[item.evidence_type] || item.evidence_type || "Evidence";
-          reviewAddedList.appendChild(make("span", "", label + " for " + item.canonical_skill + ": " + item.source_text));
+          const prefix = item.intake ? "Guided example" : label;
+          reviewAddedList.appendChild(make("span", "", prefix + " for " + item.canonical_skill + ": " + item.source_text));
         });
       }
       function renderReview(payload) {
@@ -1090,6 +1213,7 @@ HTML = r"""<!doctype html>
           }
           reviewRequirements.appendChild(row);
         });
+        renderGuidedIntake(payload);
         renderAddedReviewItems();
         reviewStatus.textContent = payload.review && ["user_confirmed", "candidate_evidence_confirmed"].includes(payload.review.status) ? "User confirmations applied. You can review and recalculate again." : "The current result is provisional until you confirm the extracted items.";
       }
@@ -1225,7 +1349,7 @@ HTML = r"""<!doctype html>
         jobInput.value = ""; candidateInput.value = ""; candidateLanguage.value = "auto"; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         candidateFile.value = ""; candidateFileStatus.textContent = "No file selected. Contact details should be removed first.";
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
-        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); semanticSummary.textContent = "";
+        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); clearNode(guidedIntakeRequirement); guidedIntakeTask.value = ""; guidedIntakeContext.value = ""; guidedIntakeResult.value = ""; guidedIntakeDuration.value = ""; guidedIntakeRecency.value = ""; guidedIntakeStatus.textContent = "One concrete example is enough to begin."; semanticSummary.textContent = "";
         clearNode(occupationCandidates); occupationContextResult.hidden = true; marketContext.hidden = true; clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent); occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
         latestOccupationContext = null;
         [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
@@ -1255,6 +1379,7 @@ HTML = r"""<!doctype html>
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
       addRequirementButton.addEventListener("click", addRequirement);
+      guidedIntakeButton.addEventListener("click", addGuidedIntake);
       applyReviewButton.addEventListener("click", applyReview);
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";

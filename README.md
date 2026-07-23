@@ -35,7 +35,8 @@ Given a job description and a candidate profile, the v0.5 product:
 8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting;
 9. accepts a local plain-text or Markdown resume import and lets users label structured evidence as work, research, portfolio, GitHub, course, certificate, or claim;
 10. exposes an explicit profile-language route so non-English profiles are not silently treated as fully mapped; users can add translated or structured evidence before relying on a score;
-11. keeps claim-only evidence distinct from reviewable proof and aggregates multiple evidence items without letting a weak extra claim erase stronger proof.
+11. keeps claim-only evidence distinct from reviewable proof and aggregates multiple evidence items without letting a weak extra claim erase stronger proof;
+12. offers a resume-free guided intake when mapped evidence is sparse: choose a role requirement and describe one task, context, optional result, evidence type, duration, and recency.
 
 It can also compare two or three target roles against the same candidate profile after candidate evidence has been reviewed. The comparison carries that reviewed evidence state forward, while each role still requires its own checklist confirmation before role-specific scores are shown.
 
@@ -80,6 +81,7 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 - three animated signal rings separate capability, proof, and application readiness;
 - the scorecard shows preparation signals only after review; before that it shows requirements identified, reviewable evidence, and an explicit eligibility status;
 - the review panel lets a user remove false requirements, change importance, add known or user-supplied missed skills, confirm hard constraints, and add structured evidence before recalculating;
+- the guided intake panel gives a resume-free user a short task/context prompt tied to a real role requirement, then carries the user-declared example through the same review route;
 - a local resume text importer helps a first-time job seeker start without sending a file to a hosted service;
 - the requirement–evidence matrix makes every assessment inspectable;
 - the profile chart shows the shape of evidence overlap across requirements;
@@ -95,6 +97,8 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 ![Career Fit role fingerprint](docs/assets/career-fit-fingerprint.png)
 
 ![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
+
+![Career Fit resume-free guided intake](docs/assets/career-fit-guided-intake.png)
 
 The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
 
@@ -173,7 +177,6 @@ tests/                extraction, negation, constraints, and fit tests
 
 ## Roadmap
 
-- add a guided intake wizard for people with no resume or no mapped evidence;
 - expand the reviewed multilingual skill dictionary and occupational crosswalks;
 - add resume-to-evidence import with explicit user confirmation;
 - evaluate a separate career-pathway graph only after defining its transition data and validation strategy;

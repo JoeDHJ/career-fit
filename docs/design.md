@@ -17,6 +17,7 @@ job description + candidate profile or local redacted resume text
   -> skill, negation, and hard-gate extraction
   -> requirement and evidence records
   -> user review of requirements, importance, gates, and evidence types
+  -> if evidence is sparse: choose a requirement and complete one guided task/context example
   -> direct / thin / transferable / missing matching
   -> capability, proof, readiness, and explicit coverage components
   -> multidimensional role fingerprint and posting-specific skill bundles
@@ -49,6 +50,7 @@ The signals are deliberately separable because a person can have capability with
 8. English-only surface. User-facing page copy, documentation, CLI labels, examples, and screenshots use English for consistent public delivery.
 9. Literature informs the workflow, not unsupported claims. The interface translates multidimensional mismatch and task transfer into evidence and practice actions while keeping their empirical boundaries visible.
 10. Claims and proof are different. Self-reported or unknown-source claims remain useful leads but cannot silently become verified evidence.
+11. Resume-free is a supported starting point. The guided intake asks for a concrete task and context, not a diagnosis of the person's background or a demand for a polished resume.
 
 ## Extension points
 
