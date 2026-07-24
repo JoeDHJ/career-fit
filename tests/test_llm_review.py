@@ -54,7 +54,7 @@ class LLMReviewTests(unittest.TestCase):
         self.assertNotIn("123-45-6789", redacted)
         self.assertNotIn("https://example.com", redacted)
 
-    def test_fit_review_sanitizes_decision_and_limits_confidence(self):
+    def test_fit_review_sanitizes_decision_and_uses_a_qualitative_support_level(self):
         client = FakeReviewClient(
             {
                 "overall_note": "Use the result as a verification aid.",
@@ -77,7 +77,8 @@ class LLMReviewTests(unittest.TestCase):
         )
         item = result["requirements"][0]
         self.assertEqual(item["decision"], "uncertain")
-        self.assertEqual(item["confidence"], 1.0)
+        self.assertEqual(item["support_level"], "strong")
+        self.assertNotIn("confidence", item)
         self.assertEqual(item["requirement"], "Python")
 
 

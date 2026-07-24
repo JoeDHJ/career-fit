@@ -51,7 +51,7 @@ class ReleaseExampleTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual(result["schema_version"], "career_fit.compare.v0.3")
+        self.assertEqual(result["schema_version"], "career_fit.compare.v0.4")
         self.assertIn(len(result["roles"]), {2, 3})
 
 
