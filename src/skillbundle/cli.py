@@ -16,6 +16,20 @@ from .server import serve
 from .taxonomy import load_taxonomy, pair_codes
 
 
+def _non_negative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be zero or greater")
+    return parsed
+
+
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be one or greater")
+    return parsed
+
+
 def parser():
     root = argparse.ArgumentParser(
         description="Career Fit explainable job-fit and career-pathway toolkit"
@@ -82,7 +96,7 @@ def parser():
         "benchmark", help="evaluate the dictionary baseline on SkillSpan JSONL"
     )
     bench.add_argument("--input", required=True, type=Path)
-    bench.add_argument("--limit", type=int)
+    bench.add_argument("--limit", type=_non_negative_int)
     bench.add_argument("--engine", choices=["dictionary", "ner"], default="dictionary")
     bench.add_argument("--model", type=Path)
     train = sub.add_parser(
@@ -90,8 +104,8 @@ def parser():
     )
     train.add_argument("--input", required=True, type=Path)
     train.add_argument("--output", required=True, type=Path)
-    train.add_argument("--limit", type=int)
-    train.add_argument("--epochs", type=int, default=5)
+    train.add_argument("--limit", type=_non_negative_int)
+    train.add_argument("--epochs", type=_positive_int, default=5)
     normalize = sub.add_parser("normalize", help="normalize one label or return NIL")
     normalize.add_argument("label")
     esco = sub.add_parser(

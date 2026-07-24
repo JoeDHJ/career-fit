@@ -774,6 +774,37 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("Error:", stderr.getvalue())
         self.assertNotIn("Traceback", stderr.getvalue())
 
+    def test_cli_rejects_negative_training_and_benchmark_limits(self):
+        with self.assertRaises(SystemExit) as benchmark_error:
+            cli_main(["benchmark", "--input", "rows.jsonl", "--limit", "-1"])
+        self.assertEqual(benchmark_error.exception.code, 2)
+        with self.assertRaises(SystemExit) as train_limit_error:
+            cli_main(
+                [
+                    "train",
+                    "--input",
+                    "rows.jsonl",
+                    "--output",
+                    "model.json",
+                    "--limit",
+                    "-1",
+                ]
+            )
+        self.assertEqual(train_limit_error.exception.code, 2)
+        with self.assertRaises(SystemExit) as epochs_error:
+            cli_main(
+                [
+                    "train",
+                    "--input",
+                    "rows.jsonl",
+                    "--output",
+                    "model.json",
+                    "--epochs",
+                    "0",
+                ]
+            )
+        self.assertEqual(epochs_error.exception.code, 2)
+
     def test_cli_rejects_four_roles_without_traceback(self):
         with tempfile.TemporaryDirectory() as temp:
             roles_file = Path(temp) / "roles.json"
