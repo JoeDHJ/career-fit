@@ -906,6 +906,16 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn('id="guided-intake-context"', page)
         self.assertIn("No resume? Start with one example", page)
 
+    def test_client_page_invalidates_stale_results_before_reuse(self):
+        page = render_page()
+        self.assertIn('let analyzedSignature = "";', page)
+        self.assertIn("function currentAnalysisIsFresh()", page)
+        self.assertIn("function invalidateCurrentResult(message)", page)
+        self.assertIn("Inputs changed. Analyze the current text before relying on a result.", page)
+        self.assertIn("requestId !== analysisRequestId", page)
+        self.assertIn("Target roles changed. Compare again to refresh the ranking.", page)
+        self.assertIn("if (!currentAnalysisIsFresh())", page)
+
     def test_role_comparison_is_deterministic_and_keeps_audit_trails(self):
         result = compare_roles(
             [

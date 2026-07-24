@@ -720,11 +720,42 @@ HTML = r"""<!doctype html>
       let latest = null;
       let latestOccupationContext = null;
       let latestScoreVisible = false;
+      let analyzedSignature = "";
+      let analysisRequestId = 0;
+      let compareRequestId = 0;
       function newReviewState() {
         return { removed_requirement_ids: [], added_requirements: [], importance_overrides: {}, constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
       }
       let reviewState = newReviewState();
       function inputSignature() { return jobInput.value + "\n---\n" + candidateInput.value + "\n---language---\n" + candidateLanguage.value; }
+      function currentAnalysisIsFresh() { return Boolean(latest && analyzedSignature === inputSignature()); }
+      function clearComparisonResult() { clearNode(comparisonGrid); comparisonPanel.hidden = true; }
+      function clearRenderedAnalysis() {
+        compareRequestId += 1;
+        latest = null;
+        analyzedSignature = "";
+        latestScoreVisible = false;
+        clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
+        clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList);
+        clearComparisonResult();
+        coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; fingerprintPanel.hidden = true; semanticPanel.hidden = true;
+        detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
+        [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
+        ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
+        ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
+        downloadButton.disabled = true; deepReviewButton.disabled = true;
+        semanticSummary.textContent = ""; reviewStatus.textContent = "Review the extracted requirements before relying on the result."; guidedIntakeStatus.textContent = "One concrete example is enough to begin.";
+      }
+      function invalidateCurrentResult(message) {
+        analysisRequestId += 1;
+        clearRenderedAnalysis();
+        reviewState = newReviewState();
+        if (message) status.textContent = message;
+      }
+      function handleInputChange() {
+        if (!latest && !analyzedSignature && !latestScoreVisible && reviewPanel.hidden && comparisonPanel.hidden && semanticPanel.hidden) return;
+        invalidateCurrentResult("Inputs changed. Analyze the current text before relying on a result.");
+      }
 
       function reviewSourceLabel(value) {
         return { user_submitted: "User submitted", reddit: "Reddit", indeed: "Indeed", other: "Other public source" }[value] || "Public source";
@@ -921,17 +952,23 @@ HTML = r"""<!doctype html>
         });
       }
       async function deepReview() {
-        if (!latest) { semanticStatus.textContent = "Run an analysis before requesting a review."; return; }
+        if (!currentAnalysisIsFresh()) { semanticStatus.textContent = "Run an analysis for the current inputs before requesting a review."; return; }
+        const requestSignature = inputSignature();
+        const requestId = analysisRequestId;
         semanticStatus.textContent = "Reviewing the supplied evidence…";
         deepReviewButton.disabled = true;
         try {
           const response = await fetch("/api/deep-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value, requirements: latest.requirements || [] }) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "review unavailable");
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
           renderSemanticReview(payload);
           semanticStatus.textContent = "Review complete. Treat uncertain items as leads for verification.";
-        } catch (error) { semanticStatus.textContent = "Review unavailable. The rule-based result is still available."; }
-        finally { deepReviewButton.disabled = !llmEnabled; }
+        } catch (error) {
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          semanticStatus.textContent = "Review unavailable. The rule-based result is still available.";
+        }
+        finally { if (requestId === analysisRequestId && inputSignature() === requestSignature) deepReviewButton.disabled = !llmEnabled; }
       }
       function requirementTypeLabel(value) {
         return value === "skill" ? "Skill" : "Eligibility requirement";
@@ -1253,6 +1290,7 @@ HTML = r"""<!doctype html>
       }
       function render(payload) {
         latest = payload;
+        analyzedSignature = inputSignature();
         deepReviewButton.disabled = !llmEnabled;
         const summary = payload.summary || {};
         const language = summary.candidate_language || {};
@@ -1285,19 +1323,29 @@ HTML = r"""<!doctype html>
       }
       async function analyze() {
         if (!jobInput.value.trim() || !candidateInput.value.trim()) { status.textContent = "Both texts are required."; return; }
-        const currentSignature = inputSignature();
-        if (reviewState.base_signature && reviewState.base_signature !== currentSignature) reviewState = newReviewState();
+        const requestSignature = inputSignature();
+        if (reviewState.base_signature && reviewState.base_signature !== requestSignature) reviewState = newReviewState();
+        const requestReview = reviewState.applied ? Object.assign({}, reviewState) : null;
+        const requestId = ++analysisRequestId;
+        clearRenderedAnalysis();
         status.textContent = "Analyzing your inputs…";
         try {
           const request = { job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value };
-          if (reviewState.applied) request.review = Object.assign({}, reviewState, { scope: "role_requirements" });
+          if (requestReview) request.review = Object.assign({}, requestReview, { scope: "role_requirements" });
           const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) throw new Error("request failed");
-          render(await response.json());
-        } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
+          const payload = await response.json();
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          render(payload);
+        } catch (error) {
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          clearRenderedAnalysis();
+          reviewState = newReviewState();
+          status.textContent = "Analysis unavailable. Please try again.";
+        }
       }
       async function applyReview() {
-        if (!latest) { reviewStatus.textContent = "Run an analysis before reviewing the extraction."; return; }
+        if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before reviewing the extraction."); reviewStatus.textContent = "Run an analysis for the current inputs before reviewing the extraction."; return; }
         reviewState.applied = true;
         reviewState.base_signature = inputSignature();
         reviewStatus.textContent = "Recalculating from the reviewed inputs...";
@@ -1312,7 +1360,7 @@ HTML = r"""<!doctype html>
         reviewStatus.textContent = "The added requirement will be mapped when you recalculate.";
       }
       function downloadPlan() {
-        if (!latest) { status.textContent = "Run an analysis before downloading the plan."; return; }
+        if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before downloading the plan."); return; }
         if (!latestScoreVisible) { status.textContent = "Review the extracted requirements before downloading the plan."; return; }
         const blob = new Blob([JSON.stringify(latest, null, 2)], { type: "application/json" });
         const link = document.createElement("a");
@@ -1329,21 +1377,33 @@ HTML = r"""<!doctype html>
         if (roles.length < 2) { compareStatus.textContent = "Add at least two roles, separated by a line containing --- ."; return; }
         if (roles.length > 3) { compareStatus.textContent = "Compare up to three roles at a time."; return; }
         if (!candidateInput.value.trim()) { compareStatus.textContent = "Add a candidate profile before comparing roles."; return; }
-        if (!latest || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Run the analysis and review the current candidate evidence before comparing roles."; return; }
+        if (!currentAnalysisIsFresh() || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Run the analysis and review the current candidate evidence before comparing roles."; return; }
         if (!latest || !["user_confirmed", "candidate_evidence_confirmed"].includes((latest.summary || {}).review_status)) { compareStatus.textContent = "Review the candidate evidence before comparing roles."; return; }
+        const requestSignature = inputSignature();
+        const requestRoles = rolesInput.value;
+        const requestId = ++compareRequestId;
+        clearComparisonResult();
         compareStatus.textContent = "Comparing the supplied roles…";
         compareButton.disabled = true;
         try {
           const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, evidence: latest.evidence || [], review: { scope: "candidate_evidence", applied: true, base_signature: inputSignature() } }) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "comparison unavailable");
+          if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
           renderComparison(payload);
           compareStatus.textContent = "Comparison ready. Rankings describe preparation priority, not hiring odds.";
-        } catch (error) { compareStatus.textContent = "Comparison unavailable. Check the role separators and try again."; }
+        } catch (error) {
+          if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
+          clearComparisonResult();
+          compareStatus.textContent = "Comparison unavailable. Check the role separators and try again.";
+        }
         finally { compareButton.disabled = false; }
       }
       function reset() {
+        analysisRequestId += 1;
+        compareRequestId += 1;
         latest = null;
+        analyzedSignature = "";
         latestScoreVisible = false;
         reviewState = newReviewState();
         jobInput.value = ""; candidateInput.value = ""; candidateLanguage.value = "auto"; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
@@ -1365,12 +1425,15 @@ HTML = r"""<!doctype html>
         if (!file) return;
         if (file.size > 200000) { candidateFileStatus.textContent = "That file is larger than 200 KB. Paste a shorter, redacted version instead."; candidateFile.value = ""; return; }
         try {
+          invalidateCurrentResult("Resume loaded. Analyze the current text before relying on a result.");
           candidateInput.value = await file.text();
           candidateFileStatus.textContent = file.name + " loaded locally. Review the text, remove sensitive details, then analyze.";
           status.textContent = "Resume loaded. Analyze the current text when ready.";
         } catch (error) { candidateFileStatus.textContent = "The file could not be read in this browser. Paste the text instead."; }
       });
       exampleButton.addEventListener("click", function () { reviewState = newReviewState(); jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
+      [jobInput, candidateInput, candidateLanguage].forEach(function (input) { input.addEventListener("input", handleInputChange); });
+      rolesInput.addEventListener("input", function () { if (!comparisonPanel.hidden) { compareRequestId += 1; clearComparisonResult(); compareStatus.textContent = "Target roles changed. Compare again to refresh the ranking."; } });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
       occupationSearchButton.addEventListener("click", findOccupations);

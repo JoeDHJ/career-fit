@@ -161,6 +161,90 @@ try {
         throw "Career Fit did not expose the separate Atlas market context."
     }
 
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{const roles=document.querySelector('#roles-input');roles.value='People Analytics Analyst. Must have Python.\n---\nData Analyst. Must have Excel.';document.querySelector('#compare-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "(document.querySelector('#compare-status')?.textContent || '').includes('Comparison ready')"
+    $comparisonMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({visible:!document.querySelector('#comparison-panel').hidden,cardCount:document.querySelectorAll('#comparison-grid > article').length})"
+    ))
+    if (-not $comparisonMeasurement.visible -or $comparisonMeasurement.cardCount -lt 2) {
+        throw "Career Fit did not expose the reviewed role comparison."
+    }
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{const roles=document.querySelector('#roles-input');roles.value += ' Updated';roles.dispatchEvent(new Event('input',{bubbles:true}));return true})()"
+    ) | Out-Null
+    $staleComparison = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({hidden:document.querySelector('#comparison-panel').hidden,cardCount:document.querySelectorAll('#comparison-grid > article').length})"
+    ))
+    if (-not $staleComparison.hidden -or $staleComparison.cardCount -ne 0) {
+        throw "Career Fit kept an old role comparison after the target roles changed."
+    }
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{const roles=document.querySelector('#roles-input');roles.value='People Analytics Analyst. Must have Python.\n---\nData Analyst. Must have Excel.';window.__careerOriginalFetch=window.fetch;window.fetch=()=>Promise.resolve({ok:false,json:async()=>({detail:'forced failure'})});document.querySelector('#compare-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "(document.querySelector('#compare-status')?.textContent || '').includes('Comparison unavailable')"
+    $failedComparison = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({hidden:document.querySelector('#comparison-panel').hidden,cardCount:document.querySelectorAll('#comparison-grid > article').length})"
+    ))
+    if (-not $failedComparison.hidden -or $failedComparison.cardCount -ne 0) {
+        throw "Career Fit kept an old role comparison after the comparison request failed."
+    }
+    Invoke-PlaywrightCli @("eval", "(()=>{window.fetch=window.__careerOriginalFetch;return true})()") | Out-Null
+
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{const roles=document.querySelector('#roles-input');roles.value='People Analytics Analyst. Must have Python.\n---\nData Analyst. Must have Excel.';window.__careerOriginalFetch=window.fetch;window.fetch=(url,options)=>url==='/api/compare'?new Promise(resolve=>{window.__resolveStaleCompare=resolve}):window.__careerOriginalFetch(url,options);document.querySelector('#compare-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "document.querySelector('#compare-button')?.disabled"
+    Invoke-PlaywrightCli @("eval", "(()=>{document.querySelector('#apply-review-button').click();return true})()") | Out-Null
+    Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('Reviewed analysis')"
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{window.__resolveStaleCompare({ok:true,json:async()=>({roles:[{role_label:'Stale comparison',priority_rank:1,priority_basis:'stale',summary:{review_status:'user_confirmed',readiness_status:'apply_and_refine',application_readiness_score:50,evidence_fit_score:50,requirements_identified:1,eligibility_status:'no_gate_detected'},top_action:{action:'stale'}}]})});return true})()"
+    ) | Out-Null
+    Wait-ForCondition "document.querySelector('#compare-button') && !document.querySelector('#compare-button').disabled"
+    $staleComparisonResponse = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({hidden:document.querySelector('#comparison-panel').hidden,cardCount:document.querySelectorAll('#comparison-grid > article').length})"
+    ))
+    if (-not $staleComparisonResponse.hidden -or $staleComparisonResponse.cardCount -ne 0) {
+        throw "Career Fit rendered a comparison response from before the latest analysis completed."
+    }
+    Invoke-PlaywrightCli @("eval", "(()=>{window.fetch=window.__careerOriginalFetch;return true})()") | Out-Null
+
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{const input=document.querySelector('#job-input');input.value += ' Updated';input.dispatchEvent(new Event('input',{bubbles:true}));return true})()"
+    ) | Out-Null
+    $staleMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadDisabled:document.querySelector('#download-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
+    ))
+    if ($staleMeasurement.fitAfter -eq "Review first" -or -not $staleMeasurement.downloadDisabled -or -not $staleMeasurement.reviewHidden) {
+        throw "Career Fit kept a score, download action, or review panel after the inputs changed."
+    }
+
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{window.__careerOriginalFetch=window.fetch;window.fetch=()=>Promise.resolve({ok:false});document.querySelector('#analyze-button').click();return true})()"
+    ) | Out-Null
+    Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('Analysis unavailable')"
+    $failedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadDisabled:document.querySelector('#download-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
+    ))
+    if ($failedMeasurement.fitAfter -eq "Review first" -or -not $failedMeasurement.downloadDisabled -or -not $failedMeasurement.reviewHidden) {
+        throw "Career Fit kept stale analysis controls after an analysis request failed."
+    }
+    Invoke-PlaywrightCli @("eval", "(()=>{window.fetch=window.__careerOriginalFetch;return true})()") | Out-Null
+
     Write-Output "Mobile layout check passed at ${Width}px for AI Labor Atlas and Career Fit."
 }
 finally {

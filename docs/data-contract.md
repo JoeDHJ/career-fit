@@ -14,10 +14,10 @@ The v0.5 JSON response uses `schema_version: career_fit.v0.5`. Field names are e
   "original_text": "Python",
   "source_context": "Must have Python and SQL.",
   "importance_level": "must",
-  "importance_weight": 1.0,
+  "importance_weight": null,
   "hard_constraint": false,
   "extraction_method": "dictionary_exact",
-  "extraction_confidence": 0.99,
+  "extraction_confidence": null,
   "source_taxonomy": "career_fit_seed_en",
   "source_skill_id": "software.python",
   "review_status": "baseline_unreviewed",
@@ -25,9 +25,9 @@ The v0.5 JSON response uses `schema_version: career_fit.v0.5`. Field names are e
   "dictionary_version": "v0.2.3+onet-30.3-derived-v2",
   "status": "direct_weak",
   "status_label": "Mentioned, proof is thin",
-  "match_score": 0.72,
+  "match_score": null,
   "matching_method": "direct_skill_id",
-  "evidence_strength": 0.35,
+  "evidence_strength": null,
   "evidence_ids": ["evidence-001"],
   "reviewable_evidence_ids": ["evidence-001"],
   "claimed_evidence_ids": [],
@@ -67,8 +67,6 @@ Experience floors additionally expose `required_years` and, when available, `exp
 Supported evidence types are `work`, `research_project`, `portfolio`, `github_project`, `course`, `certificate`, `self_reported`, and `unknown`. `self_reported` and `unknown` are claim-only types: they remain visible, but receive lower coverage, depth, recency, and proof weight. Mentions detected inside a conservative negative statement remain in the evidence list with `negated: true` and `evidence_status: negated_statement`, but are excluded from matching.
 
 The review panel may add structured evidence. Review-added non-claim items use `evidence_status: user_declared_structured_evidence`; claim-only items use `user_confirmed_self_report`. Both carry `verification_status: user_declared` and are never silently upgraded to externally verified proof. The guided intake is a user-interface route over the same `added_evidence` contract: it requires a selected soft requirement, a task, and a context, and optionally carries a result, evidence type, duration, and recency. It does not create a score or verification claim by itself; the role-requirements review must still be applied.
-
-The review panel may add evidence with `evidence_status: user_confirmed_self_report`. This remains `evidence_type: self_reported` and is never silently upgraded to direct work evidence.
 
 ## Gap and action record
 
