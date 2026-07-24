@@ -7,6 +7,6 @@ the product and documentation use Career Fit.
 from skillbundle.career import analyze_fit, compare_roles, evidence_from_text
 from skillbundle.requirements import extract_requirements
 
-__version__ = "0.3.0"
+__version__ = "0.5.1"
 
 __all__ = ["analyze_fit", "compare_roles", "evidence_from_text", "extract_requirements"]

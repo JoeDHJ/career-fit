@@ -111,7 +111,7 @@ def _input_text(value: str | None, path: Path | None, label: str) -> str:
     raise ValueError(f"one of --{label} or --{label}-file is required")
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
@@ -221,6 +221,14 @@ def main(argv: list[str] | None = None) -> int:
         serve()
         return 0
     return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    try:
+        return _main(argv)
+    except (OSError, TypeError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

@@ -733,6 +733,16 @@ class CareerFitTests(unittest.TestCase):
         self.assertIn("transferable", statuses)
         self.assertTrue(result["gaps"])
 
+    def test_missing_evidence_does_not_report_a_direct_matching_method(self):
+        result = analyze_fit(
+            "Must have HR data and stakeholder communication.",
+            "Built Python research projects.",
+        )
+        missing = next(
+            item for item in result["requirements"] if item["status"] == "missing"
+        )
+        self.assertEqual(missing["matching_method"], "no_evidence")
+
     def test_analyze_fit_rejects_blank_job_and_candidate_text(self):
         with self.assertRaisesRegex(ValueError, "job_text"):
             analyze_fit("   ", "Built Python projects.")
@@ -746,6 +756,22 @@ class CareerFitTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("Error:", stderr.getvalue())
         self.assertIn("job_text", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
+
+    def test_cli_reports_missing_input_file_without_traceback(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = cli_main(
+                [
+                    "analyze",
+                    "--job-file",
+                    "missing-job.txt",
+                    "--candidate",
+                    "Built Python projects.",
+                ]
+            )
+        self.assertEqual(code, 2)
+        self.assertIn("Error:", stderr.getvalue())
         self.assertNotIn("Traceback", stderr.getvalue())
 
     def test_cli_rejects_four_roles_without_traceback(self):
@@ -1052,6 +1078,15 @@ class CareerFitTests(unittest.TestCase):
             )
             self.assertEqual(status, 400)
             self.assertIn("candidate_text", result["detail"])
+            status, result = post(
+                "/api/analyze",
+                {
+                    "job_text": ["Must have Python."],
+                    "candidate_text": {"summary": "Built Python projects."},
+                },
+            )
+            self.assertEqual(status, 400)
+            self.assertIn("job_text must be a string", result["detail"])
             status, result = post(
                 "/api/compare",
                 {

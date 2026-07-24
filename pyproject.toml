@@ -4,13 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "career-fit"
-version = "0.3.0"
+version = "0.5.1"
 description = "Explainable job-fit, skill-gap, and career-pathway analysis built on transparent skill evidence."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "Career Fit contributors"}]
 dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/JoeDHJ/career-fit"
+Repository = "https://github.com/JoeDHJ/career-fit"
+Issues = "https://github.com/JoeDHJ/career-fit/issues"
 
 [project.optional-dependencies]
 ml = ["transformers>=4.40", "torch>=2.2"]
@@ -22,3 +37,6 @@ skillbundle = "skillbundle.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"skillbundle.resources" = ["*.json"]

@@ -1150,10 +1150,11 @@ def _match_evidence(
     direct = [
         item for item in evidence_by_skill.get(skill_id, []) if not item.get("negated")
     ]
-    matching_method = "direct_skill_id"
+    matching_method = "no_evidence"
     selected: list[dict[str, Any]] = []
     scoring_items: list[dict[str, Any]] = []
     if direct:
+        matching_method = "direct_skill_id"
         selected = direct
         scoring_items = [item for item in direct if not _is_claim_only(item)]
         if scoring_items:
@@ -2110,9 +2111,10 @@ def compare_roles(
         raise ValueError(
             "compare_roles requires user-declared candidate evidence; automatic profile extraction is not enough"
         )
+    normalized_evidence = _normalize_evidence(evidence, user_supplied=True)
     reviewed_evidence = [
         item
-        for item in evidence
+        for item in normalized_evidence
         if isinstance(item, dict)
         and str(item.get("evidence_status", ""))
         in {"user_declared_structured_evidence", "user_confirmed_self_report"}
