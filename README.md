@@ -99,15 +99,15 @@ The local page turns a job posting and a candidate profile into an evidence-back
 - skill-bundle cards turn co-occurring requirements into integrated proof-artifact ideas;
 - plain-language interpretation cards explain what the metrics can and cannot mean.
 
-![Career Fit evidence-first explorer](docs/assets/career-fit-dashboard.png)
+![Career Fit full evidence-first workflow](docs/assets/career-fit-dashboard.png)
 
-![Career Fit requirement matrix](docs/assets/career-fit-matrix.png)
+![Career Fit complete requirement and evidence matrix](docs/assets/career-fit-matrix.png)
 
-![Career Fit role fingerprint](docs/assets/career-fit-fingerprint.png)
+![Career Fit complete role fingerprint](docs/assets/career-fit-fingerprint.png)
 
-![Career Fit reviewed action plan with Markdown and PDF exports](docs/assets/career-fit-comparison.png)
+![Career Fit complete reviewed action plan](docs/assets/career-fit-comparison.png)
 
-![Career Fit resume-free guided intake](docs/assets/career-fit-guided-intake.png)
+![Career Fit complete resume-free guided intake](docs/assets/career-fit-guided-intake.png)
 
 The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
 
