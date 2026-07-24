@@ -134,7 +134,7 @@ The dictionary, taxonomy, negation rule, transfer map, extraction method, and im
 
 ## Role comparison response
 
-The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.3`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, a `top_mismatch`, a `top_bundle`, and the full single-role `analysis` for auditability. The request should carry evidence from a reviewed candidate state; each role still needs its own role-requirements review before a user relies on its numeric score.
+The comparison endpoint and CLI command use `schema_version: career_fit.compare.v0.4`. A response contains `role_count` and a `roles` array. Each role includes a deterministic `role_id`, a user-facing `role_label`, `priority_rank`, `priority_basis`, the single-role `summary`, the highest-priority `top_action`, a `top_mismatch`, a `top_bundle`, and the full single-role `analysis` for auditability. The request must carry evidence from a reviewed candidate state. `role_reviews` is keyed by `role_id`; the product leaves every card unranked until every role has an applied `role_requirements` review and a visible score. Only then does `comparison_status` become `ranked_after_role_review`, with a stable order by reviewed application readiness, then reviewed evidence fit, then role id. This is preparation priority, never a hiring-probability ranking.
 
 ## Optional occupation context
 

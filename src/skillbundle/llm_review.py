@@ -66,6 +66,20 @@ _PHONE = re.compile(
 )
 _US_SSN = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
 _URL = re.compile(r"\bhttps?://[^\s<>]+", re.I)
+_SUPPORT_LEVELS = {"limited", "moderate", "strong"}
+
+
+def _support_level(value: object) -> str:
+    """Normalize optional model certainty without presenting a probability."""
+
+    label = str(value or "").strip().lower()
+    if label in _SUPPORT_LEVELS:
+        return label
+    try:
+        numeric = min(1.0, max(0.0, float(value)))
+    except (TypeError, ValueError):
+        return "limited"
+    return "strong" if numeric >= 0.75 else "moderate" if numeric >= 0.4 else "limited"
 
 
 def _redact_text(value: str) -> str:
@@ -167,7 +181,7 @@ class LLMReviewClient:
             "and candidate text. Do not infer protected traits, hiring probability, "
             "or facts not present in the text. Return JSON only with keys: "
             "overall_note and requirements. Each requirements item must contain "
-            "requirement, decision, confidence, evidence_quote, rationale, next_step. "
+            "requirement, decision, support_level, evidence_quote, rationale, next_step. "
             "decision must be direct, transferable, missing, or uncertain."
         )
         user = json.dumps(
@@ -206,15 +220,13 @@ class LLMReviewClient:
             decision = str(item.get("decision", "uncertain")).lower()
             if decision not in valid_decisions:
                 decision = "uncertain"
-            try:
-                confidence = min(1.0, max(0.0, float(item.get("confidence", 0))))
-            except (TypeError, ValueError):
-                confidence = 0.0
             cleaned.append(
                 {
                     "requirement": requirement[:240],
                     "decision": decision,
-                    "confidence": confidence,
+                    "support_level": _support_level(
+                        item.get("support_level", item.get("confidence"))
+                    ),
                     "evidence_quote": str(item.get("evidence_quote", ""))[:500],
                     "rationale": str(item.get("rationale", ""))[:800],
                     "next_step": str(item.get("next_step", ""))[:500],

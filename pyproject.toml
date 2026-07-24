@@ -10,7 +10,10 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{name = "Career Fit contributors"}]
-dependencies = []
+dependencies = [
+  "pypdf==6.10.0",
+  "reportlab==4.4.9",
+]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python :: 3",
@@ -39,4 +42,4 @@ skillbundle = "skillbundle.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"skillbundle.resources" = ["*.json"]
+"skillbundle.resources" = ["*.json", "*.ttf"]

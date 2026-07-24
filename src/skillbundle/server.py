@@ -9,7 +9,9 @@ from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import ProxyHandler, Request, build_opener
 
 from .career import analyze_fit, compare_roles
+from .document_io import DocumentExtractionError, extract_import_preview
 from .llm_review import LLMNotConfiguredError, LLMReviewClient, LLMReviewError
+from .reports import build_markdown_plan, build_pdf_plan
 
 
 DEFAULT_JOB = (
@@ -293,9 +295,14 @@ HTML = r"""<!doctype html>
     .workflow-step small { font-size: .72rem; }
     .workflow-step.active, .workflow-step.current { border-color: rgba(0, 113, 227, .42); background: #f4f8ff; }
     .workflow-step.active span, .workflow-step.current span { color: #fff; background: var(--blue); border-color: var(--blue); }
+    #app[data-workflow-stage="intake"] .review-stage, #app[data-workflow-stage="intake"] .plan-stage { display: none; }
+    #app[data-workflow-stage="review"] .intake-stage, #app[data-workflow-stage="review"] .plan-stage { display: none; }
+    #app[data-workflow-stage="plan"] .intake-stage, #app[data-workflow-stage="plan"] .review-stage { display: none; }
     .file-import-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 9px; }
     .file-input-label { color: var(--blue); font-size: .78rem; font-weight: 600; cursor: pointer; }
     .file-import-row input[type="file"] { max-width: 220px; color: var(--muted); font-size: .76rem; }
+    .document-preview { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); }
+    .document-preview textarea, #semantic-payload { width: 100%; margin-top: 7px; }
     .review-item-copy strong { overflow-wrap: anywhere; }
     .review-evidence-grid { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(110px, .7fr) minmax(130px, 1fr) minmax(130px, 1fr) 92px 92px auto; gap: 7px; align-items: end; width: 100%; }
     .review-evidence-field { display: grid; gap: 4px; min-width: 0; color: var(--muted); font-size: .68rem; }
@@ -410,7 +417,7 @@ HTML = r"""<!doctype html>
   </style>
   </head>
 <body>
-  <main class="shell">
+  <main id="app" class="shell" data-workflow-stage="intake">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Career Fit</span></div>
       <span class="micro">Private by default · explainable preparation</span>
@@ -435,16 +442,13 @@ HTML = r"""<!doctype html>
         <li class="workflow-step"><span>3</span><strong>Plan</strong><small>Signals and next actions</small></li>
       </ol>
       <div class="panel">
-        <div class="toolbar">
+        <div class="toolbar intake-stage">
           <button id="analyze-button" type="button">Analyze this role</button>
           <button id="example-button" class="secondary" type="button">Load example</button>
           <button id="clear-button" class="secondary" type="button">Clear</button>
-          <button id="download-button" class="secondary" type="button" disabled>Download plan</button>
           <span id="status" class="status" aria-live="polite">Ready for analysis</span>
-          <button id="deep-review-button" class="secondary" type="button" disabled>Deep semantic review</button>
-          <span id="semantic-status" class="status" aria-live="polite">Optional review available when enabled.</span>
         </div>
-        <div class="input-grid">
+        <div class="input-grid intake-stage">
           <div>
             <label class="input-label" for="job-input">Job posting <span>target role</span></label>
             <textarea id="job-input" aria-label="Job posting" placeholder="Paste the full job posting, including must-have and preferred requirements."></textarea>
@@ -453,9 +457,14 @@ HTML = r"""<!doctype html>
             <label class="input-label" for="candidate-input">Your experience <span>resume, profile, or projects</span></label>
             <textarea id="candidate-input" aria-label="Your experience" placeholder="Paste a resume or profile, or describe projects, courses, tools, tasks, and results."></textarea>
             <div class="file-import-row">
-              <label class="file-input-label" for="candidate-file">Load a plain-text resume</label>
-              <input id="candidate-file" type="file" accept=".txt,.md,.json,text/plain,text/markdown,application/json" />
-              <span id="candidate-file-status" class="status" aria-live="polite">No file selected. Contact details should be removed first.</span>
+              <label class="file-input-label" for="candidate-file">Load a resume or profile</label>
+              <input id="candidate-file" type="file" accept=".txt,.md,.json,.docx,.pdf,text/plain,text/markdown,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf" />
+              <span id="candidate-file-status" class="status" aria-live="polite">Supports TXT, Markdown, JSON, DOCX, and text PDFs. Review identifiers before loading.</span>
+            </div>
+            <div id="document-preview" class="document-preview" hidden>
+              <p id="document-preview-notice" class="detail-copy"></p>
+              <label for="document-preview-text">Review imported text before using it<textarea id="document-preview-text" rows="9" aria-label="Editable imported resume text"></textarea></label>
+              <div class="toolbar"><button id="use-document-preview-button" class="secondary" type="button">Use reviewed text</button><button id="cancel-document-preview-button" class="secondary" type="button">Discard import</button></div>
             </div>
             <label class="input-label" for="candidate-language">Profile language <span>helps avoid silent gaps</span></label>
             <select id="candidate-language" aria-label="Profile language">
@@ -468,8 +477,8 @@ HTML = r"""<!doctype html>
             <p id="language-status" class="status" aria-live="polite">The rule-based dictionary is English-first. Choose a language when the profile is not primarily English.</p>
           </div>
         </div>
-        <p class="privacy-note">__PRIVACY_NOTE__</p>
-        <div class="occupation-context-panel">
+        <p class="privacy-note intake-stage">__PRIVACY_NOTE__</p>
+        <div class="occupation-context-panel intake-stage">
           <div class="section-head"><div><span class="eyebrow">Optional occupation context</span><h3>What workers say about this occupation.</h3></div><p>Career Fit analyzes a specific posting. If you confirm a standard occupation from AI Labor Atlas, this panel can show public worker comments about pay, interviews, management, and the work environment.</p></div>
           <div class="occupation-search-row">
             <label for="occupation-query">Occupation or job-family name
@@ -500,20 +509,27 @@ HTML = r"""<!doctype html>
             <details class="occupation-disclosure"><summary>About these reviews</summary><p id="occupation-disclosure-text">Reviews are user-generated and may be incomplete, subjective, outdated, or biased. They are not verified facts or representative of all workers. Source links and dates are shown where available.</p></details>
           </div>
         </div>
-        <div class="compare-panel">
-          <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Review your candidate evidence first; Career Fit reuses that evidence and ranks preparation priority, not hiring odds.</p></div>
+        <div class="compare-panel intake-stage">
+          <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Career Fit reuses reviewed candidate evidence, but leaves roles unranked until their requirements and eligibility gates are confirmed.</p></div>
           <label class="input-label" for="roles-input">Target roles <span>optional role portfolio</span></label>
           <textarea id="roles-input" class="compare-input" aria-label="Target roles" placeholder="Role: People Analytics Analyst&#10;Must have Python and SQL...&#10;---&#10;Role: Data Analyst&#10;Must have Python and data visualization..."></textarea>
           <div class="toolbar"><button id="compare-button" class="secondary" type="button">Compare roles</button><span id="compare-status" class="status" aria-live="polite">Use this when you are deciding where to focus first.</span></div>
           <div id="comparison-panel" class="comparison-panel" hidden><div id="comparison-grid" class="comparison-grid"></div></div>
         </div>
-        <div class="summary-grid" aria-live="polite">
+        <div class="toolbar plan-stage">
+          <button id="edit-inputs-button" class="secondary" type="button">Edit inputs</button>
+          <button id="download-markdown-button" class="secondary" type="button" disabled>Download Markdown plan</button>
+          <button id="download-pdf-button" class="secondary" type="button" disabled>Download PDF plan</button>
+          <button id="deep-review-button" class="secondary" type="button" disabled>Optional semantic review</button>
+          <span id="semantic-status" class="status" aria-live="polite">Optional review available when enabled.</span>
+        </div>
+        <div class="summary-grid plan-stage" aria-live="polite">
           <article class="summary-card"><span class="label">Evidence fit</span><strong id="fit-score" class="summary-value">—</strong><span class="summary-note">weighted requirement overlap</span></article>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
           <article class="summary-card"><span class="label">Requirements identified</span><strong id="input-coverage-score" class="summary-value">—</strong><span class="summary-note">not a completeness or confidence score</span></article>
           <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
         </div>
-        <div id="coverage-panel" class="coverage-panel" hidden>
+        <div id="coverage-panel" class="coverage-panel plan-stage" hidden>
           <div class="section-head"><div><span class="eyebrow">Coverage, not confidence</span><h3>What the current text supports</h3></div><p>These components show what was mapped from the supplied inputs. They are not calibrated probabilities and do not measure hiring likelihood.</p></div>
           <div class="coverage-grid">
             <article class="coverage-card"><span>Requirements identified</span><strong id="requirement-coverage-score">—</strong><small>the system cannot infer the full set of employer requirements</small></article>
@@ -521,7 +537,7 @@ HTML = r"""<!doctype html>
             <article class="coverage-card"><span>Eligibility status</span><strong id="eligibility-coverage-score">—</strong><small>no gate detected is not the same as verified</small></article>
           </div>
         </div>
-        <div id="review-panel" class="review-panel" hidden>
+        <div id="review-panel" class="review-panel review-stage" hidden>
           <div class="section-head"><div><span class="eyebrow">Step 2 · Review before relying</span><h3>Confirm the extraction</h3></div><p>Keep or remove each requirement, correct its importance, confirm eligibility gates, and label the kind of evidence you want to use. Scores remain hidden until this step is submitted.</p></div>
           <div id="review-requirements" class="review-requirements"></div>
           <div id="guided-intake" class="guided-intake" hidden>
@@ -541,9 +557,9 @@ HTML = r"""<!doctype html>
           </div>
           <div class="review-add-row"><label for="added-requirement-input">Add a missed requirement <span>known or user-supplied label</span><input id="added-requirement-input" type="text" placeholder="e.g. SQL or Kubernetes" /></label><label for="added-requirement-importance">Importance<select id="added-requirement-importance"><option value="must">Must have</option><option value="strongly_preferred">Strongly preferred</option><option value="preferred">Preferred</option><option value="inferred">Inferred</option></select></label><button id="add-requirement-button" class="secondary" type="button">Add requirement</button></div>
           <div id="review-added-list" class="review-added-list"></div>
-          <div class="toolbar"><button id="apply-review-button" type="button">Recalculate after review</button><span id="review-status" class="status" aria-live="polite">Review the items above before relying on the result.</span></div>
+          <div class="toolbar"><button id="back-to-inputs-button" class="secondary" type="button">Edit inputs</button><button id="apply-review-button" type="button">Recalculate after review</button><span id="review-status" class="status" aria-live="polite">Review the items above before relying on the result.</span></div>
         </div>
-        <div id="fingerprint-panel" class="fingerprint-panel" hidden>
+        <div id="fingerprint-panel" class="fingerprint-panel plan-stage" hidden>
           <div class="section-head"><div><span class="eyebrow">Role fingerprint</span><h3>See the dimensions behind the role.</h3></div><p>Categories organize the posting; named skills remain the evidence unit. This is a descriptive mismatch view, not an ability test.</p></div>
           <div class="fingerprint-layout">
             <div class="fingerprint-card"><div id="category-profile" class="category-profile"></div></div>
@@ -551,7 +567,14 @@ HTML = r"""<!doctype html>
           </div>
           <div class="fingerprint-card"><div class="section-head"><div><span class="eyebrow">Requirements that appear together</span><h3>Turn a skill bundle into one proof artifact.</h3></div><p>These pairs come from this posting only. They do not estimate market value or wage complementarity.</p></div><div id="bundle-grid" class="bundle-grid"></div></div>
         </div>
-        <div id="semantic-panel" class="semantic-panel" hidden>
+        <div id="semantic-preview" class="semantic-panel plan-stage" hidden>
+          <span class="eyebrow">Optional remote review - confirm sharing</span>
+          <p id="semantic-endpoint" class="detail-copy"></p>
+          <p class="detail-copy">The editable preview contains the fields sent to the configured endpoint after common direct identifiers are removed. It is not fully anonymized.</p>
+          <label for="semantic-payload">Review or edit the transmitted payload<textarea id="semantic-payload" rows="12" aria-label="Editable optional semantic review payload"></textarea></label>
+          <div class="toolbar"><button id="send-semantic-review-button" class="secondary" type="button">Send optional review</button><button id="cancel-semantic-review-button" class="secondary" type="button">Cancel</button></div>
+        </div>
+        <div id="semantic-panel" class="semantic-panel plan-stage" hidden>
           <span class="eyebrow">Deep semantic review</span>
           <p id="semantic-summary" class="detail-copy"></p>
           <div id="semantic-list" class="semantic-list"></div>
@@ -559,7 +582,7 @@ HTML = r"""<!doctype html>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section plan-stage">
       <div class="section-head"><div><span class="eyebrow">Three questions</span><h2>Capability, proof, and readiness are different signals.</h2></div><p id="decision-label">Run an analysis to see what the current text can support.</p></div>
       <div class="signal-grid">
         <article class="signal-card"><div id="capability-ring" class="ring" style="--ring-color: var(--violet)"><strong id="capability-signal">—</strong></div><div><span class="eyebrow">Can I do it?</span><h3>Capability signal</h3><p>Includes direct and transferable overlap. Transfer is a lead for exploration, not proof of equivalence.</p></div></article>
@@ -568,7 +591,7 @@ HTML = r"""<!doctype html>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section plan-stage">
       <div class="section-head"><div><span class="eyebrow">Requirement and evidence matrix</span><h2>Inspect the reason behind every signal.</h2></div><p>Click a row to see the original job wording, the evidence behind the result, and the most useful next move.</p></div>
       <div class="result-grid">
         <div class="panel">
@@ -583,17 +606,17 @@ HTML = r"""<!doctype html>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section plan-stage">
       <div class="section-head"><div><span class="eyebrow">Fit profile</span><h2>See the shape of the opportunity.</h2></div><p>This chart shows relative evidence signals by requirement. A high bar is not a hiring promise; a low bar is an invitation to investigate the gap.</p></div>
       <div class="panel"><svg id="fit-chart" class="chart-svg" viewBox="0 0 900 340" role="img" aria-label="Requirement evidence profile"></svg></div>
     </section>
 
-    <section class="section">
+    <section class="section plan-stage">
       <div class="section-head"><div><span class="eyebrow">Gap to action</span><h2>Leave with a useful next move.</h2></div><p>Actions are ordered by requirement importance and evidence shortfall. Each card names the proof artifact you can create or the gate you can verify.</p></div>
       <div id="gap-list" class="gap-grid" aria-live="polite"></div>
     </section>
 
-    <section class="section">
+    <section class="section plan-stage">
       <div class="section-head"><div><span class="eyebrow">How to read the numbers</span><h2>Useful for preparation, limited for prediction.</h2></div></div>
       <div class="meaning-grid">
         <article class="meaning"><h3>Evidence fit is not hiring probability</h3><p>It is an importance-weighted summary of requirement overlap and supplied evidence. It does not estimate employer decisions.</p></article>
@@ -615,11 +638,19 @@ HTML = r"""<!doctype html>
       const languageStatus = document.getElementById("language-status");
       const candidateFile = document.getElementById("candidate-file");
       const candidateFileStatus = document.getElementById("candidate-file-status");
+      const documentPreview = document.getElementById("document-preview");
+      const documentPreviewNotice = document.getElementById("document-preview-notice");
+      const documentPreviewText = document.getElementById("document-preview-text");
+      const useDocumentPreviewButton = document.getElementById("use-document-preview-button");
+      const cancelDocumentPreviewButton = document.getElementById("cancel-document-preview-button");
       const analyzeButton = document.getElementById("analyze-button");
       const exampleButton = document.getElementById("example-button");
       const clearButton = document.getElementById("clear-button");
       const compareButton = document.getElementById("compare-button");
-      const downloadButton = document.getElementById("download-button");
+      const editInputsButton = document.getElementById("edit-inputs-button");
+      const backToInputsButton = document.getElementById("back-to-inputs-button");
+      const downloadMarkdownButton = document.getElementById("download-markdown-button");
+      const downloadPdfButton = document.getElementById("download-pdf-button");
       const rolesInput = document.getElementById("roles-input");
       const occupationQuery = document.getElementById("occupation-query");
       const occupationSearchButton = document.getElementById("occupation-search-button");
@@ -655,6 +686,11 @@ HTML = r"""<!doctype html>
       const blockedCount = document.getElementById("blocked-count");
       const deepReviewButton = document.getElementById("deep-review-button");
       const semanticStatus = document.getElementById("semantic-status");
+      const semanticPreview = document.getElementById("semantic-preview");
+      const semanticEndpoint = document.getElementById("semantic-endpoint");
+      const semanticPayload = document.getElementById("semantic-payload");
+      const sendSemanticReviewButton = document.getElementById("send-semantic-review-button");
+      const cancelSemanticReviewButton = document.getElementById("cancel-semantic-review-button");
       const semanticPanel = document.getElementById("semantic-panel");
       const semanticSummary = document.getElementById("semantic-summary");
       const semanticList = document.getElementById("semantic-list");
@@ -682,9 +718,11 @@ HTML = r"""<!doctype html>
       const reviewStatus = document.getElementById("review-status");
       const addedRequirementImportance = document.getElementById("added-requirement-importance");
       const workflowSteps = Array.from(document.querySelectorAll(".workflow-step"));
+      const app = document.getElementById("app");
       const llmEnabled = __LLM_ENABLED__;
+      const reviewEndpoint = __REVIEW_ENDPOINT__;
       const statusLabels = {
-        direct: "Direct evidence",
+        direct: "Directly related, user-supplied evidence",
         direct_weak: "Mentioned, proof is thin",
         transferable: "Transferable evidence",
         claimed: "Claimed capability, proof not supplied",
@@ -723,6 +761,14 @@ HTML = r"""<!doctype html>
       let analyzedSignature = "";
       let analysisRequestId = 0;
       let compareRequestId = 0;
+      let comparisonEvidence = [];
+      let comparisonRoleReviews = {};
+      let activeComparisonRoleId = "";
+      function setWorkflowStage(stage) {
+        app.dataset.workflowStage = stage;
+        const index = stage === "intake" ? 0 : stage === "review" ? 1 : 2;
+        workflowSteps.forEach(function (step, position) { step.classList.toggle("active", position === index); step.classList.toggle("current", position === index); });
+      }
       function newReviewState() {
         return { removed_requirement_ids: [], added_requirements: [], importance_overrides: {}, constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
       }
@@ -738,18 +784,22 @@ HTML = r"""<!doctype html>
         clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList);
         clearComparisonResult();
-        coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; fingerprintPanel.hidden = true; semanticPanel.hidden = true;
+        coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; fingerprintPanel.hidden = true; semanticPanel.hidden = true; semanticPreview.hidden = true;
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
         [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
-        downloadButton.disabled = true; deepReviewButton.disabled = true;
+        downloadMarkdownButton.disabled = true; downloadPdfButton.disabled = true; deepReviewButton.disabled = true;
         semanticSummary.textContent = ""; reviewStatus.textContent = "Review the extracted requirements before relying on the result."; guidedIntakeStatus.textContent = "One concrete example is enough to begin.";
       }
       function invalidateCurrentResult(message) {
         analysisRequestId += 1;
         clearRenderedAnalysis();
         reviewState = newReviewState();
+        comparisonEvidence = [];
+        comparisonRoleReviews = {};
+        activeComparisonRoleId = "";
+        setWorkflowStage("intake");
         if (message) status.textContent = message;
       }
       function handleInputChange() {
@@ -928,8 +978,8 @@ HTML = r"""<!doctype html>
         return count ? count + " to verify" : "Unresolved";
       }
       function updateWorkflow(summary) {
-        const state = summary && summary.score_visibility === "visible" ? 2 : (summary && summary.analysis_status === "review_required" ? 1 : 0);
-        workflowSteps.forEach(function (step, index) { step.classList.toggle("active", index === state); step.classList.toggle("current", index === state); });
+        const needsReview = summary && ["review_required", "insufficient_information"].includes(summary.analysis_status);
+        setWorkflowStage(summary && summary.score_visibility === "visible" ? "plan" : (needsReview ? "review" : "intake"));
       }
       function setRing(ringId, value, labelId) {
         if (value == null) { document.getElementById(ringId).style.setProperty("--ring-progress", "0%"); setText(document.getElementById(labelId), "—"); return; }
@@ -944,25 +994,41 @@ HTML = r"""<!doctype html>
         (review.requirements || []).forEach(function (item) {
           const card = make("article", "semantic-item");
           const meta = make("div", "semantic-meta");
-          meta.append(make("strong", "", item.requirement || "Requirement"), make("span", "", (item.decision || "uncertain") + " · " + Math.round(Number(item.confidence || 0) * 100) + "% confidence"));
+          meta.append(make("strong", "", item.requirement || "Requirement"), make("span", "", (item.decision || "uncertain") + " · support level: " + (item.support_level || "limited") + " (not a probability)"));
           card.appendChild(meta);
           card.appendChild(make("p", "", item.rationale || "No rationale supplied."));
           if (item.next_step) card.appendChild(make("p", "", "Next step: " + item.next_step));
           semanticList.appendChild(card);
         });
       }
-      async function deepReview() {
+      function redactForPreview(value) {
+        if (typeof value === "string") return value.replace(/\bhttps?:\/\/[^\s<>]+/gi, "[redacted URL]").replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "[redacted email]").replace(/(?<!\d)(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}(?!\d)/g, "[redacted phone]").replace(/\b\d{3}-\d{2}-\d{4}\b/g, "[redacted government ID]");
+        if (Array.isArray(value)) return value.map(redactForPreview);
+        if (value && typeof value === "object") { const copy = {}; Object.keys(value).forEach(function (key) { copy[key] = redactForPreview(value[key]); }); return copy; }
+        return value;
+      }
+      function prepareDeepReview() {
         if (!currentAnalysisIsFresh()) { semanticStatus.textContent = "Run an analysis for the current inputs before requesting a review."; return; }
+        semanticPayload.value = JSON.stringify(redactForPreview({ job_text: jobInput.value, candidate_text: candidateInput.value, requirements: latest.requirements || [] }), null, 2);
+        semanticEndpoint.textContent = "Configured review endpoint: " + reviewEndpoint + ". Sharing is optional and off until you click Send optional review.";
+        semanticPreview.hidden = false;
+        semanticStatus.textContent = "Review the editable sharing preview before sending.";
+      }
+      async function sendDeepReview() {
+        if (!currentAnalysisIsFresh()) { semanticStatus.textContent = "Inputs changed. Create a new sharing preview before sending."; return; }
+        let request;
+        try { request = JSON.parse(semanticPayload.value); } catch (error) { semanticStatus.textContent = "The sharing preview must remain valid JSON."; return; }
+        if (!request || typeof request.job_text !== "string" || typeof request.candidate_text !== "string" || !Array.isArray(request.requirements)) { semanticStatus.textContent = "The sharing preview needs job text, candidate text, and requirements."; return; }
         const requestSignature = inputSignature();
         const requestId = analysisRequestId;
         semanticStatus.textContent = "Reviewing the supplied evidence…";
         deepReviewButton.disabled = true;
         try {
-          const response = await fetch("/api/deep-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value, requirements: latest.requirements || [] }) });
+          const response = await fetch("/api/deep-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "review unavailable");
           if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
-          renderSemanticReview(payload);
+          semanticPreview.hidden = true; renderSemanticReview(payload);
           semanticStatus.textContent = "Review complete. Treat uncertain items as leads for verification.";
         } catch (error) {
           if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
@@ -976,7 +1042,7 @@ HTML = r"""<!doctype html>
       function matchingMethodLabel(value) {
         const labels = {
           no_evidence: "No evidence linked",
-          direct_skill_id: "Direct evidence",
+          direct_skill_id: "Directly related, user-supplied evidence",
           reviewable_transfer_crosswalk: "Transferable evidence",
           candidate_constraint_rule: "Eligibility check",
         };
@@ -1262,10 +1328,10 @@ HTML = r"""<!doctype html>
           const card = make("article", "comparison-card");
           const rank = make("div", "comparison-rank");
           const roleReviewed = summary.review_status === "user_confirmed";
-          rank.append(make("span", "", (roleReviewed ? "Priority " : "Preliminary priority ") + item.priority_rank), make("span", "", readinessLabels[summary.readiness_status] || "Preparation route"));
+          rank.append(make("span", "", roleReviewed && item.priority_rank != null ? "Priority " + item.priority_rank : "Role review required"), make("span", "", readinessLabels[summary.readiness_status] || "Preparation route"));
           card.appendChild(rank);
           card.appendChild(make("h3", "", item.role_label || "Target role"));
-          card.appendChild(make("p", "comparison-basis", (roleReviewed ? "" : "Role checklist still needs confirmation. ") + (item.priority_basis || "Preparation priority based on the supplied evidence.")));
+          card.appendChild(make("p", "comparison-basis", (roleReviewed ? "" : "No preparation ranking is shown before this role checklist is confirmed. ") + (item.priority_basis || "Review this role before comparing it.")));
           const metrics = make("div", "comparison-metrics");
           [["Readiness", scoreText(summary.application_readiness_score, roleReviewed)], ["Evidence fit", scoreText(summary.evidence_fit_score, roleReviewed)], ["Requirements", roleReviewed ? String(summary.requirements_identified == null ? "—" : summary.requirements_identified) + " found" : "Review first"], ["Eligibility", eligibilityText(summary, roleReviewed)]].forEach(function (pair) {
             const metric = make("div", "comparison-metric");
@@ -1279,9 +1345,12 @@ HTML = r"""<!doctype html>
           inspect.type = "button";
           inspect.addEventListener("click", function () {
             jobInput.value = item.role_text || "";
-            reviewState = newReviewState();
-            render(item.analysis);
-            status.textContent = "Loaded " + (item.role_label || "the selected role") + " into the detailed view.";
+            activeComparisonRoleId = item.role_id || "";
+            reviewState = comparisonRoleReviews[activeComparisonRoleId]
+              ? JSON.parse(JSON.stringify(comparisonRoleReviews[activeComparisonRoleId]))
+              : newReviewState();
+            analyze();
+            status.textContent = "Loading " + (item.role_label || "the selected role") + " so you can confirm its checklist.";
             jobInput.scrollIntoView({ behavior: "smooth", block: "center" });
           });
           card.appendChild(inspect);
@@ -1299,7 +1368,8 @@ HTML = r"""<!doctype html>
           ? (language.note || "Some profile content may need translation or structured evidence before relying on a complete role picture.")
           : "The current profile language is compatible with the English-first rule-based dictionary; confirm mixed-language terms during review.";
         latestScoreVisible = summary.score_visibility === "visible" && summary.review_status === "user_confirmed";
-        downloadButton.disabled = !latestScoreVisible;
+        downloadMarkdownButton.disabled = !latestScoreVisible;
+        downloadPdfButton.disabled = !latestScoreVisible;
         setText(fitScore, scoreText(summary.evidence_fit_score, latestScoreVisible));
         setText(readinessScore, scoreText(summary.application_readiness_score, latestScoreVisible));
         setText(inputCoverageScore, summary.requirements_identified == null ? "—" : String(summary.requirements_identified) + " found");
@@ -1332,6 +1402,7 @@ HTML = r"""<!doctype html>
         status.textContent = "Analyzing your inputs…";
         try {
           const request = { job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value };
+          if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
           if (requestReview) request.review = Object.assign({}, requestReview, { scope: "role_requirements" });
           const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) throw new Error("request failed");
@@ -1351,6 +1422,14 @@ HTML = r"""<!doctype html>
         reviewState.base_signature = inputSignature();
         reviewStatus.textContent = "Recalculating from the reviewed inputs...";
         await analyze();
+        if (activeComparisonRoleId && latest && (latest.summary || {}).review_status === "user_confirmed") {
+          comparisonRoleReviews[activeComparisonRoleId] = Object.assign(
+            {},
+            JSON.parse(JSON.stringify(reviewState)),
+            { scope: "role_requirements" }
+          );
+          reviewStatus.textContent = "This role checklist is confirmed. Return to the role comparison and compare again to update the priority order.";
+        }
       }
       function addRequirement() {
         const text = addedRequirementInput.value.trim();
@@ -1360,18 +1439,29 @@ HTML = r"""<!doctype html>
         renderAddedReviewItems();
         reviewStatus.textContent = "The added requirement will be mapped when you recalculate.";
       }
-      function downloadPlan() {
+      async function downloadPlan(format) {
         if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before downloading the plan."); return; }
         if (!latestScoreVisible) { status.textContent = "Review the extracted requirements before downloading the plan."; return; }
-        const blob = new Blob([JSON.stringify(latest, null, 2)], { type: "application/json" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "career-fit-analysis.json";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.setTimeout(function () { URL.revokeObjectURL(link.href); }, 0);
-        status.textContent = "Downloaded the evidence-first analysis plan.";
+        const button = format === "pdf" ? downloadPdfButton : downloadMarkdownButton;
+        button.disabled = true;
+        status.textContent = "Preparing your " + (format === "pdf" ? "PDF" : "Markdown") + " plan…";
+        try {
+          const request = { format: format, job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, review: Object.assign({}, reviewState, { scope: "role_requirements" }) };
+          if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
+          const response = await fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
+          if (!response.ok) { const payload = await response.json(); throw new Error(payload.detail || "report unavailable"); }
+          const blob = await response.blob();
+          const filename = format === "pdf" ? "career-fit-plan.pdf" : "career-fit-plan.md";
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(function () { URL.revokeObjectURL(link.href); }, 0);
+          status.textContent = "Downloaded your evidence-first " + (format === "pdf" ? "PDF" : "Markdown") + " plan.";
+        } catch (error) { status.textContent = "The plan could not be created. Confirm the reviewed analysis and try again."; }
+        finally { button.disabled = !latestScoreVisible; }
       }
       async function compare() {
         const roles = rolesInput.value.split(/\r?\n\s*---+\s*\r?\n/).map(function (value) { return value.trim(); }).filter(Boolean);
@@ -1380,6 +1470,7 @@ HTML = r"""<!doctype html>
         if (!candidateInput.value.trim()) { compareStatus.textContent = "Add a candidate profile before comparing roles."; return; }
         if (!currentAnalysisIsFresh() || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Run the analysis and review the current candidate evidence before comparing roles."; return; }
         if (!latest || !["user_confirmed", "candidate_evidence_confirmed"].includes((latest.summary || {}).review_status)) { compareStatus.textContent = "Review the candidate evidence before comparing roles."; return; }
+        if (!comparisonEvidence.length) comparisonEvidence = latest.evidence || [];
         const requestSignature = inputSignature();
         const requestRoles = rolesInput.value;
         const requestId = ++compareRequestId;
@@ -1387,12 +1478,12 @@ HTML = r"""<!doctype html>
         compareStatus.textContent = "Comparing the supplied roles…";
         compareButton.disabled = true;
         try {
-          const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, evidence: latest.evidence || [], review: { scope: "candidate_evidence", applied: true, base_signature: inputSignature() } }) });
+          const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, evidence: comparisonEvidence, review: { scope: "candidate_evidence", applied: true, base_signature: inputSignature() }, role_reviews: comparisonRoleReviews }) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "comparison unavailable");
           if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
           renderComparison(payload);
-          compareStatus.textContent = "Comparison ready. Rankings describe preparation priority, not hiring odds.";
+          compareStatus.textContent = payload.comparison_status === "ranked_after_role_review" ? "All role checklists are confirmed. Priorities reflect reviewed readiness and evidence fit, not hiring probability." : "Role cards are ready. Confirm each role's requirements before assigning a preparation priority.";
         } catch (error) {
           if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
           clearComparisonResult();
@@ -1407,15 +1498,20 @@ HTML = r"""<!doctype html>
         analyzedSignature = "";
         latestScoreVisible = false;
         reviewState = newReviewState();
+        comparisonEvidence = [];
+        comparisonRoleReviews = {};
+        activeComparisonRoleId = "";
         jobInput.value = ""; candidateInput.value = ""; candidateLanguage.value = "auto"; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
         candidateFile.value = ""; candidateFileStatus.textContent = "No file selected. Contact details should be removed first.";
+        documentPreview.hidden = true; documentPreviewText.value = "";
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
         semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); clearNode(guidedIntakeRequirement); guidedIntakeTask.value = ""; guidedIntakeContext.value = ""; guidedIntakeResult.value = ""; guidedIntakeDuration.value = ""; guidedIntakeRecency.value = ""; guidedIntakeStatus.textContent = "One concrete example is enough to begin."; semanticSummary.textContent = "";
         clearNode(occupationCandidates); occupationContextResult.hidden = true; marketContext.hidden = true; clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent); occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
         latestOccupationContext = null;
         [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
         languageStatus.textContent = "The rule-based dictionary is English-first. Choose a language when the profile is not primarily English.";
-        downloadButton.disabled = true;
+        downloadMarkdownButton.disabled = true;
+        downloadPdfButton.disabled = true;
         deepReviewButton.disabled = true;
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
@@ -1424,32 +1520,42 @@ HTML = r"""<!doctype html>
       candidateFile.addEventListener("change", async function () {
         const file = candidateFile.files && candidateFile.files[0];
         if (!file) return;
-        if (file.size > 200000) { candidateFileStatus.textContent = "That file is larger than 200 KB. Paste a shorter, redacted version instead."; candidateFile.value = ""; return; }
+        if (file.size > 1000000) { candidateFileStatus.textContent = "That file is larger than 1 MB. Paste a shorter, redacted version instead."; candidateFile.value = ""; return; }
         try {
-          invalidateCurrentResult("Resume loaded. Analyze the current text before relying on a result.");
-          candidateInput.value = await file.text();
-          candidateFileStatus.textContent = file.name + " loaded locally. Review the text, remove sensitive details, then analyze.";
-          status.textContent = "Resume loaded. Analyze the current text when ready.";
-        } catch (error) { candidateFileStatus.textContent = "The file could not be read in this browser. Paste the text instead."; }
+          candidateFileStatus.textContent = "Preparing " + file.name + " for this app's editable redacted preview…";
+          const encoded = await new Promise(function (resolve, reject) { const reader = new FileReader(); reader.onerror = reject; reader.onload = function () { resolve(String(reader.result || "").split(",").pop()); }; reader.readAsDataURL(file); });
+          const response = await fetch("/api/document-preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filename: file.name, content_type: file.type, file_base64: encoded }) });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || "document unavailable");
+          documentPreviewText.value = payload.redacted_preview || "";
+          documentPreviewNotice.textContent = payload.notice || "Review the imported text before using it.";
+          documentPreview.hidden = false;
+          candidateFileStatus.textContent = file.name + " is ready for review. It has not been added to your profile.";
+        } catch (error) { candidateFileStatus.textContent = "The document could not be imported safely. Paste a short, redacted text version instead."; candidateFile.value = ""; }
       });
+      useDocumentPreviewButton.addEventListener("click", function () { const text = documentPreviewText.value.trim(); if (!text) { candidateFileStatus.textContent = "Review text is empty. Paste your experience instead."; return; } invalidateCurrentResult("Reviewed document text loaded. Analyze when ready."); candidateInput.value = text; documentPreview.hidden = true; candidateFileStatus.textContent = "Reviewed text is now in your experience field."; });
+      cancelDocumentPreviewButton.addEventListener("click", function () { documentPreview.hidden = true; documentPreviewText.value = ""; candidateFile.value = ""; candidateFileStatus.textContent = "Import discarded. Your existing experience text was not changed."; });
       exampleButton.addEventListener("click", function () { reviewState = newReviewState(); jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       [jobInput, candidateInput, candidateLanguage].forEach(function (input) { input.addEventListener("input", handleInputChange); });
-      rolesInput.addEventListener("input", function () { if (!comparisonPanel.hidden) { compareRequestId += 1; clearComparisonResult(); compareStatus.textContent = "Target roles changed. Compare again to refresh the ranking."; } });
+      rolesInput.addEventListener("input", function () { comparisonRoleReviews = {}; activeComparisonRoleId = ""; if (!comparisonPanel.hidden) { compareRequestId += 1; clearComparisonResult(); compareStatus.textContent = "Target roles changed. Compare again to refresh the ranking."; } });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
       occupationSearchButton.addEventListener("click", findOccupations);
       occupationQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") findOccupations(); });
-      downloadButton.addEventListener("click", downloadPlan);
-      deepReviewButton.addEventListener("click", deepReview);
+      downloadMarkdownButton.addEventListener("click", function () { downloadPlan("markdown"); });
+      downloadPdfButton.addEventListener("click", function () { downloadPlan("pdf"); });
+      deepReviewButton.addEventListener("click", prepareDeepReview);
+      sendSemanticReviewButton.addEventListener("click", sendDeepReview);
+      cancelSemanticReviewButton.addEventListener("click", function () { semanticPreview.hidden = true; semanticStatus.textContent = "Optional review was not sent."; });
+      editInputsButton.addEventListener("click", function () { setWorkflowStage("intake"); jobInput.focus(); });
+      backToInputsButton.addEventListener("click", function () { setWorkflowStage("intake"); jobInput.focus(); });
       clearButton.addEventListener("click", reset);
       addRequirementButton.addEventListener("click", addRequirement);
       guidedIntakeButton.addEventListener("click", addGuidedIntake);
       applyReviewButton.addEventListener("click", applyReview);
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";
-      jobInput.value = DEFAULT_JOB;
-      candidateInput.value = DEFAULT_CANDIDATE;
-      analyze();
+      setWorkflowStage("intake");
     }());
   </script>
 </body>
@@ -1462,20 +1568,23 @@ def _json_literal(value: str) -> str:
 
 
 def render_page() -> str:
+    configured_endpoint = urlparse(LLM_REVIEW_CLIENT.config.base_url).netloc
+    review_endpoint = configured_endpoint or "not configured"
     privacy_note = (
-        "Privacy and sharing: rule-based analysis stays in this app. Deep semantic review is optional; when enabled, it sends the supplied job text, candidate text, and requirement map to the configured review endpoint. Use it only with an endpoint you trust and remove names, contact details, identification numbers, health information, and other sensitive details first."
+        "Privacy and sharing: rule-based analysis stays in this app. Importing a document sends the selected file to this app only to make an editable redacted preview; use a local deployment for personal documents. Deep semantic review is optional; it sends only the editable sharing preview you approve to the configured endpoint. Common direct identifiers are removed first, but the preview is not fully anonymous."
         if LLM_REVIEW_CLIENT.config.enabled
-        else "Privacy reminder: rule-based analysis stays in this app. Remove names, email addresses, phone numbers, identification numbers, health information, and other sensitive details before analyzing."
+        else "Privacy reminder: rule-based analysis stays in this app. If you choose a document, the complete selected file is sent to this app to create an editable redacted preview before you decide whether to use that text; use a local deployment for personal documents. Remove names, email addresses, phone numbers, identification numbers, health information, and other sensitive details before analyzing."
     )
     privacy_footer = (
-        "Privacy note: Rule-based analysis runs in this app, but optional semantic review sends supplied text to the configured review endpoint when you click the button. Remove sensitive details first; this app does not provide hosted personal-data storage."
+        "Privacy note: Rule-based analysis runs in this app, but optional semantic review sends the editable sharing preview to the configured endpoint only when you click Send. Remove remaining sensitive details first; this app does not provide hosted personal-data storage."
         if LLM_REVIEW_CLIENT.config.enabled
-        else "Privacy note: Inputs are processed locally by this app and are not permanently stored by it. Remove sensitive details before analysis."
+        else "Privacy note: Inputs are processed by this app and are not permanently stored by it. If you choose a document, the complete selected file is sent to this app to create an editable redacted preview before you decide whether to use that text; use a local deployment for personal documents. Remove sensitive details before analysis."
     )
     return (
         HTML.replace("__DEFAULT_JOB__", _json_literal(DEFAULT_JOB))
         .replace("__DEFAULT_CANDIDATE__", _json_literal(DEFAULT_CANDIDATE))
         .replace("__LLM_ENABLED__", json.dumps(LLM_REVIEW_CLIENT.config.enabled))
+        .replace("__REVIEW_ENDPOINT__", _json_literal(review_endpoint))
         .replace("__PRIVACY_NOTE__", html.escape(privacy_note))
         .replace("__PRIVACY_FOOTER__", html.escape(privacy_footer))
     )
@@ -1532,12 +1641,24 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_bytes(
+        self, body: bytes, content_type: str, filename: str, status: int = 200
+    ) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         request_limits = {
             "/api/deep-review": 120_000,
             "/api/compare": 160_000,
             "/api/analyze": 160_000,
+            "/api/document-preview": 1_500_000,
+            "/api/report": 320_000,
         }
         if parsed.path in request_limits:
             try:
@@ -1592,6 +1713,75 @@ class Handler(BaseHTTPRequestHandler):
                 return
             self._send_json(result)
             return
+        if parsed.path == "/api/document-preview":
+            try:
+                length = min(int(self.headers.get("Content-Length", "0")), 1_500_000)
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                if not isinstance(payload, dict):
+                    raise TypeError("request body must be a JSON object")
+                result = extract_import_preview(
+                    payload.get("file_base64", ""),
+                    payload.get("filename", ""),
+                    payload.get("content_type", ""),
+                )
+            except (
+                DocumentExtractionError,
+                TypeError,
+                ValueError,
+                json.JSONDecodeError,
+            ) as exc:
+                self._send_json(
+                    {"error": "invalid_document", "detail": str(exc)}, status=400
+                )
+                return
+            self._send_json(result)
+            return
+        if parsed.path == "/api/report":
+            try:
+                length = min(int(self.headers.get("Content-Length", "0")), 320_000)
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                if not isinstance(payload, dict):
+                    raise TypeError("request body must be a JSON object")
+                job_text = payload.get("job_text", "")
+                candidate_text = payload.get("candidate_text", "")
+                if not isinstance(job_text, str) or not isinstance(candidate_text, str):
+                    raise TypeError("job_text and candidate_text must be strings")
+                analysis = analyze_fit(
+                    job_text[:40_000],
+                    candidate_text[:40_000],
+                    payload.get("evidence"),
+                    payload.get("review"),
+                    payload.get("candidate_language", "auto"),
+                )
+                summary = analysis.get("summary", {})
+                if (
+                    not isinstance(summary, dict)
+                    or summary.get("review_status") != "user_confirmed"
+                    or summary.get("score_visibility") != "visible"
+                ):
+                    raise ValueError(
+                        "review the extracted requirements before exporting a plan"
+                    )
+                report_format = payload.get("format")
+                if report_format == "markdown":
+                    self._send_bytes(
+                        build_markdown_plan(analysis).encode("utf-8"),
+                        "text/markdown; charset=utf-8",
+                        "career-fit-plan.md",
+                    )
+                elif report_format == "pdf":
+                    self._send_bytes(
+                        build_pdf_plan(analysis),
+                        "application/pdf",
+                        "career-fit-plan.pdf",
+                    )
+                else:
+                    raise ValueError("format must be markdown or pdf")
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                self._send_json(
+                    {"error": "invalid_report", "detail": str(exc)}, status=400
+                )
+            return
         if parsed.path == "/api/compare":
             try:
                 length = min(int(self.headers.get("Content-Length", "0")), 160_000)
@@ -1615,6 +1805,7 @@ class Handler(BaseHTTPRequestHandler):
                     payload.get("evidence"),
                     payload.get("review"),
                     payload.get("candidate_language", "auto"),
+                    payload.get("role_reviews"),
                 )
             except (TypeError, ValueError, json.JSONDecodeError) as exc:
                 self._send_json(
@@ -1660,7 +1851,7 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/" or parsed.path == "/index.html":
             self._send_page()
             return
-        if parsed.path == "/api/analyze":
+        if parsed.path in {"/api/analyze", "/api/document-preview", "/api/report"}:
             self._send_json({"error": "use_post"}, status=405)
             return
         if parsed.path == "/api/occupation-context":

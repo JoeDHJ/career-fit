@@ -139,7 +139,9 @@ jobs:
           taxonomy = json.loads(Path("career-fit-taxonomy.json").read_text())
           assert len(taxonomy["categories"]) == 10
           comparison = json.loads(Path("career-fit-comparison.json").read_text())
-          assert comparison["schema_version"] == "career_fit.compare.v0.3"
+          assert comparison["schema_version"] == "career_fit.compare.v0.4"
+          assert comparison["comparison_status"] == "role_review_required"
+          assert all(role["priority_rank"] is None for role in comparison["roles"])
           assert len(comparison["roles"]) in {2, 3}
           PY
       - name: Rebuild and run from the source distribution

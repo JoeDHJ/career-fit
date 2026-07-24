@@ -87,6 +87,10 @@ try {
 
     Invoke-PlaywrightCli @("open", $CareerFitUrl) | Out-Null
     Invoke-PlaywrightCli @("resize", "$Width", "$Height") | Out-Null
+    Invoke-PlaywrightCli @(
+        "eval",
+        "(()=>{document.querySelector('#job-input').value='Project coordinator. Must have communication and Excel. Preferred: customer service. Schedule meetings and maintain records.';document.querySelector('#candidate-input').value='I coordinated schedules, maintained shared records, and used Excel to follow up with customers.';document.querySelector('#analyze-button').click();return true})()"
+    ) | Out-Null
     Wait-ForCondition "document.querySelector('#review-panel') && !document.querySelector('#review-panel').hidden"
     $reviewMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
@@ -126,16 +130,13 @@ try {
         "eval",
         "(()=>{const i=document.querySelector('#occupation-query');i.value='Data Analyst';document.querySelector('#occupation-search-button').click();return true})()"
     ) | Out-Null
-    Wait-ForCondition "document.querySelector('.occupation-context-empty') && document.querySelector('.occupation-context-empty').textContent.includes('recognized')"
-    $emptyAlias = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+    Wait-ForCondition "document.querySelectorAll('.occupation-candidate').length > 0 || (document.querySelector('#occupation-status')?.textContent || '').includes('Occupation family recognized')"
+    $dataAnalystAlias = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
-        "JSON.stringify({message:(document.querySelector('.occupation-context-empty')||{}).textContent||'',status:(document.querySelector('#occupation-status')||{}).textContent||''})"
+        "JSON.stringify({message:(document.querySelector('.occupation-context-empty')||{}).textContent||'',status:(document.querySelector('#occupation-status')||{}).textContent||'',candidateCount:document.querySelectorAll('.occupation-candidate').length,confirmationControls:Array.from(document.querySelectorAll('.occupation-candidate button')).some(button=>button.textContent.includes('Use this occupation'))})"
     ))
-    if ($emptyAlias.message -notlike "*This occupation family was recognized*") {
-        throw "Career Fit did not expose the alias-empty release message."
-    }
-    if ($emptyAlias.status -notlike "*Occupation family recognized*") {
-        throw "Career Fit did not expose the alias-empty status."
+    if (($dataAnalystAlias.candidateCount -eq 0 -and ($dataAnalystAlias.message -notlike "*recognized*" -or $dataAnalystAlias.status -notlike "*Occupation family recognized*")) -or ($dataAnalystAlias.candidateCount -gt 0 -and -not $dataAnalystAlias.confirmationControls)) {
+        throw "Career Fit did not explain the recognized Data Analyst family or require confirmation for available candidates."
     }
 
     Invoke-PlaywrightCli @(
@@ -165,13 +166,13 @@ try {
         "eval",
         "(()=>{const roles=document.querySelector('#roles-input');roles.value='People Analytics Analyst. Must have Python.\n---\nData Analyst. Must have Excel.';document.querySelector('#compare-button').click();return true})()"
     ) | Out-Null
-    Wait-ForCondition "(document.querySelector('#compare-status')?.textContent || '').includes('Comparison ready')"
+    Wait-ForCondition "(document.querySelector('#compare-status')?.textContent || '').includes('Role cards are ready')"
     $comparisonMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
         "JSON.stringify({visible:!document.querySelector('#comparison-panel').hidden,cardCount:document.querySelectorAll('#comparison-grid > article').length})"
     ))
     if (-not $comparisonMeasurement.visible -or $comparisonMeasurement.cardCount -lt 2) {
-        throw "Career Fit did not expose the reviewed role comparison."
+        throw "Career Fit did not expose the role cards that require per-role review before ranking."
     }
     Invoke-PlaywrightCli @(
         "eval",
@@ -225,10 +226,10 @@ try {
     ) | Out-Null
     $staleMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
-        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadDisabled:document.querySelector('#download-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
+        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadsDisabled:document.querySelector('#download-markdown-button').disabled && document.querySelector('#download-pdf-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
     ))
-    if ($staleMeasurement.fitAfter -eq "Review first" -or -not $staleMeasurement.downloadDisabled -or -not $staleMeasurement.reviewHidden) {
-        throw "Career Fit kept a score, download action, or review panel after the inputs changed."
+    if ($staleMeasurement.fitAfter -eq "Review first" -or -not $staleMeasurement.downloadsDisabled -or -not $staleMeasurement.reviewHidden) {
+        throw "Career Fit kept a score, export action, or review panel after the inputs changed."
     }
 
     Invoke-PlaywrightCli @(
@@ -238,10 +239,10 @@ try {
     Wait-ForCondition "(document.querySelector('#status')?.textContent || '').includes('Analysis unavailable')"
     $failedMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
-        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadDisabled:document.querySelector('#download-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
+        "JSON.stringify({fitAfter:document.querySelector('#fit-score').textContent,downloadsDisabled:document.querySelector('#download-markdown-button').disabled && document.querySelector('#download-pdf-button').disabled,reviewHidden:document.querySelector('#review-panel').hidden})"
     ))
-    if ($failedMeasurement.fitAfter -eq "Review first" -or -not $failedMeasurement.downloadDisabled -or -not $failedMeasurement.reviewHidden) {
-        throw "Career Fit kept stale analysis controls after an analysis request failed."
+    if ($failedMeasurement.fitAfter -eq "Review first" -or -not $failedMeasurement.downloadsDisabled -or -not $failedMeasurement.reviewHidden) {
+        throw "Career Fit kept stale export controls after an analysis request failed."
     }
     Invoke-PlaywrightCli @("eval", "(()=>{window.fetch=window.__careerOriginalFetch;return true})()") | Out-Null
 

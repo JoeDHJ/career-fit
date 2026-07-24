@@ -32,7 +32,7 @@ VALID_EVIDENCE_TYPES = set(EVIDENCE_WEIGHTS)
 VALID_IMPORTANCE_LEVELS = set(IMPORTANCE_WEIGHTS)
 
 STATUS_LABELS = {
-    "direct": "Direct evidence",
+    "direct": "Directly related, user-supplied evidence",
     "direct_weak": "Mentioned, proof is thin",
     "claimed": "Claimed capability, proof not supplied",
     "transferable": "Transferable evidence",
@@ -397,8 +397,11 @@ def _aggregate_evidence(items: list[dict[str, Any]]) -> dict[str, Any]:
     )
     return {
         "strength": round(strength, 3),
-        "recency": round(max(_recency_score(item) for item in ranked), 3),
-        "depth": round(max(_depth_score(item) for item in ranked), 3),
+        # The main signal must remain internally coherent.  A newer or longer
+        # secondary item can support strength, but cannot make a different
+        # primary item appear both newer and deeper than it actually is.
+        "recency": round(_recency_score(primary), 3),
+        "depth": round(_depth_score(primary), 3),
         "primary_evidence_id": primary.get("evidence_id"),
         "method": "primary_plus_top_two_supporting",
     }
@@ -536,9 +539,10 @@ def _normalize_evidence(
             if matched:
                 copied["skill_id"] = matched[0]["skill_id"]
                 copied["analysis_category_code"] = matched[0]["analysis_category_code"]
-        if not str(copied.get("skill_id", "")).strip() or not str(
-            copied.get("canonical_skill", "")
-        ).strip():
+        if (
+            not str(copied.get("skill_id", "")).strip()
+            or not str(copied.get("canonical_skill", "")).strip()
+        ):
             raise ValueError("each evidence item needs skill_id and canonical_skill")
         raw_source_text = copied.get("source_text")
         if not isinstance(raw_source_text, str):
@@ -548,9 +552,9 @@ def _normalize_evidence(
             raise ValueError("each evidence item needs source_text")
         copied["source_text"] = source_text[:500]
         copied["result"] = str(copied.get("result", "")).strip()[:500]
-        copied["measurable_result"] = str(
-            copied.get("measurable_result", "")
-        ).strip()[:500]
+        copied["measurable_result"] = str(copied.get("measurable_result", "")).strip()[
+            :500
+        ]
         if user_supplied:
             copied["evidence_status"] = (
                 "user_confirmed_self_report"
@@ -590,9 +594,7 @@ _CONDITIONAL_PATTERN = (
     r"(?:if|unless|once|when|pending|subject\s+to|waiting\s+for|"
     r"applied\s+for|in\s+progress)"
 )
-_HISTORICAL_GATE_PATTERN = (
-    r"(?:was|were|used\s+to|previously|formerly|once|had|held)"
-)
+_HISTORICAL_GATE_PATTERN = r"(?:was|were|used\s+to|previously|formerly|once|had|held)"
 _INVALID_GATE_PATTERN = (
     r"(?:expired|revoked|inactive|invalid|no\s+longer|"
     r"not\s+(?:currently|current|valid|active|authorized|eligible|permitted)|"
@@ -613,9 +615,7 @@ def _future_or_conditional_parts(before: str, after: str) -> bool:
 
     before_lower = before.casefold()
     after_lower = after.casefold()
-    local_before = re.split(
-        r"(?:,|\b(?:and|but|however|although)\b)", before_lower
-    )[-1]
+    local_before = re.split(r"(?:,|\b(?:and|but|however|although)\b)", before_lower)[-1]
     local_after = re.split(
         r"\b(?:and|but|however|although)\b", after_lower, maxsplit=1
     )[0]
@@ -647,28 +647,24 @@ def _future_or_conditional_subject(text: str, subject_pattern: str) -> bool:
     return False
 
 
-def _subject_contexts(
-    text: str, subject_pattern: str
-) -> list[tuple[str, str, str]]:
+def _subject_contexts(text: str, subject_pattern: str) -> list[tuple[str, str, str]]:
     """Return local before/after clauses and their full sentence for each subject."""
 
     lowered = text.casefold()
     contexts: list[tuple[str, str, str]] = []
     for match in re.finditer(rf"\b(?:{subject_pattern})\b", lowered):
-        sentence_start = max(
-            lowered.rfind(mark, 0, match.start()) for mark in ".!?;\n"
-        ) + 1
-        sentence_end_candidates = [
-            lowered.find(mark, match.end()) for mark in ".!?;\n"
-        ]
+        sentence_start = (
+            max(lowered.rfind(mark, 0, match.start()) for mark in ".!?;\n") + 1
+        )
+        sentence_end_candidates = [lowered.find(mark, match.end()) for mark in ".!?;\n"]
         sentence_end_candidates = [
             value for value in sentence_end_candidates if value >= 0
         ]
         sentence_end = min(sentence_end_candidates, default=len(lowered))
         contexts.append(
             (
-                lowered[sentence_start:match.start()],
-                lowered[match.end():sentence_end],
+                lowered[sentence_start : match.start()],
+                lowered[match.end() : sentence_end],
                 lowered[sentence_start:sentence_end],
             )
         )
@@ -686,12 +682,10 @@ def _subject_has_state(
 
     state_re = re.compile(rf"\b(?:{state_pattern})\b")
     for before, after, sentence in _subject_contexts(text, subject_pattern):
-        local_before = re.split(
-            r"(?:,|\b(?:and|but|however|although)\b)", before
-        )[-1]
-        local_after = re.split(
-            r"\b(?:and|but|however|although)\b", after, maxsplit=1
-        )[0]
+        local_before = re.split(r"(?:,|\b(?:and|but|however|although)\b)", before)[-1]
+        local_after = re.split(r"\b(?:and|but|however|although)\b", after, maxsplit=1)[
+            0
+        ]
         if state_re.search(local_before) or state_re.search(local_after):
             return True
         if include_full_after and state_re.search(sentence):
@@ -705,12 +699,10 @@ def _subject_has_current_assertion(text: str, subject_pattern: str) -> bool:
     current_re = re.compile(rf"\b{_CURRENT_GATE_VERB_PATTERN}\b")
     historical_re = re.compile(rf"\b{_HISTORICAL_GATE_PATTERN}\b")
     for before, after, _ in _subject_contexts(text, subject_pattern):
-        local_before = re.split(
-            r"(?:,|\b(?:and|but|however|although)\b)", before
-        )[-1]
-        local_after = re.split(
-            r"\b(?:and|but|however|although)\b", after, maxsplit=1
-        )[0]
+        local_before = re.split(r"(?:,|\b(?:and|but|however|although)\b)", before)[-1]
+        local_after = re.split(r"\b(?:and|but|however|although)\b", after, maxsplit=1)[
+            0
+        ]
         if historical_re.search(local_before):
             continue
         if current_re.search(local_before) or current_re.search(local_after):
@@ -726,9 +718,7 @@ def _future_or_conditional_experience(
     lowered = candidate_text.casefold()
     start = int(claim["start"])
     end = int(claim["end"])
-    sentence_start = max(
-        lowered.rfind(mark, 0, start) for mark in ".!?\n"
-    ) + 1
+    sentence_start = max(lowered.rfind(mark, 0, start) for mark in ".!?\n") + 1
     sentence_end_candidates = [lowered.find(mark, end) for mark in ".!?\n"]
     sentence_end_candidates = [value for value in sentence_end_candidates if value >= 0]
     sentence_end = min(sentence_end_candidates, default=len(lowered))
@@ -747,9 +737,7 @@ def _negative_experience_claim(
     lowered = candidate_text.casefold()
     start = int(claim["start"])
     end = int(claim["end"])
-    sentence_start = max(
-        lowered.rfind(mark, 0, start) for mark in ".!?\n"
-    ) + 1
+    sentence_start = max(lowered.rfind(mark, 0, start) for mark in ".!?\n") + 1
     sentence_end_candidates = [lowered.find(mark, end) for mark in ".!?\n"]
     sentence_end_candidates = [value for value in sentence_end_candidates if value >= 0]
     sentence_end = min(sentence_end_candidates, default=len(lowered))
@@ -804,9 +792,9 @@ def _negative_experience_claim(
     )
     if post_claim_negative.search(sentence):
         return True
-    if re.match(r"(?:it|this|that|none|nothing|i)\b", following) and post_claim_negative.search(
-        following
-    ):
+    if re.match(
+        r"(?:it|this|that|none|nothing|i)\b", following
+    ) and post_claim_negative.search(following):
         return True
     return False
 
@@ -841,11 +829,16 @@ def _education_occurrences(candidate_text: str) -> list[tuple[int, str, str]]:
         if level is None:
             continue
         boundaries = ".!?;\n"
-        left = max(
-            (candidate_text.rfind(mark, 0, match.start()) for mark in boundaries),
-            default=-1,
-        ) + 1
-        right_candidates = [candidate_text.find(mark, match.end()) for mark in boundaries]
+        left = (
+            max(
+                (candidate_text.rfind(mark, 0, match.start()) for mark in boundaries),
+                default=-1,
+            )
+            + 1
+        )
+        right_candidates = [
+            candidate_text.find(mark, match.end()) for mark in boundaries
+        ]
         right_candidates = [value for value in right_candidates if value >= 0]
         right = min(right_candidates, default=len(candidate_text))
         clause = candidate_text[left:right].strip()
@@ -923,9 +916,7 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             include_full_after=True,
         ):
             return "not_met"
-        if _future_or_conditional_subject(
-            lowered, _LICENSE_SUBJECT_PATTERN
-        ):
+        if _future_or_conditional_subject(lowered, _LICENSE_SUBJECT_PATTERN):
             return "unknown"
         current_license = _subject_has_current_assertion(
             lowered, _LICENSE_SUBJECT_PATTERN
@@ -1098,8 +1089,7 @@ def _constraint_status(requirement: dict[str, Any], candidate_text: str) -> str:
             for item in positive
             if item[0] >= required_level
             and (
-                not required_field
-                or _education_field_matches(required_field, item[2])
+                not required_field or _education_field_matches(required_field, item[2])
             )
         ]
         if qualifying:
@@ -1199,9 +1189,7 @@ def _match_evidence(
         "coverage": round(coverage, 3),
         "evidence_strength": round(evidence, 3),
         "evidence_ids": [item["evidence_id"] for item in selected],
-        "reviewable_evidence_ids": [
-            item["evidence_id"] for item in scoring_items
-        ],
+        "reviewable_evidence_ids": [item["evidence_id"] for item in scoring_items],
         "claimed_evidence_ids": [
             item["evidence_id"] for item in selected if _is_claim_only(item)
         ],
@@ -1328,9 +1316,7 @@ def _candidate_language_profile(
 ) -> dict[str, Any]:
     requested = str(candidate_language or "auto").strip().casefold()
     if requested not in VALID_CANDIDATE_LANGUAGES:
-        raise ValueError(
-            "candidate_language must be auto, en, es, zh, or other"
-        )
+        raise ValueError("candidate_language must be auto, en, es, zh, or other")
     if requested == "auto":
         if re.search(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]", candidate_text):
             detected = "zh_or_cjk"
@@ -1363,7 +1349,9 @@ def _candidate_language_profile(
     }
 
 
-def _review_list(value: object, field_name: str, limit: int = 30) -> list[dict[str, Any]]:
+def _review_list(
+    value: object, field_name: str, limit: int = 30
+) -> list[dict[str, Any]]:
     if value in (None, []):
         return []
     if not isinstance(value, list) or len(value) > limit:
@@ -1373,7 +1361,9 @@ def _review_list(value: object, field_name: str, limit: int = 30) -> list[dict[s
     return [dict(item) for item in value]
 
 
-def _custom_requirement(text: str, requirement_number: int, importance_level: str) -> dict[str, Any]:
+def _custom_requirement(
+    text: str, requirement_number: int, importance_level: str
+) -> dict[str, Any]:
     """Create a user-labeled skill when the dictionary has no safe match."""
 
     return {
@@ -1415,7 +1405,9 @@ def _apply_review(
     unknown_ids = removed_ids - set(by_id)
     if unknown_ids:
         raise ValueError("removed_requirement_ids contains an unknown requirement")
-    kept = [item for item in requirements if str(item["requirement_id"]) not in removed_ids]
+    kept = [
+        item for item in requirements if str(item["requirement_id"]) not in removed_ids
+    ]
     changes: list[dict[str, Any]] = [
         {"action": "removed_requirement", "requirement_id": item}
         for item in sorted(removed_ids)
@@ -1435,11 +1427,15 @@ def _apply_review(
             raise ValueError("added requirement text must be at most 200 characters")
         importance_level = str(raw.get("importance_level", "must"))
         if importance_level not in VALID_IMPORTANCE_LEVELS:
-            raise ValueError("added requirement importance must be must, strongly_preferred, preferred, or inferred")
+            raise ValueError(
+                "added requirement importance must be must, strongly_preferred, preferred, or inferred"
+            )
         extracted = extract_requirements(requirement_text)
         additions = extracted[:3]
         if not additions:
-            additions = [_custom_requirement(requirement_text, len(kept) + 1, importance_level)]
+            additions = [
+                _custom_requirement(requirement_text, len(kept) + 1, importance_level)
+            ]
         for item in additions:
             if item.get("skill_id") in existing_skills:
                 continue
@@ -1477,13 +1473,19 @@ def _apply_review(
         raise ValueError("importance_overrides must be an object")
     for requirement_id, importance_level in importance_overrides.items():
         item = next(
-            (candidate for candidate in kept if candidate["requirement_id"] == str(requirement_id)),
+            (
+                candidate
+                for candidate in kept
+                if candidate["requirement_id"] == str(requirement_id)
+            ),
             None,
         )
         if item is None or item.get("hard_constraint"):
             raise ValueError("importance override must target a soft requirement")
         if importance_level not in VALID_IMPORTANCE_LEVELS:
-            raise ValueError("importance must be must, strongly_preferred, preferred, or inferred")
+            raise ValueError(
+                "importance must be must, strongly_preferred, preferred, or inferred"
+            )
         item["importance_level"] = importance_level
         item["importance_weight"] = IMPORTANCE_WEIGHTS[importance_level]
         item["review_status"] = "user_confirmed"
@@ -1502,11 +1504,17 @@ def _apply_review(
         raise ValueError("constraint_status_overrides must be an object")
     for requirement_id, status in overrides.items():
         item = next(
-            (candidate for candidate in kept if candidate["requirement_id"] == str(requirement_id)),
+            (
+                candidate
+                for candidate in kept
+                if candidate["requirement_id"] == str(requirement_id)
+            ),
             None,
         )
         if item is None or not item.get("hard_constraint"):
-            raise ValueError("constraint status override must target a hard requirement")
+            raise ValueError(
+                "constraint status override must target a hard requirement"
+            )
         if status not in VALID_CONSTRAINT_STATUSES:
             raise ValueError("constraint status must be met, not_met, or unknown")
         item["review_status"] = "user_confirmed"
@@ -1534,7 +1542,9 @@ def _user_added_evidence(review: dict[str, Any] | None) -> list[dict[str, Any]]:
         skill_id = str(row.get("skill_id", "")).strip()
         canonical = str(row.get("canonical_skill", "")).strip()
         if not source_text or not skill_id or not canonical:
-            raise ValueError("each added evidence item needs skill_id, canonical_skill, and source_text")
+            raise ValueError(
+                "each added evidence item needs skill_id, canonical_skill, and source_text"
+            )
         evidence_type = str(row.get("evidence_type", "self_reported"))
         if evidence_type not in VALID_EVIDENCE_TYPES:
             raise ValueError("unsupported evidence type")
@@ -1553,7 +1563,9 @@ def _user_added_evidence(review: dict[str, Any] | None) -> list[dict[str, Any]]:
                 "evidence_type": evidence_type,
                 "source_text": source_text[:500],
                 "result": str(row.get("result", "")).strip()[:500],
-                "measurable_result": str(row.get("measurable_result", "")).strip()[:500],
+                "measurable_result": str(row.get("measurable_result", "")).strip()[
+                    :500
+                ],
                 "duration_months": duration,
                 "recency_years": recency,
                 "source_name": str(row.get("source_name", "")).strip()[:120],
@@ -1605,9 +1617,7 @@ def _coverage_components(
         "requirements_with_claimed_evidence": claimed_count,
         "evidence_coverage_score": round(100 * signal_coverage),
         "claimed_evidence_coverage_score": round(100 * claimed_coverage),
-        "eligibility_verification_score": round(
-            100 * len(known_hard) / len(hard)
-        )
+        "eligibility_verification_score": round(100 * len(known_hard) / len(hard))
         if hard
         else None,
         "eligibility_status": (
@@ -1733,9 +1743,7 @@ def analyze_fit(
             assessments.append(item)
             continue
         skill_requirement_count += 1
-        assessment = _match_evidence(
-            requirement, evidence_by_skill
-        )
+        assessment = _match_evidence(requirement, evidence_by_skill)
         if assessment["status"] in {"direct", "direct_weak"}:
             direct_count += 1
         weight = _number(requirement["importance_weight"], 0.2)
@@ -1767,9 +1775,7 @@ def analyze_fit(
     )
     claimed_coverage = (
         sum(
-            0.30
-            if item["status"] in {"claimed", "transferable_claimed"}
-            else 0.0
+            0.30 if item["status"] in {"claimed", "transferable_claimed"} else 0.0
             for item in assessments
             if not item["hard_constraint"]
         )
@@ -1824,10 +1830,20 @@ def analyze_fit(
         else 0.35
         if blocking
         else 1.0
+        if hard_constraints
+        else None
     )
-    readiness_score = round(
-        100 * (0.50 * must_match + 0.30 * proof_signal + 0.20 * gate_signal)
-    )
+    if gate_signal is None:
+        # No extracted gate is not proof that the posting has no gate.  Keep
+        # readiness usable for gate-free postings without awarding the former
+        # 20-point eligibility component.
+        readiness_score = round(
+            100 * ((0.50 / 0.80) * must_match + (0.30 / 0.80) * proof_signal)
+        )
+    else:
+        readiness_score = round(
+            100 * (0.50 * must_match + 0.30 * proof_signal + 0.20 * gate_signal)
+        )
     readiness = _readiness_status(readiness_score, blocking)
 
     if any(item["status"] == "not_met" for item in blocking):
@@ -1878,8 +1894,13 @@ def analyze_fit(
             f"Only {len(requirements)} requirement(s) were identified; at least {MIN_REQUIREMENTS_FOR_SCORING} are needed for a reliable score."
         )
     if len(job_text.strip()) < MIN_JOB_TEXT_LENGTH:
-        analysis_reasons.append("The job description is too short to support a reliable analysis.")
-    if not _has_substantive_candidate_text(candidate_text) and not explicit_evidence_supplied:
+        analysis_reasons.append(
+            "The job description is too short to support a reliable analysis."
+        )
+    if (
+        not _has_substantive_candidate_text(candidate_text)
+        and not explicit_evidence_supplied
+    ):
         analysis_reasons.append(
             "The candidate profile needs a concrete action, context, or result to support a reliable evidence assessment."
         )
@@ -1910,9 +1931,7 @@ def analyze_fit(
             },
         )
     review_scope = (
-        str(review.get("scope", "role_requirements"))
-        if review is not None
-        else None
+        str(review.get("scope", "role_requirements")) if review is not None else None
     )
     review_applied = review is not None and review.get("applied") is True
     reviewed = review_applied and review_scope == "role_requirements"
@@ -1939,15 +1958,11 @@ def analyze_fit(
     if not scoring_available:
         readiness = "insufficient_information"
         decision = "insufficient_information"
-        decision_label = (
-            "Cannot form a reliable analysis yet. Review the input requirements and add more evidence before relying on a score."
-        )
+        decision_label = "Cannot form a reliable analysis yet. Review the input requirements and add more evidence before relying on a score."
     elif not reviewed:
         readiness = "review_required"
         decision = "review_required"
-        decision_label = (
-            "Review the extracted requirements, importance, evidence, and eligibility gates before relying on a score."
-        )
+        decision_label = "Review the extracted requirements, importance, evidence, and eligibility gates before relying on a score."
     next_actions = gaps[:6]
     if scoring_available and not next_actions:
         next_actions = [_application_positioning_action()]
@@ -1977,6 +1992,9 @@ def analyze_fit(
                 "requirement_type": item["requirement_type"],
                 "hard_constraint": bool(item.get("hard_constraint")),
                 "status": item.get("status", "unknown"),
+                # Importance is a reviewable extraction, not a derived score.
+                # Showing it prevents a misleading default selection in Step 2.
+                "importance_level": item.get("importance_level", "inferred"),
                 "original_text": item.get("original_text", ""),
             }
             for item in assessments
@@ -2065,6 +2083,7 @@ def compare_roles(
     evidence: list[dict[str, Any]] | None = None,
     review: dict[str, Any] | None = None,
     candidate_language: str | None = "auto",
+    role_reviews: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Rank a small set of target roles using the same auditable fit engine.
 
@@ -2125,10 +2144,28 @@ def compare_roles(
             "compare_roles requires user-declared candidate evidence; automatic profile extraction is not enough"
         )
 
+    if role_reviews is not None and not isinstance(role_reviews, dict):
+        raise TypeError("role_reviews must be a mapping keyed by role id")
+    role_reviews = role_reviews or {}
+
     entries = []
     for index, job_text in enumerate(cleaned, start=1):
+        role_id = f"role-{index:02d}"
+        role_review = role_reviews.get(role_id)
+        if role_review is not None and (
+            not isinstance(role_review, dict)
+            or str(role_review.get("scope", "")) != "role_requirements"
+            or role_review.get("applied") is not True
+        ):
+            raise ValueError(
+                f"{role_id} must contain an applied role_requirements review"
+            )
         analysis = analyze_fit(
-            job_text, candidate_text, reviewed_evidence, review, candidate_language
+            job_text,
+            candidate_text,
+            reviewed_evidence,
+            role_review if role_review is not None else review,
+            candidate_language,
         )
         summary = analysis["summary"]
         preliminary_review = dict(review)
@@ -2142,11 +2179,16 @@ def compare_roles(
         )["summary"]
         entries.append(
             {
-                "role_id": f"role-{index:02d}",
+                "role_id": role_id,
                 "role_label": _role_label(job_text, index),
                 "role_text": job_text,
                 "summary": summary,
-                "priority_basis": "Preliminary comparison: " + _priority_basis(preliminary_summary),
+                "priority_basis": (
+                    _priority_basis(summary)
+                    if summary.get("review_status") == "user_confirmed"
+                    else "Preliminary comparison: "
+                    + _priority_basis(preliminary_summary)
+                ),
                 "top_action": analysis["next_actions"][0]
                 if analysis["next_actions"]
                 else None,
@@ -2155,41 +2197,57 @@ def compare_roles(
                 else None,
                 "top_bundle": None,
                 "analysis": analysis,
-                "_sort_summary": preliminary_summary,
+                "_sort_summary": summary
+                if summary.get("review_status") == "user_confirmed"
+                else preliminary_summary,
             }
         )
 
-    entries.sort(
-        key=lambda item: (
-            -float(
-                item["_sort_summary"].get("application_readiness_score")
-                if item["_sort_summary"].get("application_readiness_score") is not None
-                else -1
-            ),
-            -float(
-                item["_sort_summary"].get("evidence_fit_score")
-                if item["_sort_summary"].get("evidence_fit_score") is not None
-                else -1
-            ),
-            -float(
-                item["_sort_summary"].get("evidence_coverage_score")
-                if item["_sort_summary"].get("evidence_coverage_score") is not None
-                else -1
-            ),
-            str(item["role_label"]).casefold(),
-        )
+    all_roles_reviewed = all(
+        item["summary"].get("review_status") == "user_confirmed"
+        and item["summary"].get("score_visibility") == "visible"
+        for item in entries
     )
-    for rank, item in enumerate(entries, start=1):
-        item["priority_rank"] = rank
+    if all_roles_reviewed:
+        ordered = sorted(
+            entries,
+            key=lambda item: (
+                -_number(item["_sort_summary"].get("application_readiness_score")),
+                -_number(item["_sort_summary"].get("evidence_fit_score")),
+                item["role_id"],
+            ),
+        )
+        for rank, item in enumerate(ordered, start=1):
+            item["priority_rank"] = rank
+        entries = ordered
+    else:
+        for item in entries:
+            # Candidate evidence may be reused, but the role's requirements and
+            # gates have not yet been confirmed. Do not turn a pre-review helper
+            # calculation into a deterministic job priority.
+            item["priority_rank"] = None
+            if item["summary"].get("review_status") != "user_confirmed":
+                item["priority_basis"] = (
+                    "Role requirements still need confirmation. Review each target role "
+                    "before treating it as higher or lower priority."
+                )
+    for item in entries:
         item.pop("_sort_summary", None)
     return {
-        "schema_version": "career_fit.compare.v0.3",
+        "schema_version": "career_fit.compare.v0.4",
         "product": "Career Fit",
         "mode": "role_comparison",
+        "comparison_status": (
+            "ranked_after_role_review" if all_roles_reviewed else "role_review_required"
+        ),
         "role_count": len(entries),
         "roles": entries,
         "interpretation": {
-            "priority": "Roles are ordered by preparation readiness, then evidence fit and reviewable evidence coverage. This is not a hiring-probability ranking.",
+            "priority": (
+                "Priority is based on reviewed application readiness and evidence fit, not hiring probability."
+                if all_roles_reviewed
+                else "Role cards are intentionally unranked until each target role's requirements and eligibility gates are confirmed. This is not a hiring-probability ranking."
+            ),
             "transfer": "Transferable evidence remains visible as a bridge and is never treated as direct equivalence.",
             "missing": "A lower-ranked role may reflect missing proof or an unresolved gate rather than lower underlying ability.",
             "review": "Candidate evidence can be reused across roles after review, but role requirements and hard gates should be confirmed in the selected role view.",
