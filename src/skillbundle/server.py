@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -97,6 +98,8 @@ HTML = r"""<!doctype html>
     .input-label span { color: var(--muted); font-size: .76rem; font-weight: 400; }
     textarea { width: 100%; min-height: 185px; resize: vertical; padding: 15px; color: var(--text); background: rgba(5, 14, 27, .78); border: 1px solid var(--line); border-radius: 12px; font: inherit; line-height: 1.6; outline: none; }
     textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(95, 225, 199, .16); }
+    .input-grid select { width: 100%; padding: 10px 12px; color: var(--text); background: rgba(5, 14, 27, .78); border: 1px solid var(--line); border-radius: 10px; font: inherit; }
+    .input-grid select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(95, 225, 199, .16); }
     button { font: inherit; color: #07111e; background: var(--blue); border: 1px solid transparent; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 800; transition: transform 180ms ease, filter 180ms ease; }
     button:hover { filter: brightness(1.08); transform: translateY(-1px); }
     button.secondary { color: var(--text); background: transparent; border-color: var(--line); }
@@ -283,6 +286,23 @@ HTML = r"""<!doctype html>
     .hero-badge { display: inline-block; margin-bottom: 18px; padding: 0; color: var(--blue); background: transparent; border: 0; border-radius: 0; font-size: 12px; font-weight: 650; letter-spacing: .04em; }
     .hero-badge::before { display: none; }
     .hero-note { display: none; }
+    .workflow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; padding: 0; list-style: none; }
+    .workflow-step { display: grid; grid-template-columns: 28px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 9px; align-items: center; padding: 11px 13px; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 12px; }
+    .workflow-step span { grid-row: 1 / span 2; display: grid; place-items: center; width: 26px; height: 26px; color: var(--muted); border: 1px solid var(--line); border-radius: 50%; font-size: .78rem; font-weight: 700; }
+    .workflow-step strong { color: var(--text); font-size: .82rem; font-weight: 650; }
+    .workflow-step small { font-size: .72rem; }
+    .workflow-step.active, .workflow-step.current { border-color: rgba(0, 113, 227, .42); background: #f4f8ff; }
+    .workflow-step.active span, .workflow-step.current span { color: #fff; background: var(--blue); border-color: var(--blue); }
+    .file-import-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 9px; }
+    .file-input-label { color: var(--blue); font-size: .78rem; font-weight: 600; cursor: pointer; }
+    .file-import-row input[type="file"] { max-width: 220px; color: var(--muted); font-size: .76rem; }
+    .review-item-copy strong { overflow-wrap: anywhere; }
+    .review-evidence-grid { display: grid; grid-column: 1 / -1; grid-template-columns: minmax(110px, .7fr) minmax(130px, 1fr) minmax(130px, 1fr) 92px 92px auto; gap: 7px; align-items: end; width: 100%; }
+    .review-evidence-field { display: grid; gap: 4px; min-width: 0; color: var(--muted); font-size: .68rem; }
+    .review-evidence-grid input, .review-evidence-grid select { min-width: 0; width: 100%; padding: 8px 9px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: .78rem; }
+    .review-evidence-grid button { white-space: nowrap; }
+    .review-check { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; }
+    .badge.claimed, .badge.transferable_claimed { color: #8a5a00; background: #fff5dc; }
     .panel, .summary-card, .meaning, .gap-card, .detail-card, .signal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
     .panel { padding: 28px; }
     .section { margin-top: 54px; }
@@ -327,6 +347,15 @@ HTML = r"""<!doctype html>
     .review-add-row label { display: grid; flex: 1; gap: 5px; color: var(--muted); font-size: .78rem; }
     .review-add-row label span { font-size: .7rem; }
     .review-added-list { margin-top: 10px; color: var(--muted); font-size: .8rem; }
+    .guided-intake { margin-top: 18px; padding: 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 12px; }
+    .guided-intake[hidden] { display: none; }
+    .guided-intake-copy { margin: -8px 0 14px; color: var(--muted); font-size: .82rem; }
+    .guided-intake-grid { display: grid; grid-template-columns: minmax(130px, .8fr) repeat(3, minmax(140px, 1fr)) 96px 82px 82px minmax(90px, .55fr); gap: 8px; align-items: end; }
+    .guided-intake-grid label { display: grid; gap: 4px; min-width: 0; color: var(--muted); font-size: .68rem; }
+    .guided-intake-grid input, .guided-intake-grid select, .guided-intake-grid textarea { min-width: 0; width: 100%; padding: 8px 9px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: .78rem; }
+    .guided-intake-grid textarea { min-height: 58px; resize: vertical; }
+    .guided-intake-grid button { white-space: nowrap; }
+    .guided-intake-status { margin: 10px 0 0; color: var(--muted); font-size: .78rem; }
     .signal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .signal-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 18px; align-items: center; padding: 21px; box-shadow: none; overflow: hidden; position: relative; }
     .signal-card::after { display: none; }
@@ -374,8 +403,9 @@ HTML = r"""<!doctype html>
     .footer-row { margin-top: 54px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
     @media (max-width: 1020px) { .signal-grid { grid-template-columns: 1fr; } .meaning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 900px) { .result-grid { display: block !important; } .result-grid > * { width: 100%; margin-bottom: 18px; } .gap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid, .comparison-grid { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
-    @media (max-width: 700px) { .coverage-grid { grid-template-columns: 1fr; } .review-item { grid-template-columns: 1fr; } .review-evidence-row, .review-add-row { align-items: stretch; flex-direction: column; } .review-evidence-row input, .review-add-row input { width: 100%; } }
+    @media (max-width: 1020px) { .guided-intake-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 700px) { .shell { width: min(100% - 36px, 1180px); } .hero { padding-top: 54px; } .input-grid, .meaning-grid, .gap-grid, .comparison-grid, .workflow { grid-template-columns: 1fr; } .panel { padding: 21px; } .summary-grid { grid-template-columns: 1fr 1fr; gap: 22px; } .summary-card:nth-child(3) { padding-left: 0; border-left: 0; } .summary-card:nth-child(3), .summary-card:nth-child(4) { margin-top: 0; } .matrix-row, .matrix-head { grid-template-columns: minmax(125px, 1fr) 106px 78px; } .matrix-row > :nth-child(3), .matrix-head > :nth-child(3) { display: none; } .signal-card { grid-template-columns: 64px minmax(0, 1fr); } .ring { width: 58px; } .toolbar { align-items: flex-start; } }
+    @media (max-width: 700px) { .coverage-grid { grid-template-columns: 1fr; } .review-item { grid-template-columns: 1fr; } .review-evidence-row, .review-add-row { align-items: stretch; flex-direction: column; } .review-evidence-row input, .review-add-row input { width: 100%; } .review-evidence-grid, .guided-intake-grid { grid-template-columns: 1fr 1fr; } .guided-intake-grid label:nth-child(2), .guided-intake-grid label:nth-child(3), .guided-intake-grid label:nth-child(4) { grid-column: 1 / -1; } .guided-intake-grid button { width: 100%; } .review-evidence-grid button { width: 100%; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   </style>
   </head>
@@ -390,15 +420,20 @@ HTML = r"""<!doctype html>
       <div class="hero-copy">
         <div class="hero-badge">EVIDENCE-FIRST JOB SEARCH</div>
         <h1>Turn uncertainty into an application plan.</h1>
-        <p>Career Fit helps you answer three practical questions: can I do this, can I prove it, and should I apply now? It translates a job description into an evidence map without pretending to predict a hiring decision.</p>
+        <p>Career Fit helps every job seeker answer three practical questions: can I do this, can I prove it, and what should I do next? It translates a job posting into an evidence map without pretending to predict a hiring decision.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div><span class="eyebrow">Start with one target role</span><h2>Make the hidden decision visible.</h2></div>
-        <p>Paste a role and a candidate profile. Every result is tied back to a requirement, an evidence signal, or a verification step.</p>
+        <div><span class="eyebrow">A guided, private workflow</span><h2>Make the hidden decision visible.</h2></div>
+        <p>Start with a job posting and your experience. The app extracts a reviewable checklist first, then shows preparation signals only after you confirm what it found.</p>
       </div>
+      <ol class="workflow" aria-label="Career Fit workflow">
+        <li class="workflow-step active"><span>1</span><strong>Add inputs</strong><small>Posting and experience</small></li>
+        <li class="workflow-step"><span>2</span><strong>Review</strong><small>Requirements and evidence</small></li>
+        <li class="workflow-step"><span>3</span><strong>Plan</strong><small>Signals and next actions</small></li>
+      </ol>
       <div class="panel">
         <div class="toolbar">
           <button id="analyze-button" type="button">Analyze this role</button>
@@ -411,15 +446,29 @@ HTML = r"""<!doctype html>
         </div>
         <div class="input-grid">
           <div>
-            <label class="input-label" for="job-input">Job description <span>target role</span></label>
-            <textarea id="job-input" aria-label="Job description"></textarea>
+            <label class="input-label" for="job-input">Job posting <span>target role</span></label>
+            <textarea id="job-input" aria-label="Job posting" placeholder="Paste the full job posting, including must-have and preferred requirements."></textarea>
           </div>
           <div>
-            <label class="input-label" for="candidate-input">Candidate profile <span>your evidence</span></label>
-            <textarea id="candidate-input" aria-label="Candidate profile"></textarea>
+            <label class="input-label" for="candidate-input">Your experience <span>resume, profile, or projects</span></label>
+            <textarea id="candidate-input" aria-label="Your experience" placeholder="Paste a resume or profile, or describe projects, courses, tools, tasks, and results."></textarea>
+            <div class="file-import-row">
+              <label class="file-input-label" for="candidate-file">Load a plain-text resume</label>
+              <input id="candidate-file" type="file" accept=".txt,.md,.json,text/plain,text/markdown,application/json" />
+              <span id="candidate-file-status" class="status" aria-live="polite">No file selected. Contact details should be removed first.</span>
+            </div>
+            <label class="input-label" for="candidate-language">Profile language <span>helps avoid silent gaps</span></label>
+            <select id="candidate-language" aria-label="Profile language">
+              <option value="auto">Detect automatically</option>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="zh">Chinese</option>
+              <option value="other">Another language</option>
+            </select>
+            <p id="language-status" class="status" aria-live="polite">The rule-based dictionary is English-first. Choose a language when the profile is not primarily English.</p>
           </div>
         </div>
-        <p class="privacy-note">Privacy reminder: paste only what you want analyzed. Do not include contact details, identification numbers, or sensitive personal data.</p>
+        <p class="privacy-note">__PRIVACY_NOTE__</p>
         <div class="occupation-context-panel">
           <div class="section-head"><div><span class="eyebrow">Optional occupation context</span><h3>What workers say about this occupation.</h3></div><p>Career Fit analyzes a specific posting. If you confirm a standard occupation from AI Labor Atlas, this panel can show public worker comments about pay, interviews, management, and the work environment.</p></div>
           <div class="occupation-search-row">
@@ -452,7 +501,7 @@ HTML = r"""<!doctype html>
           </div>
         </div>
         <div class="compare-panel">
-          <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Career Fit reuses the same candidate evidence and ranks preparation priority, not hiring odds.</p></div>
+          <div class="section-head"><div><span class="eyebrow">Choose where to focus</span><h3>Compare target roles</h3></div><p>Paste two or three job descriptions separated by a line containing <code>---</code>. Review your candidate evidence first; Career Fit reuses that evidence and ranks preparation priority, not hiring odds.</p></div>
           <label class="input-label" for="roles-input">Target roles <span>optional role portfolio</span></label>
           <textarea id="roles-input" class="compare-input" aria-label="Target roles" placeholder="Role: People Analytics Analyst&#10;Must have Python and SQL...&#10;---&#10;Role: Data Analyst&#10;Must have Python and data visualization..."></textarea>
           <div class="toolbar"><button id="compare-button" class="secondary" type="button">Compare roles</button><span id="compare-status" class="status" aria-live="polite">Use this when you are deciding where to focus first.</span></div>
@@ -461,21 +510,36 @@ HTML = r"""<!doctype html>
         <div class="summary-grid" aria-live="polite">
           <article class="summary-card"><span class="label">Evidence fit</span><strong id="fit-score" class="summary-value">—</strong><span class="summary-note">weighted requirement overlap</span></article>
           <article class="summary-card"><span class="label">Application readiness</span><strong id="readiness-score" class="summary-value">—</strong><span class="summary-note">preparation triage, not hiring odds</span></article>
-          <article class="summary-card"><span class="label">Input coverage</span><strong id="input-coverage-score" class="summary-value">—</strong><span class="summary-note">mapped requirements, not probability</span></article>
+          <article class="summary-card"><span class="label">Requirements identified</span><strong id="input-coverage-score" class="summary-value">—</strong><span class="summary-note">not a completeness or confidence score</span></article>
           <article class="summary-card"><span class="label">Eligibility requirements</span><strong id="blocked-count" class="summary-value">—</strong><span class="summary-note">requirements needing verification</span></article>
         </div>
         <div id="coverage-panel" class="coverage-panel" hidden>
           <div class="section-head"><div><span class="eyebrow">Coverage, not confidence</span><h3>What the current text supports</h3></div><p>These components show what was mapped from the supplied inputs. They are not calibrated probabilities and do not measure hiring likelihood.</p></div>
           <div class="coverage-grid">
-            <article class="coverage-card"><span>Job requirement coverage</span><strong id="requirement-coverage-score">—</strong><small>named requirements identified</small></article>
-            <article class="coverage-card"><span>Evidence coverage</span><strong id="evidence-coverage-score">—</strong><small>requirements with mapped evidence</small></article>
-            <article class="coverage-card"><span>Eligibility verification</span><strong id="eligibility-coverage-score">—</strong><small>hard gates with known status</small></article>
+            <article class="coverage-card"><span>Requirements identified</span><strong id="requirement-coverage-score">—</strong><small>the system cannot infer the full set of employer requirements</small></article>
+            <article class="coverage-card"><span>Reviewable evidence</span><strong id="evidence-coverage-score">—</strong><small>requirements with concrete evidence or an explicit transfer</small></article>
+            <article class="coverage-card"><span>Eligibility status</span><strong id="eligibility-coverage-score">—</strong><small>no gate detected is not the same as verified</small></article>
           </div>
         </div>
         <div id="review-panel" class="review-panel" hidden>
-          <div class="section-head"><div><span class="eyebrow">Review before relying</span><h3>Confirm the extraction</h3></div><p>The first result is provisional. Remove false requirements, add missed ones, confirm eligibility gates, and add self-reported evidence before using the plan.</p></div>
+          <div class="section-head"><div><span class="eyebrow">Step 2 · Review before relying</span><h3>Confirm the extraction</h3></div><p>Keep or remove each requirement, correct its importance, confirm eligibility gates, and label the kind of evidence you want to use. Scores remain hidden until this step is submitted.</p></div>
           <div id="review-requirements" class="review-requirements"></div>
-          <div class="review-add-row"><label for="added-requirement-input">Add a missed requirement <span>known skills only</span><input id="added-requirement-input" type="text" placeholder="e.g. SQL" /></label><button id="add-requirement-button" class="secondary" type="button">Add requirement</button></div>
+          <div id="guided-intake" class="guided-intake" hidden>
+            <div class="section-head"><div><span class="eyebrow">No resume? Start with one example</span><h3>Describe work you have actually done</h3></div></div>
+            <p class="guided-intake-copy">Choose a role requirement, then describe one task and where it happened. A result is helpful but optional. This records your own example; it does not verify it or infer ability from personal circumstances.</p>
+            <div class="guided-intake-grid">
+              <label for="guided-intake-requirement">Requirement<select id="guided-intake-requirement" aria-label="Requirement for guided example"></select></label>
+              <label for="guided-intake-task">What did you do?<textarea id="guided-intake-task" rows="2" placeholder="Scheduled appointments or maintained records"></textarea></label>
+              <label for="guided-intake-context">Where or with whom?<textarea id="guided-intake-context" rows="2" placeholder="At a community group, family business, or volunteer role"></textarea></label>
+              <label for="guided-intake-result">What changed? <span>(optional)</span><textarea id="guided-intake-result" rows="2" placeholder="Kept requests organized and reduced missed follow-ups"></textarea></label>
+              <label for="guided-intake-type">Evidence type<select id="guided-intake-type"></select></label>
+              <label for="guided-intake-duration">Months<input id="guided-intake-duration" type="number" min="0" step="1" placeholder="e.g. 6" /></label>
+              <label for="guided-intake-recency">Years ago<input id="guided-intake-recency" type="number" min="0" step="0.5" placeholder="e.g. 1" /></label>
+              <button id="guided-intake-button" class="secondary" type="button">Add example</button>
+            </div>
+            <p id="guided-intake-status" class="guided-intake-status" aria-live="polite">One concrete example is enough to begin.</p>
+          </div>
+          <div class="review-add-row"><label for="added-requirement-input">Add a missed requirement <span>known or user-supplied label</span><input id="added-requirement-input" type="text" placeholder="e.g. SQL or Kubernetes" /></label><label for="added-requirement-importance">Importance<select id="added-requirement-importance"><option value="must">Must have</option><option value="strongly_preferred">Strongly preferred</option><option value="preferred">Preferred</option><option value="inferred">Inferred</option></select></label><button id="add-requirement-button" class="secondary" type="button">Add requirement</button></div>
           <div id="review-added-list" class="review-added-list"></div>
           <div class="toolbar"><button id="apply-review-button" type="button">Recalculate after review</button><span id="review-status" class="status" aria-live="polite">Review the items above before relying on the result.</span></div>
         </div>
@@ -537,7 +601,7 @@ HTML = r"""<!doctype html>
         <article class="meaning"><h3>Transfer is deliberately cautious</h3><p>Adjacent evidence can suggest a bridge project, but the system never silently upgrades it to direct equivalence.</p></article>
         <article class="meaning"><h3>Eligibility requirements stay separate</h3><p>Licenses, work authorization, degrees, and experience floors need verification. Soft skill overlap cannot offset an unresolved requirement.</p></article>
       </div>
-      <p class="source-note">Privacy note: Your inputs are analyzed locally and are not permanently stored by this app. Career Fit is designed for preparation, not prediction.</p>
+      <p class="source-note">__PRIVACY_FOOTER__ Career Fit is designed for preparation, not prediction.</p>
     </section>
     <footer class="footer-row"><span>Career Fit · evidence before confidence</span><span>Preparation support, not an automated hiring system.</span></footer>
   </main>
@@ -547,6 +611,10 @@ HTML = r"""<!doctype html>
       const DEFAULT_CANDIDATE = __DEFAULT_CANDIDATE__;
       const jobInput = document.getElementById("job-input");
       const candidateInput = document.getElementById("candidate-input");
+      const candidateLanguage = document.getElementById("candidate-language");
+      const languageStatus = document.getElementById("language-status");
+      const candidateFile = document.getElementById("candidate-file");
+      const candidateFileStatus = document.getElementById("candidate-file-status");
       const analyzeButton = document.getElementById("analyze-button");
       const exampleButton = document.getElementById("example-button");
       const clearButton = document.getElementById("clear-button");
@@ -598,15 +666,29 @@ HTML = r"""<!doctype html>
       const reviewPanel = document.getElementById("review-panel");
       const reviewRequirements = document.getElementById("review-requirements");
       const reviewAddedList = document.getElementById("review-added-list");
+      const guidedIntake = document.getElementById("guided-intake");
+      const guidedIntakeRequirement = document.getElementById("guided-intake-requirement");
+      const guidedIntakeTask = document.getElementById("guided-intake-task");
+      const guidedIntakeContext = document.getElementById("guided-intake-context");
+      const guidedIntakeResult = document.getElementById("guided-intake-result");
+      const guidedIntakeType = document.getElementById("guided-intake-type");
+      const guidedIntakeDuration = document.getElementById("guided-intake-duration");
+      const guidedIntakeRecency = document.getElementById("guided-intake-recency");
+      const guidedIntakeButton = document.getElementById("guided-intake-button");
+      const guidedIntakeStatus = document.getElementById("guided-intake-status");
       const addedRequirementInput = document.getElementById("added-requirement-input");
       const addRequirementButton = document.getElementById("add-requirement-button");
       const applyReviewButton = document.getElementById("apply-review-button");
       const reviewStatus = document.getElementById("review-status");
+      const addedRequirementImportance = document.getElementById("added-requirement-importance");
+      const workflowSteps = Array.from(document.querySelectorAll(".workflow-step"));
       const llmEnabled = __LLM_ENABLED__;
       const statusLabels = {
         direct: "Direct evidence",
         direct_weak: "Mentioned, proof is thin",
         transferable: "Transferable evidence",
+        claimed: "Claimed capability, proof not supplied",
+        transferable_claimed: "Transferable claim, proof not supplied",
         missing: "No evidence found",
         met: "Requirement appears met",
         not_met: "Explicitly not met",
@@ -625,9 +707,55 @@ HTML = r"""<!doctype html>
         preferred: "Preferred",
         inferred: "Inferred"
       };
+      const evidenceTypeLabels = {
+        work: "Work experience",
+        research_project: "Research project",
+        portfolio: "Portfolio sample",
+        github_project: "GitHub project",
+        course: "Course or training",
+        certificate: "Certificate",
+        self_reported: "Self-reported claim",
+        unknown: "Unknown source"
+      };
       let latest = null;
       let latestOccupationContext = null;
-      let reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
+      let latestScoreVisible = false;
+      let analyzedSignature = "";
+      let analysisRequestId = 0;
+      let compareRequestId = 0;
+      function newReviewState() {
+        return { removed_requirement_ids: [], added_requirements: [], importance_overrides: {}, constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
+      }
+      let reviewState = newReviewState();
+      function inputSignature() { return jobInput.value + "\n---\n" + candidateInput.value + "\n---language---\n" + candidateLanguage.value; }
+      function currentAnalysisIsFresh() { return Boolean(latest && analyzedSignature === inputSignature()); }
+      function clearComparisonResult() { clearNode(comparisonGrid); comparisonPanel.hidden = true; }
+      function clearRenderedAnalysis() {
+        compareRequestId += 1;
+        latest = null;
+        analyzedSignature = "";
+        latestScoreVisible = false;
+        clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
+        clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList);
+        clearComparisonResult();
+        coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; fingerprintPanel.hidden = true; semanticPanel.hidden = true;
+        detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
+        [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
+        ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
+        ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
+        downloadButton.disabled = true; deepReviewButton.disabled = true;
+        semanticSummary.textContent = ""; reviewStatus.textContent = "Review the extracted requirements before relying on the result."; guidedIntakeStatus.textContent = "One concrete example is enough to begin.";
+      }
+      function invalidateCurrentResult(message) {
+        analysisRequestId += 1;
+        clearRenderedAnalysis();
+        reviewState = newReviewState();
+        if (message) status.textContent = message;
+      }
+      function handleInputChange() {
+        if (!latest && !analyzedSignature && !latestScoreVisible && reviewPanel.hidden && comparisonPanel.hidden && semanticPanel.hidden) return;
+        invalidateCurrentResult("Inputs changed. Analyze the current text before relying on a result.");
+      }
 
       function reviewSourceLabel(value) {
         return { user_submitted: "User submitted", reddit: "Reddit", indeed: "Indeed", other: "Other public source" }[value] || "Public source";
@@ -646,8 +774,16 @@ HTML = r"""<!doctype html>
         marketContext.hidden = !Object.keys(metrics).length;
         clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent);
         if (marketContext.hidden) return;
-        marketContextInterpretation.textContent = context.interpretation || "Descriptive market context only; it does not change the job-specific score.";
-        [["Median wage", marketMoney(metrics.median_annual_wage)], ["Employment", marketNumber(metrics.employment_2024)], ["Annual openings", marketNumber(metrics.annual_openings_2024_2034)], ["Projected change", marketNumber(metrics.employment_change_2024_2034_pct, "%")], ["AI exposure", marketNumber(metrics.ai_exposure)], ["Occupation", context.title || "Not available"]].forEach(function (item) {
+        const mapping = context.mapping || {};
+        const mappingFlags = mapping.data_quality_flags || [];
+        const mappingNotes = [];
+        if (mapping.status === "multiple_soc_crosswalk") mappingNotes.push("Reference metrics are weighted across " + (mapping.soc_2018_codes || []).length + " SOC mappings; they are not a direct SOC statistic.");
+        if (mappingFlags.includes("uniform_crosswalk_fallback")) mappingNotes.push("The source supplied no allocation across those mappings, so a uniform fallback was used.");
+        if (mappingFlags.includes("shared_soc_crosswalk")) mappingNotes.push("A SOC target is shared by multiple O*NET occupations; top-line SOC weighting deduplicates that target.");
+        if (mappingFlags.includes("missing_crosswalk")) mappingNotes.push("No SOC mapping is available; SOC-linked market fields are not available for this occupation.");
+        const mappingNote = mappingNotes.length ? " " + mappingNotes.join(" ") : "";
+        marketContextInterpretation.textContent = (context.interpretation || "Descriptive market context only; it does not change the job-specific score.") + mappingNote;
+        [["Median wage", marketMoney(metrics.median_annual_wage)], ["Employment", marketNumber(metrics.employment_2024)], ["Annual openings", marketNumber(metrics.annual_openings_2024_2034)], ["Projected change", marketNumber(metrics.employment_change_2024_2034_pct, "%")], ["AI exposure", marketNumber(metrics.ai_exposure)], ["SOC mapping", mapping.status === "multiple_soc_crosswalk" ? (mapping.soc_2018_codes || []).join(", ") : ((mapping.soc_2018_codes || [])[0] || "Not available")], ["Occupation", context.title || "Not available"]].forEach(function (item) {
           const card = make("article", "market-metric"); card.append(make("span", "", item[0]), make("strong", "", item[1])); marketMetrics.appendChild(card);
         });
         const tasks = context.representative_tasks || [];
@@ -663,7 +799,7 @@ HTML = r"""<!doctype html>
           });
         }
         const provenance = context.provenance || {};
-        marketProvenance.textContent = "Data: O*NET " + (provenance.onet_version || "not specified") + " · Wage " + (provenance.wage_vintage || "not specified") + " · Projections " + (provenance.projection_vintage || "not specified") + ".";
+        marketProvenance.textContent = "Data: O*NET " + (provenance.onet_version || "not specified") + " · Wage " + (provenance.wage_vintage || "not specified") + " · Projections " + (provenance.projection_vintage || "not specified") + (provenance.data_quality_flags ? " · Flags: " + provenance.data_quality_flags : "") + ".";
       }
       function renderOccupationReviews(payload) {
         latestOccupationContext = payload;
@@ -782,7 +918,19 @@ HTML = r"""<!doctype html>
       }
       function clearNode(node) { while (node.firstChild) node.removeChild(node.firstChild); }
       function setText(node, value) { node.textContent = value == null ? "—" : String(value); }
-      function percent(value) { return value == null ? "Unavailable" : Math.round(Number(value)) + "/100"; }
+      function percent(value) { return value == null ? "—" : Math.round(Number(value)) + "/100"; }
+      function scoreText(value, visible) { return visible && value != null ? percent(value) : "Review first"; }
+      function eligibilityText(summary, visible) {
+        if (!visible) return "Review first";
+        if (summary.eligibility_status === "no_gate_detected") return "No gate detected";
+        if (summary.eligibility_status === "verified") return "Verified";
+        const count = Number(summary.blocking_constraint_count || 0);
+        return count ? count + " to verify" : "Unresolved";
+      }
+      function updateWorkflow(summary) {
+        const state = summary && summary.score_visibility === "visible" ? 2 : (summary && summary.analysis_status === "review_required" ? 1 : 0);
+        workflowSteps.forEach(function (step, index) { step.classList.toggle("active", index === state); step.classList.toggle("current", index === state); });
+      }
       function setRing(ringId, value, labelId) {
         if (value == null) { document.getElementById(ringId).style.setProperty("--ring-progress", "0%"); setText(document.getElementById(labelId), "—"); return; }
         const number = Math.max(0, Math.min(100, Number(value || 0)));
@@ -804,17 +952,23 @@ HTML = r"""<!doctype html>
         });
       }
       async function deepReview() {
-        if (!latest) { semanticStatus.textContent = "Run an analysis before requesting a review."; return; }
+        if (!currentAnalysisIsFresh()) { semanticStatus.textContent = "Run an analysis for the current inputs before requesting a review."; return; }
+        const requestSignature = inputSignature();
+        const requestId = analysisRequestId;
         semanticStatus.textContent = "Reviewing the supplied evidence…";
         deepReviewButton.disabled = true;
         try {
           const response = await fetch("/api/deep-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job_text: jobInput.value, candidate_text: candidateInput.value, requirements: latest.requirements || [] }) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "review unavailable");
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
           renderSemanticReview(payload);
           semanticStatus.textContent = "Review complete. Treat uncertain items as leads for verification.";
-        } catch (error) { semanticStatus.textContent = "Review unavailable. The rule-based result is still available."; }
-        finally { deepReviewButton.disabled = !llmEnabled; }
+        } catch (error) {
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          semanticStatus.textContent = "Review unavailable. The rule-based result is still available.";
+        }
+        finally { if (requestId === analysisRequestId && inputSignature() === requestSignature) deepReviewButton.disabled = !llmEnabled; }
       }
       function requirementTypeLabel(value) {
         return value === "skill" ? "Skill" : "Eligibility requirement";
@@ -841,14 +995,15 @@ HTML = r"""<!doctype html>
         detail.appendChild(make("h3", "detail-title", item.canonical_skill || item.original_text));
         detail.appendChild(make("span", "badge " + (item.status || "unknown"), statusLabels[item.status] || item.status));
         const list = make("div", "detail-list");
-        [["Original job text", item.original_text], ["Requirement", requirementTypeLabel(item.requirement_type)], ["Importance", importanceLabels[item.importance_level] || item.importance_level], ["Match score", percent(item.match_score * 100)], ["Why this result", matchingMethodLabel(item.matching_method)], ["Linked evidence", evidenceLabels(item.evidence_ids)]].forEach(function (pair) {
+        [["Original job text", item.original_text], ["Requirement", requirementTypeLabel(item.requirement_type)], ["Importance", importanceLabels[item.importance_level] || item.importance_level], ["Match score", scoreText(item.match_score * 100, latestScoreVisible)], ["Why this result", matchingMethodLabel(item.matching_method)], ["Linked evidence", evidenceLabels(item.evidence_ids)]].forEach(function (pair) {
           const row = make("div", "detail-line"); row.append(make("span", "detail-copy", pair[0]), make("strong", "", pair[1])); list.appendChild(row);
         });
         detail.appendChild(list);
         let copy = "No reliable evidence was found in the supplied profile. Investigate whether this is a real foundation gap or simply missing information.";
         if (item.status === "direct") copy = "The profile contains direct evidence. Improve the application by making the task, context, and result easier to verify.";
         if (item.status === "direct_weak") copy = "The skill is mentioned, but the proof is thin. Add a concrete task, context, duration, and measurable result.";
-        if (item.status === "transferable") copy = "The profile contains adjacent evidence. Treat it as a bridge to investigate, not as proof that the requirements are identical.";
+        if (item.status === "transferable" || item.status === "transferable_claimed") copy = "The profile contains adjacent evidence. Treat it as a bridge to investigate, not as proof that the requirements are identical.";
+        if (item.status === "claimed") copy = "The profile makes a capability claim, but no reviewable proof was supplied. Add a task, context, result, or work sample before relying on this signal.";
         if (item.hard_constraint) copy = item.status === "met" ? "This eligibility requirement appears satisfied from the supplied profile." : "This is an eligibility requirement. Verify it directly before using the soft score to prioritize the application.";
         detail.appendChild(make("p", "detail-copy", copy));
         if (item.source_context) detail.appendChild(make("p", "detail-copy", "Job context: " + item.source_context));
@@ -862,7 +1017,7 @@ HTML = r"""<!doctype html>
           const name = make("span", ""); name.append(make("span", "requirement-name", item.canonical_skill || item.original_text), make("span", "requirement-type", requirementTypeLabel(item.requirement_type)));
           const badge = make("span", "badge " + (item.status || "unknown"), statusLabels[item.status] || item.status);
           const importance = make("span", "detail-copy", importanceLabels[item.importance_level] || item.importance_level);
-          const score = make("span", "score-number", item.hard_constraint ? (item.status === "met" ? "Met" : "Verify") : percent(item.match_score * 100));
+          const score = make("span", "score-number", latestScoreVisible ? (item.hard_constraint ? (item.status === "met" ? "Met" : "Verify") : percent(item.match_score * 100)) : "Review first");
           row.append(name, badge, importance, score);
           row.addEventListener("click", function () { matrix.querySelectorAll(".matrix-row").forEach(function (other) { other.classList.remove("selected"); }); row.classList.add("selected"); renderDetail(item); });
           matrix.appendChild(row);
@@ -932,13 +1087,102 @@ HTML = r"""<!doctype html>
           bundleGrid.appendChild(card);
         });
       }
+      function populateGuidedIntakeTypes() {
+        if (guidedIntakeType.options.length) return;
+        Object.keys(evidenceTypeLabels).forEach(function (value) {
+          const option = make("option", "", evidenceTypeLabels[value]);
+          option.value = value;
+          guidedIntakeType.appendChild(option);
+        });
+        guidedIntakeType.value = "work";
+      }
+      function renderGuidedIntake(payload) {
+        populateGuidedIntakeTypes();
+        const queue = (payload.review_queue || []).filter(function (item) {
+          return !item.hard_constraint && item.skill_id;
+        });
+        const hasActiveEvidence = (payload.evidence || []).some(function (item) {
+          return !item.negated && item.skill_id;
+        });
+        const summary = payload.summary || {};
+        const shouldShow = summary.analysis_status === "insufficient_information" || !hasActiveEvidence;
+        guidedIntake.hidden = !shouldShow;
+        if (!shouldShow) return;
+        clearNode(guidedIntakeRequirement);
+        if (!queue.length) {
+          const option = make("option", "", "Add a soft requirement above, then recalculate");
+          option.value = "";
+          option.disabled = true;
+          option.selected = true;
+          guidedIntakeRequirement.appendChild(option);
+          guidedIntakeButton.disabled = true;
+          guidedIntakeStatus.textContent = "No reviewable skill requirement is available yet. Add a missed requirement above and recalculate first.";
+          return;
+        }
+        queue.forEach(function (item) {
+          const option = make("option", "", item.canonical_skill || item.original_text || "Role requirement");
+          option.value = item.skill_id;
+          guidedIntakeRequirement.appendChild(option);
+        });
+        const existing = reviewState.added_evidence.find(function (item) {
+          return item.intake && queue.some(function (requirement) { return requirement.skill_id === item.skill_id; });
+        });
+        guidedIntakeRequirement.value = existing ? existing.skill_id : queue[0].skill_id;
+        guidedIntakeButton.disabled = false;
+        guidedIntakeStatus.textContent = "One concrete example is enough to begin. Add another requirement example if your experience is broader.";
+      }
+      function addGuidedIntake() {
+        if (!latest) {
+          guidedIntakeStatus.textContent = "Run an analysis before adding an example.";
+          return;
+        }
+        const requirement = (latest.review_queue || []).find(function (item) {
+          return item.skill_id === guidedIntakeRequirement.value && !item.hard_constraint;
+        });
+        const taskText = guidedIntakeTask.value.trim();
+        const contextText = guidedIntakeContext.value.trim();
+        const resultText = guidedIntakeResult.value.trim();
+        if (!requirement) {
+          guidedIntakeStatus.textContent = "Choose a soft role requirement first.";
+          return;
+        }
+        if (!taskText || !contextText) {
+          guidedIntakeStatus.textContent = "Add what you did and where or with whom it happened.";
+          return;
+        }
+        const sourceText = taskText + " Context: " + contextText;
+        reviewState.added_evidence = reviewState.added_evidence.filter(function (item) {
+          return item.skill_id !== requirement.skill_id;
+        });
+        reviewState.added_evidence.push({
+          intake: true,
+          skill_id: requirement.skill_id,
+          canonical_skill: requirement.canonical_skill,
+          analysis_category_code: requirement.analysis_category_code,
+          source_text: sourceText,
+          result: resultText,
+          evidence_type: guidedIntakeType.value,
+          duration_months: guidedIntakeDuration.value,
+          recency_years: guidedIntakeRecency.value
+        });
+        guidedIntakeTask.value = "";
+        guidedIntakeContext.value = "";
+        guidedIntakeResult.value = "";
+        guidedIntakeDuration.value = "";
+        guidedIntakeRecency.value = "";
+        renderAddedReviewItems();
+        guidedIntakeStatus.textContent = "Example recorded. Recalculate after reviewing the checklist to include it.";
+        reviewStatus.textContent = "Guided example recorded. Recalculate when the review is complete.";
+      }
       function renderAddedReviewItems() {
         clearNode(reviewAddedList);
         reviewState.added_requirements.forEach(function (item) {
-          reviewAddedList.appendChild(make("span", "", "Added requirement: " + item.text));
+          reviewAddedList.appendChild(make("span", "", "Added requirement: " + item.text + " (" + (importanceLabels[item.importance_level] || item.importance_level || "Must have") + ")"));
         });
         reviewState.added_evidence.forEach(function (item) {
-          reviewAddedList.appendChild(make("span", "", "Self-reported evidence for " + item.canonical_skill + ": " + item.source_text));
+          const label = evidenceTypeLabels[item.evidence_type] || item.evidence_type || "Evidence";
+          const prefix = item.intake ? "Guided example" : label;
+          reviewAddedList.appendChild(make("span", "", prefix + " for " + item.canonical_skill + ": " + item.source_text));
         });
       }
       function renderReview(payload) {
@@ -948,7 +1192,7 @@ HTML = r"""<!doctype html>
         queue.forEach(function (item) {
           const row = make("div", "review-item");
           const copy = make("div", "review-item-copy");
-          copy.append(make("strong", "", item.canonical_skill || item.original_text), make("small", "", item.original_text || "Extracted requirement"));
+          copy.append(make("strong", "", item.canonical_skill || item.original_text), make("small", "", (item.original_text || "Extracted requirement") + " · " + (importanceLabels[item.importance_level] || item.importance_level || "Importance not set")));
           row.appendChild(copy);
           if (item.hard_constraint) {
             const select = document.createElement("select");
@@ -968,22 +1212,47 @@ HTML = r"""<!doctype html>
               reviewStatus.textContent = "Requirement selection recorded. Recalculate when the review is complete.";
             });
             label.prepend(checkbox); row.appendChild(label);
-            const evidenceRow = make("div", "review-evidence-row");
-            const evidenceInput = make("input", "review-evidence-input"); evidenceInput.type = "text"; evidenceInput.placeholder = "Optional: add a self-reported evidence note"; evidenceInput.setAttribute("aria-label", "Add evidence for " + item.canonical_skill);
-            const evidenceButton = make("button", "secondary", "Add evidence note"); evidenceButton.type = "button";
-            evidenceButton.addEventListener("click", function () {
-              const sourceText = evidenceInput.value.trim();
-              if (!sourceText) { reviewStatus.textContent = "Write a short evidence note first."; return; }
-              reviewState.added_evidence = reviewState.added_evidence.filter(function (value) { return value.skill_id !== item.skill_id; });
-              reviewState.added_evidence.push({ skill_id: item.skill_id, canonical_skill: item.canonical_skill, analysis_category_code: item.analysis_category_code, source_text: sourceText });
-              evidenceInput.value = ""; reviewStatus.textContent = "Self-reported evidence recorded. It will remain labeled as self-reported.";
-            });
-            evidenceRow.append(evidenceInput, evidenceButton); row.appendChild(evidenceRow);
+            const importanceLabel = make("label", "review-evidence-field", "Importance");
+            const importanceSelect = document.createElement("select");
+            importanceSelect.setAttribute("aria-label", "Set importance for " + item.canonical_skill);
+            Object.keys(importanceLabels).forEach(function (value) { const option = make("option", "", importanceLabels[value]); option.value = value; importanceSelect.appendChild(option); });
+            importanceSelect.value = reviewState.importance_overrides[item.requirement_id] || item.importance_level || "preferred";
+            importanceSelect.addEventListener("change", function () { reviewState.importance_overrides[item.requirement_id] = importanceSelect.value; reviewStatus.textContent = "Importance recorded. Recalculate when the review is complete."; });
+            importanceLabel.appendChild(importanceSelect); row.appendChild(importanceLabel);
+          }
+          if (item.skill_id) {
+          const evidenceRow = make("div", "review-evidence-grid");
+          const typeField = make("label", "review-evidence-field", "Evidence type");
+          const typeSelect = document.createElement("select");
+          typeSelect.setAttribute("aria-label", "Evidence type for " + item.canonical_skill);
+          Object.keys(evidenceTypeLabels).forEach(function (value) { const option = make("option", "", evidenceTypeLabels[value]); option.value = value; typeSelect.appendChild(option); });
+          typeSelect.value = "work";
+          typeField.appendChild(typeSelect);
+          const sourceField = make("label", "review-evidence-field", "Source or context");
+          const sourceInput = make("input", ""); sourceInput.type = "text"; sourceInput.placeholder = "Where did this happen?"; sourceInput.setAttribute("aria-label", "Source or context for " + item.canonical_skill); sourceField.appendChild(sourceInput);
+          const resultField = make("label", "review-evidence-field", "Task or result");
+          const resultInput = make("input", ""); resultInput.type = "text"; resultInput.placeholder = "What did you do or achieve?"; resultInput.setAttribute("aria-label", "Task or result for " + item.canonical_skill); resultField.appendChild(resultInput);
+          const durationField = make("label", "review-evidence-field", "Months");
+          const durationInput = make("input", ""); durationInput.type = "number"; durationInput.min = "0"; durationInput.step = "1"; durationInput.placeholder = "e.g. 12"; durationInput.setAttribute("aria-label", "Duration in months for " + item.canonical_skill); durationField.appendChild(durationInput);
+          const recencyField = make("label", "review-evidence-field", "Years ago");
+          const recencyInput = make("input", ""); recencyInput.type = "number"; recencyInput.min = "0"; recencyInput.step = "0.5"; recencyInput.placeholder = "e.g. 1"; recencyInput.setAttribute("aria-label", "Recency in years for " + item.canonical_skill); recencyField.appendChild(recencyInput);
+          const evidenceButton = make("button", "secondary", "Add evidence"); evidenceButton.type = "button";
+          evidenceButton.addEventListener("click", function () {
+            const sourceText = sourceInput.value.trim();
+            const resultText = resultInput.value.trim();
+            if (!sourceText && !resultText) { reviewStatus.textContent = "Add a source, task, or result before recording evidence."; return; }
+            reviewState.added_evidence = reviewState.added_evidence.filter(function (value) { return value.skill_id !== item.skill_id; });
+            reviewState.added_evidence.push({ skill_id: item.skill_id, canonical_skill: item.canonical_skill, analysis_category_code: item.analysis_category_code, source_text: sourceText || resultText, result: resultText, evidence_type: typeSelect.value, duration_months: durationInput.value, recency_years: recencyInput.value });
+            sourceInput.value = ""; resultInput.value = ""; durationInput.value = ""; recencyInput.value = "";
+            renderAddedReviewItems(); reviewStatus.textContent = (evidenceTypeLabels[typeSelect.value] || "Evidence") + " recorded. Recalculate when the review is complete.";
+          });
+          evidenceRow.append(typeField, sourceField, resultField, durationField, recencyField, evidenceButton); row.appendChild(evidenceRow);
           }
           reviewRequirements.appendChild(row);
         });
+        renderGuidedIntake(payload);
         renderAddedReviewItems();
-        reviewStatus.textContent = payload.review && payload.review.status === "user_confirmed" ? "User confirmations applied. You can review and recalculate again." : "The current result is provisional until you confirm the extracted items.";
+        reviewStatus.textContent = payload.review && ["user_confirmed", "candidate_evidence_confirmed"].includes(payload.review.status) ? "User confirmations applied. You can review and recalculate again." : "The current result is provisional until you confirm the extracted items.";
       }
       function renderComparison(payload) {
         clearNode(comparisonGrid);
@@ -991,12 +1260,13 @@ HTML = r"""<!doctype html>
           const summary = item.summary || {};
           const card = make("article", "comparison-card");
           const rank = make("div", "comparison-rank");
-          rank.append(make("span", "", "Priority " + item.priority_rank), make("span", "", readinessLabels[summary.readiness_status] || "Preparation route"));
+          const roleReviewed = summary.review_status === "user_confirmed";
+          rank.append(make("span", "", (roleReviewed ? "Priority " : "Preliminary priority ") + item.priority_rank), make("span", "", readinessLabels[summary.readiness_status] || "Preparation route"));
           card.appendChild(rank);
           card.appendChild(make("h3", "", item.role_label || "Target role"));
-          card.appendChild(make("p", "comparison-basis", item.priority_basis || "Preparation priority based on the supplied evidence."));
+          card.appendChild(make("p", "comparison-basis", (roleReviewed ? "" : "Role checklist still needs confirmation. ") + (item.priority_basis || "Preparation priority based on the supplied evidence.")));
           const metrics = make("div", "comparison-metrics");
-          [["Readiness", percent(summary.application_readiness_score)], ["Evidence fit", percent(summary.evidence_fit_score)], ["Input coverage", percent(summary.input_completeness_score)], ["Eligibility", summary.blocking_constraint_count ? String(summary.blocking_constraint_count) + " to verify" : "Clear"]].forEach(function (pair) {
+          [["Readiness", scoreText(summary.application_readiness_score, roleReviewed)], ["Evidence fit", scoreText(summary.evidence_fit_score, roleReviewed)], ["Requirements", roleReviewed ? String(summary.requirements_identified == null ? "—" : summary.requirements_identified) + " found" : "Review first"], ["Eligibility", eligibilityText(summary, roleReviewed)]].forEach(function (pair) {
             const metric = make("div", "comparison-metric");
             metric.append(make("span", "", pair[0]), make("strong", "", pair[1]));
             metrics.appendChild(metric);
@@ -1008,6 +1278,7 @@ HTML = r"""<!doctype html>
           inspect.type = "button";
           inspect.addEventListener("click", function () {
             jobInput.value = item.role_text || "";
+            reviewState = newReviewState();
             render(item.analysis);
             status.textContent = "Loaded " + (item.role_label || "the selected role") + " into the detailed view.";
             jobInput.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1019,58 +1290,78 @@ HTML = r"""<!doctype html>
       }
       function render(payload) {
         latest = payload;
-        downloadButton.disabled = false;
+        analyzedSignature = inputSignature();
         deepReviewButton.disabled = !llmEnabled;
         const summary = payload.summary || {};
-        setText(fitScore, percent(summary.evidence_fit_score));
-        setText(readinessScore, percent(summary.application_readiness_score));
-        setText(inputCoverageScore, percent(summary.input_completeness_score));
-        setText(blockedCount, summary.blocking_constraint_count);
+        const language = summary.candidate_language || {};
+        languageStatus.textContent = language.requires_language_review
+          ? (language.note || "Some profile content may need translation or structured evidence before relying on a complete role picture.")
+          : "The current profile language is compatible with the English-first rule-based dictionary; confirm mixed-language terms during review.";
+        latestScoreVisible = summary.score_visibility === "visible" && summary.review_status === "user_confirmed";
+        downloadButton.disabled = !latestScoreVisible;
+        setText(fitScore, scoreText(summary.evidence_fit_score, latestScoreVisible));
+        setText(readinessScore, scoreText(summary.application_readiness_score, latestScoreVisible));
+        setText(inputCoverageScore, summary.requirements_identified == null ? "—" : String(summary.requirements_identified) + " found");
+        setText(blockedCount, eligibilityText(summary, latestScoreVisible));
         coveragePanel.hidden = false;
-        setText(requirementCoverageScore, percent(summary.input_completeness_score));
-        setText(evidenceCoverageScore, percent(summary.evidence_coverage_score));
-        setText(eligibilityCoverageScore, percent(summary.eligibility_verification_score));
-        setText(decisionLabel, summary.decision_label);
-        setRing("capability-ring", summary.capability_signal_score, "capability-signal");
-        setRing("proof-ring", summary.proof_signal_score, "proof-signal");
-        setRing("readiness-ring", summary.application_readiness_score, "readiness-signal");
+        setText(requirementCoverageScore, summary.requirements_identified == null ? "—" : String(summary.requirements_identified) + " found");
+        setText(evidenceCoverageScore, scoreText(summary.evidence_coverage_score, latestScoreVisible));
+        setText(eligibilityCoverageScore, eligibilityText(summary, latestScoreVisible));
+        setText(decisionLabel, latestScoreVisible ? summary.decision_label : "Review the extracted requirements and evidence before relying on a preparation signal.");
+        setRing("capability-ring", latestScoreVisible ? summary.capability_signal_score : null, "capability-signal");
+        setRing("proof-ring", latestScoreVisible ? summary.proof_signal_score : null, "proof-signal");
+        setRing("readiness-ring", latestScoreVisible ? summary.application_readiness_score : null, "readiness-signal");
         renderMatrix(payload.requirements || []);
-        if (summary.analysis_status === "insufficient_information") clearNode(fitChart); else renderChart(payload.requirements || []);
-        renderGaps(payload.next_actions || payload.gaps || []);
-        renderFingerprint(payload.role_fingerprint);
+        if (!latestScoreVisible) clearNode(fitChart); else renderChart(payload.requirements || []);
+        const canShowNonScoreActions = summary.analysis_status === "insufficient_information";
+        if (!latestScoreVisible && !canShowNonScoreActions) { clearNode(gapList); gapList.appendChild(make("article", "gap-card low", "Review the extracted checklist first. The next-action plan will appear after you confirm it.")); }
+        else renderGaps(payload.next_actions || payload.gaps || []);
+        renderFingerprint(latestScoreVisible ? payload.role_fingerprint : null);
         renderReview(payload);
-        status.textContent = (summary.analysis_status === "insufficient_information" ? "More input needed · " : summary.review_status === "provisional" ? "Provisional analysis · " : "Reviewed analysis · ") + (summary.requirement_count || 0) + " requirements mapped";
+        updateWorkflow(summary);
+        status.textContent = (summary.analysis_status === "insufficient_information" ? "More input needed · " : summary.review_status === "provisional" ? "Review required · " : summary.review_status === "candidate_evidence_confirmed" ? "Candidate evidence reviewed · " : "Reviewed analysis · ") + (summary.requirement_count || 0) + " requirements mapped";
       }
       async function analyze() {
         if (!jobInput.value.trim() || !candidateInput.value.trim()) { status.textContent = "Both texts are required."; return; }
-        const currentSignature = jobInput.value + "\n---\n" + candidateInput.value;
-        if (reviewState.base_signature && reviewState.base_signature !== currentSignature) reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
+        const requestSignature = inputSignature();
+        if (reviewState.base_signature && reviewState.base_signature !== requestSignature) reviewState = newReviewState();
+        const requestReview = reviewState.applied ? Object.assign({}, reviewState) : null;
+        const requestId = ++analysisRequestId;
+        clearRenderedAnalysis();
         status.textContent = "Analyzing your inputs…";
         try {
-          const request = { job_text: jobInput.value, candidate_text: candidateInput.value };
-          if (reviewState.applied) request.review = reviewState;
+          const request = { job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value };
+          if (requestReview) request.review = Object.assign({}, requestReview, { scope: "role_requirements" });
           const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) throw new Error("request failed");
-          render(await response.json());
-        } catch (error) { status.textContent = "Analysis unavailable. Please try again."; }
+          const payload = await response.json();
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          render(payload);
+        } catch (error) {
+          if (requestId !== analysisRequestId || inputSignature() !== requestSignature) return;
+          clearRenderedAnalysis();
+          reviewState = newReviewState();
+          status.textContent = "Analysis unavailable. Please try again.";
+        }
       }
       async function applyReview() {
-        if (!latest) { reviewStatus.textContent = "Run an analysis before reviewing the extraction."; return; }
+        if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before reviewing the extraction."); reviewStatus.textContent = "Run an analysis for the current inputs before reviewing the extraction."; return; }
         reviewState.applied = true;
-        reviewState.base_signature = jobInput.value + "\n---\n" + candidateInput.value;
-        reviewStatus.textContent = "Recalculating from the reviewed inputsâ€¦";
+        reviewState.base_signature = inputSignature();
+        reviewStatus.textContent = "Recalculating from the reviewed inputs...";
         await analyze();
       }
       function addRequirement() {
         const text = addedRequirementInput.value.trim();
         if (!text) { reviewStatus.textContent = "Enter a requirement before adding it."; return; }
-        reviewState.added_requirements.push({ text: text });
+        reviewState.added_requirements.push({ text: text, importance_level: addedRequirementImportance.value });
         addedRequirementInput.value = "";
         renderAddedReviewItems();
         reviewStatus.textContent = "The added requirement will be mapped when you recalculate.";
       }
       function downloadPlan() {
-        if (!latest) { status.textContent = "Run an analysis before downloading the plan."; return; }
+        if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before downloading the plan."); return; }
+        if (!latestScoreVisible) { status.textContent = "Review the extracted requirements before downloading the plan."; return; }
         const blob = new Blob([JSON.stringify(latest, null, 2)], { type: "application/json" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -1086,33 +1377,63 @@ HTML = r"""<!doctype html>
         if (roles.length < 2) { compareStatus.textContent = "Add at least two roles, separated by a line containing --- ."; return; }
         if (roles.length > 3) { compareStatus.textContent = "Compare up to three roles at a time."; return; }
         if (!candidateInput.value.trim()) { compareStatus.textContent = "Add a candidate profile before comparing roles."; return; }
+        if (!currentAnalysisIsFresh() || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Run the analysis and review the current candidate evidence before comparing roles."; return; }
+        if (!latest || !["user_confirmed", "candidate_evidence_confirmed"].includes((latest.summary || {}).review_status)) { compareStatus.textContent = "Review the candidate evidence before comparing roles."; return; }
+        const requestSignature = inputSignature();
+        const requestRoles = rolesInput.value;
+        const requestId = ++compareRequestId;
+        clearComparisonResult();
         compareStatus.textContent = "Comparing the supplied roles…";
         compareButton.disabled = true;
         try {
-          const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value }) });
+          const response = await fetch("/api/compare", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roles: roles, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, evidence: latest.evidence || [], review: { scope: "candidate_evidence", applied: true, base_signature: inputSignature() } }) });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || "comparison unavailable");
+          if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
           renderComparison(payload);
           compareStatus.textContent = "Comparison ready. Rankings describe preparation priority, not hiring odds.";
-        } catch (error) { compareStatus.textContent = "Comparison unavailable. Check the role separators and try again."; }
+        } catch (error) {
+          if (requestId !== compareRequestId || inputSignature() !== requestSignature || rolesInput.value !== requestRoles) return;
+          clearComparisonResult();
+          compareStatus.textContent = "Comparison unavailable. Check the role separators and try again.";
+        }
         finally { compareButton.disabled = false; }
       }
       function reset() {
+        analysisRequestId += 1;
+        compareRequestId += 1;
         latest = null;
-        reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
-        jobInput.value = ""; candidateInput.value = ""; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
+        analyzedSignature = "";
+        latestScoreVisible = false;
+        reviewState = newReviewState();
+        jobInput.value = ""; candidateInput.value = ""; candidateLanguage.value = "auto"; rolesInput.value = ""; clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearNode(comparisonGrid); clearNode(categoryProfile); clearNode(mismatchList); clearNode(bundleGrid);
+        candidateFile.value = ""; candidateFileStatus.textContent = "No file selected. Contact details should be removed first.";
         detail.innerHTML = ""; detail.append(make("span", "eyebrow", "Selected requirement"), make("h3", "detail-title", "Waiting for analysis"), make("p", "detail-copy", "Run the analysis, then select a requirement to inspect its evidence trail."));
-        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); semanticSummary.textContent = "";
+        semanticPanel.hidden = true; comparisonPanel.hidden = true; fingerprintPanel.hidden = true; coveragePanel.hidden = true; reviewPanel.hidden = true; guidedIntake.hidden = true; clearNode(semanticList); clearNode(reviewRequirements); clearNode(reviewAddedList); clearNode(guidedIntakeRequirement); guidedIntakeTask.value = ""; guidedIntakeContext.value = ""; guidedIntakeResult.value = ""; guidedIntakeDuration.value = ""; guidedIntakeRecency.value = ""; guidedIntakeStatus.textContent = "One concrete example is enough to begin."; semanticSummary.textContent = "";
         clearNode(occupationCandidates); occupationContextResult.hidden = true; marketContext.hidden = true; clearNode(marketMetrics); clearNode(marketTasks); clearNode(marketAdjacent); occupationStatus.textContent = "Select a standard occupation before viewing worker context.";
         latestOccupationContext = null;
         [fitScore, readinessScore, inputCoverageScore, blockedCount, requirementCoverageScore, evidenceCoverageScore, eligibilityCoverageScore].forEach(function (node) { node.textContent = "—"; });
+        languageStatus.textContent = "The rule-based dictionary is English-first. Choose a language when the profile is not primarily English.";
         downloadButton.disabled = true;
         deepReviewButton.disabled = true;
         ["capability-ring", "proof-ring", "readiness-ring"].forEach(function (id) { document.getElementById(id).style.setProperty("--ring-progress", "0%"); });
         ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
         decisionLabel.textContent = "Run an analysis to see what the current text can support."; status.textContent = "Cleared."; compareStatus.textContent = "Use this when you are deciding where to focus first."; semanticStatus.textContent = llmEnabled ? "Optional review available." : "Optional review available when enabled.";
       }
-      exampleButton.addEventListener("click", function () { reviewState = { removed_requirement_ids: [], added_requirements: [], constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" }; jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
+      candidateFile.addEventListener("change", async function () {
+        const file = candidateFile.files && candidateFile.files[0];
+        if (!file) return;
+        if (file.size > 200000) { candidateFileStatus.textContent = "That file is larger than 200 KB. Paste a shorter, redacted version instead."; candidateFile.value = ""; return; }
+        try {
+          invalidateCurrentResult("Resume loaded. Analyze the current text before relying on a result.");
+          candidateInput.value = await file.text();
+          candidateFileStatus.textContent = file.name + " loaded locally. Review the text, remove sensitive details, then analyze.";
+          status.textContent = "Resume loaded. Analyze the current text when ready.";
+        } catch (error) { candidateFileStatus.textContent = "The file could not be read in this browser. Paste the text instead."; }
+      });
+      exampleButton.addEventListener("click", function () { reviewState = newReviewState(); jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
+      [jobInput, candidateInput, candidateLanguage].forEach(function (input) { input.addEventListener("input", handleInputChange); });
+      rolesInput.addEventListener("input", function () { if (!comparisonPanel.hidden) { compareRequestId += 1; clearComparisonResult(); compareStatus.textContent = "Target roles changed. Compare again to refresh the ranking."; } });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
       occupationSearchButton.addEventListener("click", findOccupations);
@@ -1121,6 +1442,7 @@ HTML = r"""<!doctype html>
       deepReviewButton.addEventListener("click", deepReview);
       clearButton.addEventListener("click", reset);
       addRequirementButton.addEventListener("click", addRequirement);
+      guidedIntakeButton.addEventListener("click", addGuidedIntake);
       applyReviewButton.addEventListener("click", applyReview);
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";
@@ -1139,10 +1461,22 @@ def _json_literal(value: str) -> str:
 
 
 def render_page() -> str:
+    privacy_note = (
+        "Privacy and sharing: rule-based analysis stays in this app. Deep semantic review is optional; when enabled, it sends the supplied job text, candidate text, and requirement map to the configured review endpoint. Use it only with an endpoint you trust and remove names, contact details, identification numbers, health information, and other sensitive details first."
+        if LLM_REVIEW_CLIENT.config.enabled
+        else "Privacy reminder: rule-based analysis stays in this app. Remove names, email addresses, phone numbers, identification numbers, health information, and other sensitive details before analyzing."
+    )
+    privacy_footer = (
+        "Privacy note: Rule-based analysis runs in this app, but optional semantic review sends supplied text to the configured review endpoint when you click the button. Remove sensitive details first; this app does not provide hosted personal-data storage."
+        if LLM_REVIEW_CLIENT.config.enabled
+        else "Privacy note: Inputs are processed locally by this app and are not permanently stored by it. Remove sensitive details before analysis."
+    )
     return (
         HTML.replace("__DEFAULT_JOB__", _json_literal(DEFAULT_JOB))
         .replace("__DEFAULT_CANDIDATE__", _json_literal(DEFAULT_CANDIDATE))
         .replace("__LLM_ENABLED__", json.dumps(LLM_REVIEW_CLIENT.config.enabled))
+        .replace("__PRIVACY_NOTE__", html.escape(privacy_note))
+        .replace("__PRIVACY_FOOTER__", html.escape(privacy_footer))
     )
 
 
@@ -1182,7 +1516,7 @@ def _fetch_atlas_context(params: dict[str, str]) -> tuple[dict[str, object], int
 
 class Handler(BaseHTTPRequestHandler):
     def _send_json(self, payload: dict[str, object], status: int = 200) -> None:
-        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        body = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -1269,6 +1603,8 @@ class Handler(BaseHTTPRequestHandler):
                     role_texts,
                     str(payload.get("candidate_text", ""))[:40_000],
                     payload.get("evidence"),
+                    payload.get("review"),
+                    payload.get("candidate_language", "auto"),
                 )
             except (TypeError, ValueError, json.JSONDecodeError) as exc:
                 self._send_json(
@@ -1290,6 +1626,7 @@ class Handler(BaseHTTPRequestHandler):
                 str(payload.get("candidate_text", "")),
                 payload.get("evidence"),
                 payload.get("review"),
+                payload.get("candidate_language", "auto"),
             )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             self._send_json(

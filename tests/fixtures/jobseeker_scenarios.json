@@ -1,0 +1,356 @@
+[
+  {
+    "id": "new_grad_business_analytics",
+    "profile": "Recent business graduate with an internship",
+    "job_text": "Business analyst role. Must have Excel and SQL. Preferred: data visualization and stakeholder communication. Prepare weekly reports and explain findings to nontechnical partners.",
+    "candidate_text": "Recent business graduate. Built Excel dashboards and SQL queries during an internship, then presented findings to a marketing team.",
+    "tags": ["early_career", "analytics"]
+  },
+  {
+    "id": "new_grad_cs",
+    "profile": "Computer science graduate with projects but no full-time experience",
+    "job_text": "Junior software developer. Must have Python and JavaScript. Preferred: testing and communication. Work on small web features with code review.",
+    "candidate_text": "Computer science graduate. Built Python and JavaScript class projects, wrote tests, and explained design choices in a capstone presentation.",
+    "tags": ["early_career", "technology"]
+  },
+  {
+    "id": "teacher_to_data",
+    "profile": "Teacher moving into analytics",
+    "job_text": "Data analyst. Must have SQL and data visualization. Preferred: stakeholder communication. Build recurring reports and communicate trends to program leaders.",
+    "candidate_text": "Teacher who tracked attendance in Excel, built charts for school leaders, and explained trends to families and administrators. Learning SQL through a course.",
+    "tags": ["career_change", "transferable"]
+  },
+  {
+    "id": "humanities_to_ux",
+    "profile": "Humanities graduate changing to user research",
+    "job_text": "User research coordinator. Must have research and communication. Preferred: data visualization. Conduct interviews, synthesize themes, and share findings.",
+    "candidate_text": "History graduate who conducted archival research, interviewed community members for a public project, and presented clear written findings.",
+    "tags": ["career_change", "research"]
+  },
+  {
+    "id": "retail_to_customer_success",
+    "profile": "Retail supervisor seeking customer success work",
+    "job_text": "Customer success associate. Must have customer service and communication. Preferred: project management. Resolve issues, document cases, and coordinate follow-up.",
+    "candidate_text": "Retail supervisor with six years of customer service. Resolved complaints, trained new staff, and coordinated weekly store improvement projects.",
+    "tags": ["career_change", "customer_facing"]
+  },
+  {
+    "id": "hospitality_to_project_coord",
+    "profile": "Hospitality worker moving to project coordination",
+    "job_text": "Project coordinator. Must have project management and communication. Preferred: budgeting. Track milestones, coordinate vendors, and report status.",
+    "candidate_text": "Hospitality coordinator who scheduled events, coordinated vendors, tracked costs in Excel, and handled last-minute changes under time pressure.",
+    "tags": ["career_change", "operations"]
+  },
+  {
+    "id": "military_to_supply_chain",
+    "profile": "Former logistics service member",
+    "job_text": "Supply chain coordinator. Must have logistics and communication. Preferred: Excel and project management. Track inventory, coordinate shipments, and report exceptions.",
+    "candidate_text": "Former logistics specialist. Coordinated inventory and shipments for multiple units, maintained records, and briefed supervisors on exceptions.",
+    "tags": ["career_change", "operations"]
+  },
+  {
+    "id": "caregiver_return_hr",
+    "profile": "Caregiver returning after a multi-year employment gap",
+    "job_text": "HR coordinator. Must have communication and Excel. Preferred: recruiting. Maintain records, schedule interviews, and support employee questions.",
+    "candidate_text": "Previously supported recruiting administration and maintained Excel records. Took several years away from paid work for caregiving and recently completed an HR refresher course.",
+    "tags": ["return_to_work", "career_break"]
+  },
+  {
+    "id": "experienced_admin_ops",
+    "profile": "Experienced administrative professional seeking operations",
+    "job_text": "Operations specialist. Must have Excel and communication. Preferred: project management and budgeting. Improve processes and coordinate internal requests.",
+    "candidate_text": "Administrative professional with twelve years of experience. Built Excel trackers, coordinated cross-team requests, managed calendars, and improved an invoice process.",
+    "tags": ["mid_career", "operations"]
+  },
+  {
+    "id": "laid_off_engineer",
+    "profile": "Laid-off software engineer with recent project evidence",
+    "job_text": "Backend engineer. Must have Python and SQL. Preferred: AWS and communication. Build reliable services, test changes, and explain tradeoffs.",
+    "candidate_text": "Software engineer recently laid off. Built Python services backed by SQL, deployed a small AWS project, and wrote tests and technical documentation.",
+    "tags": ["mid_career", "technology", "layoff"]
+  },
+  {
+    "id": "long_unemployed",
+    "profile": "Long-term unemployed job seeker with sparse recent evidence",
+    "job_text": "Office coordinator. Must have communication and Excel. Preferred: customer service. Schedule meetings, maintain records, and respond to requests.",
+    "candidate_text": "I am looking for work and have used a computer before. I do not have a current resume.",
+    "tags": ["low_information", "reentry"]
+  },
+  {
+    "id": "foreign_experience_accounting",
+    "profile": "Immigrant with overseas accounting experience",
+    "job_text": "Accounting analyst. Must have Excel and communication. Preferred: budgeting and SQL. Reconcile records and explain variances.",
+    "candidate_text": "Accountant with five years of overseas experience. Reconciled monthly records in Excel, prepared budgets, and explained variances to managers. Building U.S. market familiarity.",
+    "tags": ["immigrant", "career_transition"]
+  },
+  {
+    "id": "esl_job_seeker",
+    "profile": "English learner with strong technical experience",
+    "job_text": "QA analyst. Must have testing and communication. Preferred: Python. Document defects, reproduce issues, and discuss fixes with developers.",
+    "candidate_text": "I have worked in software testing. I make test cases and find bugs. My English is still learning but I can show examples and talk with team.",
+    "tags": ["multilingual", "technology"]
+  },
+  {
+    "id": "spanish_profile",
+    "profile": "Spanish-first candidate with a Spanish-only profile",
+    "job_text": "Customer service representative. Must have customer service and communication. Preferred: Excel. Resolve questions and document cases.",
+    "candidate_text": "Tengo experiencia atendiendo clientes, resolviendo problemas y registrando casos. También he capacitado a compañeros nuevos.",
+    "tags": ["multilingual", "language_limit"]
+  },
+  {
+    "id": "chinese_profile",
+    "profile": "Chinese-first candidate with a Chinese-only profile",
+    "job_text": "Data analyst. Must have SQL and data visualization. Preferred: Excel. Build reports and explain trends.",
+    "candidate_text": "我有数据分析和报表经验，使用 SQL 和 Excel，制作可视化图表并向业务团队解释结果。",
+    "tags": ["multilingual", "language_limit"]
+  },
+  {
+    "id": "low_literacy",
+    "profile": "Job seeker who prefers very short plain-language instructions",
+    "job_text": "Warehouse coordinator. Must have logistics and communication. Preferred: Excel. Track shipments and report delays.",
+    "candidate_text": "I move orders. I check trucks. I tell the team when late.",
+    "tags": ["accessibility", "plain_language"]
+  },
+  {
+    "id": "low_digital_literacy",
+    "profile": "Experienced worker with limited digital confidence",
+    "job_text": "Front desk coordinator. Must have communication and customer service. Preferred: Excel. Schedule appointments and maintain records.",
+    "candidate_text": "I worked at a front desk for ten years. I answered calls, helped visitors, and kept paper schedules. I am learning computer systems now.",
+    "tags": ["accessibility", "digital_literacy"]
+  },
+  {
+    "id": "no_resume",
+    "profile": "Person applying for a first formal job without a resume",
+    "job_text": "Retail associate. Must have customer service and communication. Preferred: Excel. Help customers, stock products, and record issues.",
+    "candidate_text": "I have helped my family business and customers, but I have never made a resume.",
+    "tags": ["early_career", "low_information"]
+  },
+  {
+    "id": "bootcamp_data",
+    "profile": "Bootcamp graduate with a portfolio",
+    "job_text": "Junior data analyst. Must have SQL and data visualization. Preferred: Python and communication. Create dashboards and explain insights.",
+    "candidate_text": "Completed a data analytics bootcamp. Built SQL dashboards, used Python for cleaning, and presented a customer-retention project.",
+    "tags": ["career_change", "portfolio"]
+  },
+  {
+    "id": "self_taught_dev",
+    "profile": "Self-taught developer without a degree",
+    "job_text": "Web developer. Must have JavaScript and communication. Preferred: testing and project management. Ship accessible web features.",
+    "candidate_text": "Self-taught developer. Built JavaScript websites for local organizations, tested changes, and managed feature requests from clients.",
+    "tags": ["nontraditional", "technology"]
+  },
+  {
+    "id": "open_source",
+    "profile": "Open-source contributor",
+    "job_text": "Software engineer. Must have Python and communication. Preferred: project management and testing. Collaborate on maintainable software.",
+    "candidate_text": "Maintainer of an open-source Python library. Reviewed pull requests, wrote tests, coordinated releases, and documented changes for contributors.",
+    "tags": ["nontraditional", "open_source"]
+  },
+  {
+    "id": "freelancer",
+    "profile": "Freelance analyst with fragmented engagements",
+    "job_text": "Business intelligence analyst. Must have SQL and data visualization. Preferred: stakeholder communication. Deliver recurring reporting for clients.",
+    "candidate_text": "Freelanced for small businesses. Built SQL reports and visual dashboards, met clients weekly, and translated questions into measurable metrics.",
+    "tags": ["freelance", "analytics"]
+  },
+  {
+    "id": "gig_worker",
+    "profile": "Gig worker seeking stable operations work",
+    "job_text": "Operations coordinator. Must have communication and logistics. Preferred: Excel and project management. Coordinate schedules and resolve exceptions.",
+    "candidate_text": "Worked in delivery and gig logistics. Planned routes, communicated delays to customers, and solved daily scheduling problems across many orders.",
+    "tags": ["gig_work", "career_change"]
+  },
+  {
+    "id": "small_business_owner",
+    "profile": "Small business owner returning to employment",
+    "job_text": "Operations manager. Must have project management and budgeting. Preferred: communication and Excel. Improve workflow, vendors, and reporting.",
+    "candidate_text": "Ran a small service business for eight years. Budgeted expenses, coordinated staff and vendors, improved workflows, and reported results to clients.",
+    "tags": ["entrepreneur", "mid_career"]
+  },
+  {
+    "id": "phd_academic",
+    "profile": "PhD moving from academic research to industry",
+    "job_text": "Research scientist. Must have research and communication. Preferred: Python and data visualization. Design studies and explain results to partners.",
+    "candidate_text": "PhD researcher. Designed studies, analyzed data with Python, created visualizations, wrote papers, and presented results to technical and nontechnical audiences.",
+    "tags": ["phd", "career_change"]
+  },
+  {
+    "id": "postdoc_industry",
+    "profile": "Postdoctoral researcher seeking a product-facing role",
+    "job_text": "Product analyst. Must have research and communication. Preferred: SQL and data visualization. Frame questions, analyze behavior, and recommend priorities.",
+    "candidate_text": "Postdoctoral researcher who framed experiments, analyzed participant data, built visual summaries, and presented recommendations to collaborators.",
+    "tags": ["phd", "career_change"]
+  },
+  {
+    "id": "researcher_product",
+    "profile": "Social science researcher moving into product operations",
+    "job_text": "Product operations specialist. Must have project management and communication. Preferred: research and Excel. Coordinate launches and synthesize feedback.",
+    "candidate_text": "Researcher who coordinated multi-site studies, managed timelines, synthesized interviews, and maintained Excel trackers for project decisions.",
+    "tags": ["career_change", "research"]
+  },
+  {
+    "id": "nurse_health_data",
+    "profile": "Registered nurse moving into health data",
+    "job_text": "Healthcare data analyst. Must have SQL and communication. Preferred: Excel and data visualization. Analyze quality data and explain findings to clinicians.",
+    "candidate_text": "Registered nurse with clinical experience. Built Excel quality reports, explained trends to care teams, and is learning SQL for healthcare analytics.",
+    "tags": ["career_change", "healthcare"]
+  },
+  {
+    "id": "social_worker_people_analytics",
+    "profile": "Social worker moving into people analytics",
+    "job_text": "People analytics coordinator. Must have Excel and communication. Preferred: research and data visualization. Support surveys and explain workforce trends.",
+    "candidate_text": "Social worker who managed case records, conducted interviews, analyzed program outcomes, and presented findings to community partners.",
+    "tags": ["career_change", "people_analytics"]
+  },
+  {
+    "id": "trades_to_coord",
+    "profile": "Tradesperson seeking maintenance coordination",
+    "job_text": "Maintenance coordinator. Must have communication and logistics. Preferred: project management and Excel. Schedule work orders and coordinate vendors.",
+    "candidate_text": "Electrician who scheduled jobs, coordinated subcontractors, tracked materials, and explained technical issues to customers.",
+    "tags": ["trades", "career_change"]
+  },
+  {
+    "id": "accommodation_request",
+    "profile": "Candidate who needs an accessible interview process",
+    "job_text": "Administrative coordinator. Must have communication and Excel. Preferred: project management. Schedule work and maintain accurate records.",
+    "candidate_text": "Administrative coordinator with five years of experience. Built Excel trackers, scheduled complex meetings, and coordinated project follow-up. I will need an accessible interview format.",
+    "tags": ["accessibility", "privacy"]
+  },
+  {
+    "id": "communication_style",
+    "profile": "Candidate who wants evidence evaluated beyond polished self-presentation",
+    "job_text": "Technical support specialist. Must have customer service and communication. Preferred: troubleshooting and documentation. Resolve tickets and explain solutions.",
+    "candidate_text": "Technical support worker. Resolved tickets, wrote step-by-step guides, and helped customers troubleshoot devices. I communicate best with written examples.",
+    "tags": ["accessibility", "customer_facing"]
+  },
+  {
+    "id": "career_break_caregiving",
+    "profile": "Professional returning after caregiving",
+    "job_text": "Project coordinator. Must have project management and communication. Preferred: Excel. Track tasks and keep stakeholders informed.",
+    "candidate_text": "Previously coordinated marketing projects and maintained Excel trackers. Took a four-year caregiving break and completed a project-management refresher.",
+    "tags": ["career_break", "return_to_work"]
+  },
+  {
+    "id": "return_after_illness",
+    "profile": "Candidate returning after a personal leave without sharing medical details",
+    "job_text": "Customer success coordinator. Must have customer service and communication. Preferred: project management. Manage follow-up and document customer needs.",
+    "candidate_text": "Customer success professional returning after a personal leave. Previously resolved customer issues, documented cases, and coordinated follow-up with product teams.",
+    "tags": ["return_to_work", "privacy"]
+  },
+  {
+    "id": "older_pivot",
+    "profile": "Experienced older worker changing functions",
+    "job_text": "Operations analyst. Must have Excel and communication. Preferred: budgeting and project management. Improve reporting and workflow decisions.",
+    "candidate_text": "Twenty-five years in office operations. Built Excel reporting, managed budgets, trained teams, and now wants to move into operations analysis.",
+    "tags": ["mid_career", "career_change"]
+  },
+  {
+    "id": "overqualified_underemployed",
+    "profile": "Highly experienced candidate applying to a smaller role",
+    "job_text": "Operations coordinator. Must have communication and Excel. Preferred: project management. Coordinate requests and maintain records.",
+    "candidate_text": "Former operations director with extensive communication, budgeting, project management, and Excel experience. Seeking a hands-on coordinator role.",
+    "tags": ["mid_career", "role_change"]
+  },
+  {
+    "id": "no_degree",
+    "profile": "Experienced worker without a formal degree",
+    "job_text": "Customer success specialist. Must have customer service and communication. Preferred: Excel. Support accounts and document resolutions.",
+    "candidate_text": "No college degree, but eight years supporting customers. Resolved escalations, trained teammates, and maintained Excel account trackers.",
+    "tags": ["nontraditional", "customer_facing"]
+  },
+  {
+    "id": "licensed_nurse",
+    "profile": "Licensed nurse applying for a role with an eligibility gate",
+    "job_text": "Registered nurse. Must have an active nursing license and communication. Preferred: project management. Provide care and document accurately.",
+    "candidate_text": "Registered nurse with an active license. Communicated with families, documented care, and coordinated discharge tasks.",
+    "tags": ["hard_gate", "healthcare"]
+  },
+  {
+    "id": "work_authorization_gate",
+    "profile": "International candidate unsure whether a role sponsors work authorization",
+    "job_text": "Data analyst. Must be authorized to work in the United States. Must have SQL and communication. Preferred: Python. Build reports.",
+    "candidate_text": "Data analyst with SQL and Python project experience. My current work authorization and sponsorship situation is not stated here.",
+    "tags": ["hard_gate", "immigrant"]
+  },
+  {
+    "id": "remote_cross_border",
+    "profile": "Remote worker applying across jurisdictions",
+    "job_text": "Remote project coordinator. Must have project management and communication. Preferred: Excel. Coordinate distributed work and report status.",
+    "candidate_text": "Remote project coordinator. Managed distributed teams, tracked milestones in Excel, and communicated status across time zones.",
+    "tags": ["remote", "operations"]
+  },
+  {
+    "id": "background_check_gate",
+    "profile": "Candidate facing a background-check requirement they needs to verify",
+    "job_text": "Operations role. Must pass the required background check and have communication. Preferred: logistics. Coordinate field work and report issues.",
+    "candidate_text": "Operations worker with logistics and communication experience. The posting's background-check requirement needs clarification before I apply.",
+    "tags": ["hard_gate", "privacy"]
+  },
+  {
+    "id": "copywriter_ai_transition",
+    "profile": "Copywriter adapting to AI-assisted content work",
+    "job_text": "Content strategist. Must have writing and communication. Preferred: project management and data visualization. Plan content and evaluate performance.",
+    "candidate_text": "Copywriter who planned campaigns, wrote long-form content, coordinated stakeholders, and used performance dashboards to revise content.",
+    "tags": ["technology_change", "creative"]
+  },
+  {
+    "id": "creative_portfolio",
+    "profile": "Designer whose strongest proof is a portfolio",
+    "job_text": "UX designer. Must have communication and research. Preferred: data visualization. Conduct discovery and present design decisions.",
+    "candidate_text": "Designer with a portfolio of user interviews, prototypes, and usability findings. Presented design decisions to clients and revised work from feedback.",
+    "tags": ["creative", "portfolio"]
+  },
+  {
+    "id": "nontraditional_pm",
+    "profile": "Product manager coming from customer operations",
+    "job_text": "Product manager. Must have project management and communication. Preferred: research and data visualization. Prioritize work and align stakeholders.",
+    "candidate_text": "Customer operations lead who managed launches, gathered user feedback, coordinated engineering requests, and used dashboards to prioritize improvements.",
+    "tags": ["career_change", "product"]
+  },
+  {
+    "id": "ambiguous_pm_claim",
+    "profile": "Candidate with broad claims and little concrete evidence",
+    "job_text": "Project manager. Must have project management and communication. Preferred: budgeting. Lead cross-functional delivery and report risks.",
+    "candidate_text": "I am a strong project manager and good communicator. I can manage budgets and teams.",
+    "tags": ["claim_only", "low_evidence"]
+  },
+  {
+    "id": "cybersecurity_transition",
+    "profile": "IT support worker transitioning to cybersecurity",
+    "job_text": "Security analyst. Must have communication and testing. Preferred: Python and documentation. Investigate alerts and explain remediation.",
+    "candidate_text": "IT support specialist who tested fixes, documented incidents, and communicated remediation steps. Completed a cybersecurity certificate and a Python lab project.",
+    "tags": ["career_change", "technology"]
+  },
+  {
+    "id": "green_energy",
+    "profile": "Energy technician seeking clean-energy operations",
+    "job_text": "Energy operations coordinator. Must have logistics and communication. Preferred: Excel and project management. Coordinate field work and report performance.",
+    "candidate_text": "Energy technician who scheduled field work, tracked equipment in Excel, coordinated vendors, and reported performance issues to supervisors.",
+    "tags": ["trades", "green_transition"]
+  },
+  {
+    "id": "apprentice_trade",
+    "profile": "Apprentice with practical experience but few formal credentials",
+    "job_text": "Field service coordinator. Must have communication and logistics. Preferred: customer service. Schedule technicians and update customers.",
+    "candidate_text": "Apprentice technician. Scheduled service visits, explained delays to customers, tracked parts, and learned procedures on the job.",
+    "tags": ["early_career", "trades"]
+  },
+  {
+    "id": "executive_return",
+    "profile": "Former executive seeking an individual-contributor role",
+    "job_text": "Business operations analyst. Must have Excel and communication. Preferred: budgeting and data visualization. Prepare analysis for leadership.",
+    "candidate_text": "Former executive with experience in budgeting, Excel reporting, stakeholder communication, and decision presentations. Seeking a hands-on analyst role.",
+    "tags": ["executive", "role_change"]
+  },
+  {
+    "id": "undecided_compare",
+    "profile": "Candidate choosing between analytics and project coordination",
+    "job_text": "Data analyst. Must have SQL and data visualization. Preferred: communication. Build reports and explain trends.",
+    "candidate_text": "Built SQL reports and data visualizations for a nonprofit and coordinated the project timeline with stakeholders.",
+    "compare_roles": [
+      "Data analyst. Must have SQL and data visualization. Preferred: communication. Build reports and explain trends.",
+      "Project coordinator. Must have project management and communication. Preferred: Excel. Track tasks and report status."
+    ],
+    "tags": ["comparison", "career_planning"]
+  }
+]

@@ -7,7 +7,8 @@ Career Fit is built to help a person prepare for a job application. It should no
 - The demo runs on `127.0.0.1` and sends text to the local Python process.
 - The repository contains no personal resume, employment record, or hosted profile.
 - Users should avoid placing names, contact details, identification numbers, or sensitive personal data into examples committed to a public repository.
-- Optional structured evidence is user-controlled and remains local in the demo.
+- Optional structured evidence is user-controlled and remains local in the rule-based demo.
+- If semantic review is enabled, the page discloses before use that the supplied job text, candidate text, and requirement map are sent to the configured endpoint. Users should use only an endpoint they trust and remove sensitive details first.
 - Any future hosted deployment needs a separate consent, retention, deletion, access-control, and security design.
 
 ## Known limitations

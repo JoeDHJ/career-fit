@@ -23,18 +23,22 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.4 product:
+Given a job description and a candidate profile, the v0.5 product:
 
-1. extracts dictionary-backed skill requirements and explicit hard gates;
+1. extracts dictionary-backed skill requirements and explicit hard gates, including background-check, license, education, work-authorization, and experience requirements;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
 3. maps candidate statements to auditable evidence objects;
 4. distinguishes direct evidence, thin proof, transferable evidence, and missing evidence;
-5. calculates Evidence Fit, Capability Signal, Proof Signal, and Application Readiness, while reporting input, evidence, and eligibility coverage separately;
+5. presents the extracted checklist before any score, lets the user add a missed soft requirement or hard eligibility gate, then calculates Evidence Fit, Capability Signal, Proof Signal, and Application Readiness only after user confirmation;
 6. ranks proof, translation, bridge, foundation, and verification gaps;
 7. proposes an expected proof artifact and an evidence prompt for each priority action;
-8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting.
+8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting;
+9. accepts a local plain-text or Markdown resume import and lets users label structured evidence as work, research, portfolio, GitHub, course, certificate, or claim;
+10. exposes an explicit profile-language route so non-English profiles are not silently treated as fully mapped; users can add translated or structured evidence before relying on a score;
+11. keeps claim-only evidence distinct from reviewable proof and aggregates multiple evidence items without letting a weak extra claim erase stronger proof;
+12. offers a resume-free guided intake when mapped evidence is sparse: choose a role requirement and describe one task, context, optional result, evidence type, duration, and recency.
 
-It can also compare two or three target roles against the same candidate profile. The comparison ranks preparation priority using readiness, evidence fit, and mapped input coverage; it does not invent a confidence probability.
+It can also compare two or three target roles against the same candidate profile after candidate evidence has been reviewed. The comparison carries that reviewed evidence state forward, while each role still requires its own checklist confirmation before role-specific scores are shown.
 
 ## Quick start
 
@@ -45,9 +49,10 @@ python -m pip install -e .
 
 # Analyze one role locally
 career-fit analyze --job-file examples\single_job\people_analytics_job.txt --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json
+# Add --review-file review.json to reveal the reviewed score
 
 # Compare a small target-role portfolio
-career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt
+career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt --review-file examples\single_job\candidate_evidence_review.json
 
 # Launch the visual explorer
 career-fit serve
@@ -74,8 +79,10 @@ Candidate text is sent only when the review button is used. A local OpenAI-compa
 The local page is designed to feel useful to a first-time job seeker while keeping the labor-economics logic visible:
 
 - three animated signal rings separate capability, proof, and application readiness;
-- the scorecard shows Evidence Fit, Application Readiness, mapped input coverage, and unresolved Hard Gates;
-- the review panel lets a user remove false requirements, add known missed skills, confirm hard constraints, and add explicitly labeled self-reported evidence before recalculating;
+- the scorecard shows preparation signals only after review; before that it shows requirements identified, reviewable evidence, and an explicit eligibility status;
+- the review panel lets a user remove false requirements, change importance, add known or user-supplied missed skills, confirm hard constraints, and add structured evidence before recalculating;
+- the guided intake panel gives a resume-free user a short task/context prompt tied to a real role requirement, then carries the user-declared example through the same review route;
+- a local resume text importer helps a first-time job seeker start without sending a file to a hosted service;
 - the requirement–evidence matrix makes every assessment inspectable;
 - the profile chart shows the shape of evidence overlap across requirements;
 - action cards identify a time horizon, effort estimate, expected proof artifact, and evidence prompt;
@@ -91,7 +98,11 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 
 ![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
 
+![Career Fit resume-free guided intake](docs/assets/career-fit-guided-intake.png)
+
 The design rationale and evidence boundaries are summarized in [the literature-to-product map](docs/literature-map.md).
+
+The 50-profile end-to-end release audit, route decisions, and remaining guided-intake boundary are documented in [the job-seeker scenario audit](docs/jobseeker-scenario-audit.md).
 
 ### Optional occupation context
 
@@ -129,13 +140,13 @@ Readiness = 100 × (0.50 must-have match
 
 An unresolved hard gate can produce a `verify_before_applying` status even when Evidence Fit is high. None of these measures is a hiring probability or a causal estimate.
 
-The first response is provisional. The review panel must be used to confirm hard constraints and correct extracted requirements before relying on the plan. Education is compared by ordered level, experience floors require matching experience-area text, and ambiguous free-text gates remain `unknown`. If fewer than two requirements are mapped, the job text or candidate profile is too short, or no candidate evidence is identified, the response is marked `insufficient_information` and no fit or readiness score is presented. Input completeness, evidence coverage, and eligibility verification are coverage components—not calibrated confidence probabilities.
+The first response is provisional. The review panel must be used to confirm hard constraints, correct extracted requirements, set importance, and label evidence before relying on the plan. Education is compared by ordered level, experience floors require matching experience-area text, background checks remain separate verification gates, and ambiguous free-text gates remain `unknown`. If fewer than two requirements are mapped, the job text or candidate profile is too short, or no candidate evidence is identified, the response is marked `insufficient_information` and no fit or readiness score is presented. Even when enough text is available, scores remain hidden until role requirements are reviewed. Claim-only evidence is visible as a claim but receives much less proof weight than reviewable work or project evidence. Non-English or mixed-language profiles receive a visible coverage caveat and can proceed through user-labeled evidence or trusted translation; the English-first dictionary does not silently claim full language coverage. `requirements_identified` is a count, not a completeness score; `eligibility_status: no_gate_detected` means that no gate was found, not that eligibility was verified. A fully evidenced role still ends with a role-specific application-positioning action.
 
-The single-role machine-readable output uses schema `career_fit.v0.4`; role comparison uses `career_fit.compare.v0.2`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
+The single-role machine-readable output uses schema `career_fit.v0.5`; role comparison uses `career_fit.compare.v0.3`. Details are in [docs/data-contract.md](docs/data-contract.md). The scoring choices are documented in [docs/methodology.md](docs/methodology.md).
 
 ## Data and taxonomy
 
-The demo uses a versioned English dictionary with a transparent seed layer and an O*NET 30.3 enrichment layer. The current local build exposes 421 entries: Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Exact matching is conservative: ambiguous software names require nearby software context, while bare common-word aliases are excluded. It is a transparent baseline for evidence extraction, not a complete occupational ontology.
+The demo uses a versioned English dictionary with a transparent seed layer and an O*NET 30.3 enrichment layer. The current local build exposes 426 entries: Essential Skills, Transferable Skills, Knowledge elements, and Software Skills marked Hot Technology or In Demand. Exact matching is conservative: ambiguous software names require nearby software context, while bare common-word aliases are excluded. It is a transparent baseline for evidence extraction, not a complete occupational ontology.
 
 - `config/seed_dictionary_en.json` stores canonical skill IDs, aliases, and analytical category codes.
 - `config/onet_enrichment_en.json` stores O*NET-derived labels, source element IDs, exact-label mapping methods, and the 10-category analytical mapping.
@@ -149,7 +160,7 @@ Raw third-party data is not silently bundled. Check each source’s current lice
 
 ## Privacy and fairness
 
-The demo runs locally. Candidate text and structured evidence are sent only to the local Python process serving the page; this repository does not include a hosted personal-data service.
+The rule-based demo runs locally. Candidate text and structured evidence are sent to the local Python process serving the page; if optional semantic review is configured and the user clicks its button, the supplied job text, candidate text, and requirement map are also sent to the configured review endpoint. This repository does not include a hosted personal-data service.
 
 Career Fit should help a person prepare, not automate exclusion. A missing mention is not proof of missing ability. The engine excludes conservatively detected negative statements, exposes uncertainty, avoids protected traits, and keeps hard constraints visible for human verification. See [docs/privacy-and-fairness.md](docs/privacy-and-fairness.md).
 

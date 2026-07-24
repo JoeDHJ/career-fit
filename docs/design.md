@@ -2,7 +2,7 @@
 
 ## Product boundary
 
-Career Fit is a decision-support tool for job seekers. The v0.4 product supports one detailed job description and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
+Career Fit is a decision-support tool for all job seekers. The v0.5 product supports one detailed job description, a local redacted resume text import, and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
 
 The product has three audiences:
 
@@ -13,9 +13,11 @@ The product has three audiences:
 ## User flow
 
 ```text
-job description + candidate profile
+job description + candidate profile or local redacted resume text
   -> skill, negation, and hard-gate extraction
   -> requirement and evidence records
+  -> user review of requirements, importance, gates, and evidence types
+  -> if evidence is sparse: choose a requirement and complete one guided task/context example
   -> direct / thin / transferable / missing matching
   -> capability, proof, readiness, and explicit coverage components
   -> multidimensional role fingerprint and posting-specific skill bundles
@@ -23,9 +25,9 @@ job description + candidate profile
   -> local JSON API + interactive explorer
 
 optional role set + same candidate profile
-  -> independent role analyses
+  -> reviewed candidate-evidence state carried into independent role analyses
   -> preparation-priority ranking
-  -> inspect one role in the detailed evidence view
+  -> inspect one role and confirm its own requirement checklist
 ```
 
 ## Three-signal model
@@ -38,7 +40,7 @@ The signals are deliberately separable because a person can have capability with
 
 ## Design principles
 
-1. Evidence before keywords. A keyword mention is weak unless context makes the evidence reviewable.
+1. Evidence before keywords. A keyword mention is weak unless context makes the evidence reviewable; scores remain hidden until the extracted checklist is confirmed.
 2. Negation is first-class. A statement such as “no direct HR-data experience” cannot increase the HR-data match.
 3. Constraints are not skills. Licenses, work authorization, degrees, and experience floors are checked separately.
 4. Transfer is visible. Explicit crosswalks are labeled and never silently promoted to direct evidence; broad category membership remains a descriptive fingerprint only.
@@ -47,6 +49,8 @@ The signals are deliberately separable because a person can have capability with
 7. Local by default. Candidate inputs stay in the local process in the demo.
 8. English-only surface. User-facing page copy, documentation, CLI labels, examples, and screenshots use English for consistent public delivery.
 9. Literature informs the workflow, not unsupported claims. The interface translates multidimensional mismatch and task transfer into evidence and practice actions while keeping their empirical boundaries visible.
+10. Claims and proof are different. Self-reported or unknown-source claims remain useful leads but cannot silently become verified evidence.
+11. Resume-free is a supported starting point. The guided intake asks for a concrete task and context, not a diagnosis of the person's background or a demand for a polished resume.
 
 ## Extension points
 

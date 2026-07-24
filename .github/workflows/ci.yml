@@ -12,7 +12,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
@@ -21,13 +21,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
       - run: python -m unittest discover -s tests -v
-      - run: python -m compileall -q src
-      - run: ruff check .
+      - run: python -m compileall -q src tests tools
+      - run: python -m ruff check .
 
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -44,9 +44,8 @@ jobs:
           node-version: "20"
       - name: Install both projects
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ./ai-labor-atlas
-          python -m pip install -e .
+          python -m pip install -e ./ai-labor-atlas -c ./ai-labor-atlas/constraints-ci.txt
+          python -m pip install -e . -c constraints-ci.txt
       - name: Install Chromium for Playwright CLI
         run: npx --yes playwright install --with-deps chromium
       - name: Build Atlas demo release
@@ -82,3 +81,13 @@ jobs:
             fi
           done
           pwsh -NoProfile -ExecutionPolicy Bypass -File tools/verify_mobile_layout.ps1
+
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
+      - run: python tools/audit_500_jobseeker_scenarios.py
