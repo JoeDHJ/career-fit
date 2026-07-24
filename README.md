@@ -44,6 +44,10 @@ It can also compare two or three target roles against the same candidate profile
 
 Requires Python 3.10 or newer.
 
+Install the published package with `python -m pip install career-fit`. To run the
+repository examples or contribute changes, clone the repository and use the
+editable installation below.
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -62,6 +66,9 @@ career-fit serve
 ```
 
 If the console script is not on PATH, use `python -m career_fit.cli` for the same commands. The legacy `skillbundle` namespace and console script remain available as a compatibility layer.
+
+Maintainers can find the token-free release procedure in
+[docs/publishing.md](docs/publishing.md).
 
 ### Optional semantic review
 
