@@ -28,6 +28,8 @@ jobs:
 
   browser:
     runs-on: ubuntu-24.04
+    env:
+      AI_LABOR_ATLAS_DATA_DIR: ${{ github.workspace }}/ai-labor-atlas/data
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
