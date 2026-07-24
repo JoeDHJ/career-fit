@@ -17,8 +17,8 @@ jobs:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
@@ -31,17 +31,17 @@ jobs:
     env:
       AI_LABOR_ATLAS_DATA_DIR: ${{ github.workspace }}/ai-labor-atlas/data
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: JoeDHJ/ai-labor-atlas
           ref: ${{ inputs.atlas_ref || ((github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'codex/mobile-alias-validation' || github.ref_name == 'codex/mobile-alias-validation') && 'codex/alias-release-validation') || 'main' }}
           path: ai-labor-atlas
           token: ${{ github.token }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
       - name: Install both projects
@@ -87,8 +87,8 @@ jobs:
   audit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
@@ -97,8 +97,8 @@ jobs:
   release-smoke:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build and install the wheel
