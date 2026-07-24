@@ -85,7 +85,7 @@ Candidate text is sent only when the review button is used. A local OpenAI-compa
 
 ## Visual explorer
 
-The local page is designed to feel useful to a first-time job seeker while keeping the labor-economics logic visible:
+The local page turns a job posting and a candidate profile into an evidence-backed action plan that a first-time job seeker can understand and use:
 
 - three animated signal rings separate capability, proof, and application readiness;
 - the scorecard shows preparation signals only after review; before that it shows requirements identified, reviewable evidence, and an explicit eligibility status;
@@ -105,7 +105,7 @@ The local page is designed to feel useful to a first-time job seeker while keepi
 
 ![Career Fit role fingerprint](docs/assets/career-fit-fingerprint.png)
 
-![Career Fit target-role comparison](docs/assets/career-fit-comparison.png)
+![Career Fit reviewed action plan with Markdown and PDF exports](docs/assets/career-fit-comparison.png)
 
 ![Career Fit resume-free guided intake](docs/assets/career-fit-guided-intake.png)
 

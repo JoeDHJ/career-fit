@@ -420,21 +420,21 @@ HTML = r"""<!doctype html>
   <main id="app" class="shell" data-workflow-stage="intake">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Career Fit</span></div>
-      <span class="micro">Private by default · explainable preparation</span>
+      <span class="micro">Evidence-led · action-ready career planning</span>
     </header>
 
     <section class="hero">
       <div class="hero-copy">
         <div class="hero-badge">EVIDENCE-FIRST JOB SEARCH</div>
-        <h1>Turn uncertainty into an application plan.</h1>
-        <p>Career Fit helps every job seeker answer three practical questions: can I do this, can I prove it, and what should I do next? It translates a job posting into an evidence map without pretending to predict a hiring decision.</p>
+        <h1>Build a stronger case for your next role.</h1>
+        <p>Turn a job description and your experience into a clear evidence map: the strengths to lead with, the proof to strengthen, and the next actions to take.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="section-head">
-        <div><span class="eyebrow">A guided, private workflow</span><h2>Make the hidden decision visible.</h2></div>
-        <p>Start with a job posting and your experience. The app extracts a reviewable checklist first, then shows preparation signals only after you confirm what it found.</p>
+        <div><span class="eyebrow">A guided, private workflow</span><h2>See your strengths, evidence, and next move.</h2></div>
+        <p>Start with a job posting and your experience. Review the extracted checklist, strengthen the evidence behind it, and leave with a practical plan.</p>
       </div>
       <ol class="workflow" aria-label="Career Fit workflow">
         <li class="workflow-step active"><span>1</span><strong>Add inputs</strong><small>Posting and experience</small></li>
