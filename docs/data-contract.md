@@ -68,6 +68,8 @@ Supported evidence types are `work`, `research_project`, `portfolio`, `github_pr
 
 The review panel may add structured evidence. Review-added non-claim items use `evidence_status: user_declared_structured_evidence`; claim-only items use `user_confirmed_self_report`. Both carry `verification_status: user_declared` and are never silently upgraded to externally verified proof. The guided intake is a user-interface route over the same `added_evidence` contract: it requires a selected soft requirement, a task, and a context, and optionally carries a result, evidence type, duration, and recency. It does not create a score or verification claim by itself; the role-requirements review must still be applied.
 
+The review panel may add evidence with `evidence_status: user_confirmed_self_report`. This remains `evidence_type: self_reported` and is never silently upgraded to direct work evidence.
+
 ## Gap and action record
 
 ```json
