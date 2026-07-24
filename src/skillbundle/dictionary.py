@@ -6,6 +6,8 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
+from .resources import read_resource_text
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,28 +32,38 @@ def normalize_text(value: str) -> str:
 
 
 def load_dictionary(path: Path | None = None) -> tuple[str, list[DictionaryEntry]]:
-    path = path or ROOT / "config" / "seed_dictionary_en.json"
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    default_path = ROOT / "config" / "seed_dictionary_en.json"
+    use_default = path is None or (
+        path.exists() and path.resolve() == default_path.resolve()
+    )
+    if path is None:
+        payload = json.loads(_default_config_text("seed_dictionary_en.json"))
+    else:
+        payload = json.loads(path.read_text(encoding="utf-8"))
     entries = [_entry_from_json(item) for item in payload["entries"]]
     version = str(payload["version"])
-    default_path = ROOT / "config" / "seed_dictionary_en.json"
-    if path.resolve() == default_path.resolve():
-        enrichment_path = ROOT / "config" / "onet_enrichment_en.json"
-        if enrichment_path.exists():
-            enrichment = json.loads(enrichment_path.read_text(encoding="utf-8"))
-            version = f"{version}+{enrichment.get('version', 'enrichment')}"
-            existing_terms = {
-                normalize_text(term)
-                for entry in entries
-                for term in (entry.canonical, *entry.aliases)
-            }
-            for item in enrichment.get("entries", []):
-                terms = (item["canonical"], *item.get("aliases", []))
-                if any(normalize_text(term) in existing_terms for term in terms):
-                    continue
-                entries.append(_entry_from_json(item))
-                existing_terms.update(normalize_text(term) for term in terms)
+    if use_default:
+        enrichment = json.loads(_default_config_text("onet_enrichment_en.json"))
+        version = f"{version}+{enrichment.get('version', 'enrichment')}"
+        existing_terms = {
+            normalize_text(term)
+            for entry in entries
+            for term in (entry.canonical, *entry.aliases)
+        }
+        for item in enrichment.get("entries", []):
+            terms = (item["canonical"], *item.get("aliases", []))
+            if any(normalize_text(term) in existing_terms for term in terms):
+                continue
+            entries.append(_entry_from_json(item))
+            existing_terms.update(normalize_text(term) for term in terms)
     return version, entries
+
+
+def _default_config_text(name: str) -> str:
+    source_path = ROOT / "config" / name
+    if source_path.exists():
+        return source_path.read_text(encoding="utf-8")
+    return read_resource_text(name)
 
 
 def _entry_from_json(item: dict[str, object]) -> DictionaryEntry:

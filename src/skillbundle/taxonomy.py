@@ -4,13 +4,22 @@ import itertools
 import json
 from pathlib import Path
 
+from .resources import read_resource_text
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_taxonomy(path: Path | None = None) -> dict[str, object]:
-    path = path or ROOT / "config" / "taxonomy_10_ai.json"
-    return json.loads(path.read_text(encoding="utf-8"))
+    if path is not None:
+        return json.loads(path.read_text(encoding="utf-8"))
+    source_path = ROOT / "config" / "taxonomy_10_ai.json"
+    text = (
+        source_path.read_text(encoding="utf-8")
+        if source_path.exists()
+        else read_resource_text("taxonomy_10_ai.json")
+    )
+    return json.loads(text)
 
 
 def category_map(path: Path | None = None) -> dict[str, dict[str, object]]:

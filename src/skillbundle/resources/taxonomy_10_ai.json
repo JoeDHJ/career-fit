@@ -1,0 +1,20 @@
+{
+  "taxonomy_id": "deming_kahn_10_ai",
+  "version": "v1.0.0",
+  "status": "research_analysis_layer",
+  "basis": "Deming and Kahn (2018) inspired ten-category analytical layer; customer service and project management are combined; AI is explicit.",
+  "categories": [
+    {"code": "cognitive_skill", "name": "Cognitive skill", "definition": "Reasoning, analysis, problem solving, and quantitative thinking."},
+    {"code": "social_skill", "name": "Social skill", "definition": "Communication, collaboration, negotiation, and interpersonal interaction."},
+    {"code": "character_skill", "name": "Character skill", "definition": "Reliability, adaptability, initiative, persistence, and self-regulation."},
+    {"code": "writing_skill", "name": "Writing skill", "definition": "Writing, editing, documentation, and written communication."},
+    {"code": "customer_project_management_skill", "name": "Customer and project management", "definition": "Customer service, project planning, delivery, and stakeholder coordination."},
+    {"code": "people_management_skill", "name": "People management", "definition": "Supervision, coaching, hiring, delegation, and team leadership."},
+    {"code": "financial_skill", "name": "Financial skill", "definition": "Accounting, budgeting, financial analysis, and financial controls."},
+    {"code": "general_computer_skill", "name": "General computer skill", "definition": "General digital literacy, office computing, data handling, and computer use."},
+    {"code": "specific_software_skill", "name": "Specific software skill", "definition": "Named software, programming languages, platforms, and technical tools."},
+    {"code": "ai_skill", "name": "AI skill", "definition": "Artificial intelligence, machine learning, generative AI, and related tools or methods."}
+  ],
+  "pair_count": 45,
+  "mapping_policy": "A source concept may remain unmapped when evidence is insufficient. Do not force every ESCO or O*NET concept into an analytical category. Mapping changes require versioning and review."
+}

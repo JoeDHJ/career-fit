@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -91,3 +91,64 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
       - run: python tools/audit_500_jobseeker_scenarios.py
+
+  release-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and install the wheel
+        run: |
+          python -m pip install build
+          python -m build
+          python -m pip install dist/*.whl
+      - name: Run documented commands outside the source tree
+        working-directory: ${{ runner.temp }}
+        run: |
+          career-fit analyze \
+            --job-file "$GITHUB_WORKSPACE/examples/single_job/people_analytics_job.txt" \
+            --candidate-file "$GITHUB_WORKSPACE/examples/single_job/candidate_profile.txt" \
+            --evidence-file "$GITHUB_WORKSPACE/examples/single_job/evidence.json" \
+            --review-file "$GITHUB_WORKSPACE/examples/single_job/role_review.json" \
+            > career-fit-report.json
+          career-fit taxonomy > career-fit-taxonomy.json
+          career-fit compare \
+            --roles-file "$GITHUB_WORKSPACE/examples/role_portfolio.json" \
+            --candidate-file "$GITHUB_WORKSPACE/examples/single_job/candidate_profile.txt" \
+            --evidence-file "$GITHUB_WORKSPACE/examples/single_job/evidence.json" \
+            --review-file "$GITHUB_WORKSPACE/examples/single_job/candidate_evidence_review.json" \
+            > career-fit-comparison.json
+          python - <<'PY'
+          import json
+          from importlib.metadata import version
+          from pathlib import Path
+          import career_fit
+          import skillbundle
+
+          report = json.loads(Path("career-fit-report.json").read_text())
+          assert version("career-fit") == career_fit.__version__ == "0.5.1"
+          assert skillbundle.__version__ == "0.5.1"
+          assert report["schema_version"] == "career_fit.v0.5"
+          assert report["review"]["status"] == "user_confirmed"
+          assert report["summary"]["analysis_status"] == "scored"
+          assert report["summary"]["evidence_fit_score"] is not None
+          taxonomy = json.loads(Path("career-fit-taxonomy.json").read_text())
+          assert len(taxonomy["categories"]) == 10
+          comparison = json.loads(Path("career-fit-comparison.json").read_text())
+          assert comparison["schema_version"] == "career_fit.compare.v0.3"
+          assert len(comparison["roles"]) in {2, 3}
+          PY
+      - name: Rebuild and run from the source distribution
+        run: |
+          python -m venv "$RUNNER_TEMP/sdist-env"
+          "$RUNNER_TEMP/sdist-env/bin/python" -m pip install dist/*.tar.gz
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/sdist-env/bin/career-fit" taxonomy > career-fit-sdist-taxonomy.json
+          "$RUNNER_TEMP/sdist-env/bin/career-fit" analyze \
+            --job-file "$GITHUB_WORKSPACE/examples/single_job/people_analytics_job.txt" \
+            --candidate-file "$GITHUB_WORKSPACE/examples/single_job/candidate_profile.txt" \
+            --evidence-file "$GITHUB_WORKSPACE/examples/single_job/evidence.json" \
+            --review-file "$GITHUB_WORKSPACE/examples/single_job/role_review.json" \
+            > career-fit-sdist-report.json

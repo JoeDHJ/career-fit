@@ -14,4 +14,5 @@ data/processed/*
 !data/processed/README.md
 site/
 dist/
+build/
 *.egg-info/

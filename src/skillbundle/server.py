@@ -975,6 +975,7 @@ HTML = r"""<!doctype html>
       }
       function matchingMethodLabel(value) {
         const labels = {
+          no_evidence: "No evidence linked",
           direct_skill_id: "Direct evidence",
           reviewable_transfer_crosswalk: "Transferable evidence",
           candidate_constraint_rule: "Eligibility check",
@@ -1563,9 +1564,15 @@ class Handler(BaseHTTPRequestHandler):
                 requirements = payload.get("requirements", [])
                 if not isinstance(requirements, list):
                     raise TypeError("requirements must be a list")
+                job_text = payload.get("job_text", "")
+                candidate_text = payload.get("candidate_text", "")
+                if not isinstance(job_text, str):
+                    raise TypeError("job_text must be a string")
+                if not isinstance(candidate_text, str):
+                    raise TypeError("candidate_text must be a string")
                 result = LLM_REVIEW_CLIENT.review_fit(
-                    str(payload.get("job_text", ""))[:40_000],
-                    str(payload.get("candidate_text", ""))[:40_000],
+                    job_text[:40_000],
+                    candidate_text[:40_000],
                     requirements[:30],
                 )
             except LLMNotConfiguredError as exc:
@@ -1599,9 +1606,12 @@ class Handler(BaseHTTPRequestHandler):
                     if not isinstance(role, str):
                         raise TypeError("roles must contain job-description strings")
                     role_texts.append(role[:40_000])
+                candidate_text = payload.get("candidate_text", "")
+                if not isinstance(candidate_text, str):
+                    raise TypeError("candidate_text must be a string")
                 result = compare_roles(
                     role_texts,
-                    str(payload.get("candidate_text", ""))[:40_000],
+                    candidate_text[:40_000],
                     payload.get("evidence"),
                     payload.get("review"),
                     payload.get("candidate_language", "auto"),
@@ -1621,9 +1631,15 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
             if not isinstance(payload, dict):
                 raise TypeError("request body must be a JSON object")
+            job_text = payload.get("job_text", "")
+            candidate_text = payload.get("candidate_text", "")
+            if not isinstance(job_text, str):
+                raise TypeError("job_text must be a string")
+            if not isinstance(candidate_text, str):
+                raise TypeError("candidate_text must be a string")
             result = analyze_fit(
-                str(payload.get("job_text", "")),
-                str(payload.get("candidate_text", "")),
+                job_text,
+                candidate_text,
                 payload.get("evidence"),
                 payload.get("review"),
                 payload.get("candidate_language", "auto"),

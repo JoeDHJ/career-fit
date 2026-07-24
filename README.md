@@ -42,6 +42,8 @@ It can also compare two or three target roles against the same candidate profile
 
 ## Quick start
 
+Requires Python 3.10 or newer.
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -52,7 +54,7 @@ career-fit analyze --job-file examples\single_job\people_analytics_job.txt --can
 # Add --review-file review.json to reveal the reviewed score
 
 # Compare a small target-role portfolio
-career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt --review-file examples\single_job\candidate_evidence_review.json
+career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json --review-file examples\single_job\candidate_evidence_review.json
 
 # Launch the visual explorer
 career-fit serve

@@ -35,6 +35,7 @@
   {
     "evidence_id": "evidence-communication",
     "skill_id": "skill.stakeholder_communication",
+    "canonical_skill": "Stakeholder communication",
     "analysis_category_code": "social_skill",
     "evidence_type": "work",
     "source_text": "Communicated findings to academic and policy audiences.",
