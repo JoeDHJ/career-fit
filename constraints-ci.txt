@@ -8,5 +8,5 @@ pypdf==6.10.0
 pygments==2.20.0
 pytest==9.1.1
 reportlab==4.4.9
-ruff==0.15.22
+ruff==0.16.0
 tomli==2.4.1; python_version < "3.11"
