@@ -130,8 +130,8 @@ jobs:
           import skillbundle
 
           report = json.loads(Path("career-fit-report.json").read_text())
-          assert version("career-fit") == career_fit.__version__ == "0.5.1"
-          assert skillbundle.__version__ == "0.5.1"
+          assert version("career-fit") == career_fit.__version__ == "0.6.0"
+          assert skillbundle.__version__ == "0.6.0"
           assert report["schema_version"] == "career_fit.v0.5"
           assert report["review"]["status"] == "user_confirmed"
           assert report["summary"]["analysis_status"] == "scored"
