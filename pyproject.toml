@@ -32,7 +32,7 @@ Issues = "https://github.com/JoeDHJ/career-fit/issues"
 
 [project.optional-dependencies]
 ml = ["transformers>=4.40", "torch>=2.2"]
-dev = ["pytest==9.1.1", "ruff==0.15.22"]
+dev = ["pytest==9.1.1", "ruff==0.16.1"]
 
 [project.scripts]
 career-fit = "career_fit.cli:main"
