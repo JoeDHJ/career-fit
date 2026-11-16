@@ -22,6 +22,7 @@ Scope: Skills Intelligence and Human Capital Decision System (2026-11-16).
 ## Validation evidence
 
 - Full unit suite: **94 tests passed** (71 existing, 23 human-capital regressions).
+- Existing journey regression: **500 cases + 32 hard-gate edges passed, zero issues**. Detailed local record: `build/career-fit-0.7.0-scenario-audit.json`.
 - Ruff and compilation checks passed; `git diff --check` passed.
 - Real browser: 1440px desktop and 390px mobile; review confirmation, edited-input invalidation, budget/hour changes, ROI assumptions, named skill gaps, Markdown/JSON and original PDF exports, and safe transfer from consumer evidence to proposed work samples. No page errors or document-level horizontal overflow. The new browser runner is included in CI.
 - Wheel and sdist both contain font copyright/license, attribution notice, market snapshot, demo inputs and UI assets. Clean temporary environments outside the source checkout executed offline `invest`, `workforce`, `market`, both console-script namespaces and PDF generation. User output artifacts are absent from both distributions.
@@ -33,4 +34,4 @@ Two independent read-only reviewers covered requirements, calculations, edge cas
 
 ## Publication
 
-Version: **0.7.0**. Branch: `codex/human-capital-0.7.0`. Release CI and publication links will be recorded when GitHub completes the release workflow.
+Version: **0.7.0**. Branch: `codex/human-capital-0.7.0`. Initial release CI: https://github.com/JoeDHJ/career-fit/actions/runs/43824442487. Publication links will be recorded after the final release workflow.
