@@ -3,10 +3,11 @@ title: "Career Fit"
 message: "If you use Career Fit, please cite this repository."
 type: software
 authors:
-  - family-names: "Career Fit"
-    given-names: "Contributors"
-version: 0.6.0
-date-released: 2026-07-28
+  - family-names: "Dui"
+    given-names: "Haojian"
+    affiliation: "College of Economics, Shenzhen University"
+version: 0.8.0
+date-released: 2026-11-16
 repository-code: "https://github.com/JoeDHJ/career-fit"
 license: MIT
-abstract: "An explainable, evidence-first job-fit and skill-gap explorer for job seekers and labor-market researchers."
+abstract: "An inspectable career and human-capital workbench connecting employer research, reviewed work evidence, assessed learning and constrained workforce decisions. Developed with AI assistance; published observations, designed assumptions and synthetic scenarios remain distinct."
