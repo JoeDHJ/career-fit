@@ -1,0 +1,758 @@
+{
+  "schema_version": "career_fit.measurement.v1",
+  "reference": "External source annotations (tags_skill); no human annotations created by Career Fit",
+  "protocol": "Two five-epoch CPU perceptrons trained on official train only: legacy independent-token model and averaged greedy sequence model (fixed seed 37). The sequence baseline was added after inspecting legacy dev errors. All methods/splits are reported; no claim of a prespecified experiment or independent confirmation. Test is not used for parameter selection. Dictionary remains the reviewed production reference.",
+  "sources": [
+    {
+      "source_id": "skillspan-train",
+      "source_url": "https://raw.githubusercontent.com/kris927b/SkillSpan/main/data/json/train.json",
+      "source_vintage": "SkillSpan public repository; original official split",
+      "retrieved_at": "2026-11-16",
+      "schema_version": "portfolio.v1",
+      "geography": "English-language job postings; source-defined sampling",
+      "unit_of_observation": "annotated sentence",
+      "period": "source collection predates this release; not current labor demand",
+      "status": "observed",
+      "path": "data/raw/skillspan/train.jsonl",
+      "rows": 4800,
+      "bytes": 2206792,
+      "domains": {
+        "tech": 3133,
+        "house": 1667
+      },
+      "license": "MIT, Mike Zhang 2023; see source repository LICENSE",
+      "paper": "https://aclanthology.org/2022.naacl-main.366/",
+      "retrieval_precision": "day",
+      "local_file_modified_at": "2026-11-16T08:55:07.867539+00:00"
+    },
+    {
+      "source_id": "skillspan-dev",
+      "source_url": "https://raw.githubusercontent.com/kris927b/SkillSpan/main/data/json/dev.json",
+      "source_vintage": "SkillSpan public repository; original official split",
+      "retrieved_at": "2026-11-16",
+      "schema_version": "portfolio.v1",
+      "geography": "English-language job postings; source-defined sampling",
+      "unit_of_observation": "annotated sentence",
+      "period": "source collection predates this release; not current labor demand",
+      "status": "observed",
+      "path": "data/raw/skillspan/dev.jsonl",
+      "rows": 3174,
+      "bytes": 1036099,
+      "domains": {
+        "tech": 2156,
+        "house": 1018
+      },
+      "license": "MIT, Mike Zhang 2023; see source repository LICENSE",
+      "paper": "https://aclanthology.org/2022.naacl-main.366/",
+      "retrieval_precision": "day",
+      "local_file_modified_at": "2026-11-16T08:53:55.808071+00:00"
+    },
+    {
+      "source_id": "skillspan-test",
+      "source_url": "https://raw.githubusercontent.com/kris927b/SkillSpan/main/data/json/test.json",
+      "source_vintage": "SkillSpan public repository; original official split",
+      "retrieved_at": "2026-11-16",
+      "schema_version": "portfolio.v1",
+      "geography": "English-language job postings; source-defined sampling",
+      "unit_of_observation": "annotated sentence",
+      "period": "source collection predates this release; not current labor demand",
+      "status": "observed",
+      "path": "data/raw/skillspan/test.jsonl",
+      "rows": 3569,
+      "bytes": 1116219,
+      "domains": {
+        "tech": 2286,
+        "house": 1283
+      },
+      "license": "MIT, Mike Zhang 2023; see source repository LICENSE",
+      "paper": "https://aclanthology.org/2022.naacl-main.366/",
+      "retrieval_precision": "day",
+      "local_file_modified_at": "2026-11-16T08:54:07.496074+00:00"
+    }
+  ],
+  "training": {
+    "legacy": {
+      "epochs": 5,
+      "updates": 66560,
+      "rows": 4800
+    },
+    "averaged": {
+      "epochs": 5,
+      "updates": 56971,
+      "rows": 4800,
+      "seed": 37
+    }
+  },
+  "results": [
+    {
+      "split": "dev",
+      "dataset": "SkillSpan",
+      "engine": "dictionary",
+      "target": "skills",
+      "rows": 3174,
+      "strict": {
+        "precision": 0.005040957781978576,
+        "recall": 0.002483721907162361,
+        "f1": 0.003026074954241306
+      },
+      "overlap": {
+        "precision": 0.04138311279143037,
+        "recall": 0.031728028325381824,
+        "f1": 0.03316386931698841
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.02304147465437788,
+        "recall": 0.018691588785046728,
+        "f1": 0.02063983488132095,
+        "true_positive": 20,
+        "predicted": 868,
+        "gold": 1070
+      },
+      "micro_overlap": {
+        "precision": 0.19700460829493088,
+        "recall": 0.15981308411214953,
+        "f1": 0.17647058823529413,
+        "true_positive": 171,
+        "predicted": 868,
+        "gold": 1070
+      },
+      "errors": {
+        "missed_gold": 899,
+        "unmatched_predictions": 697,
+        "boundary_overlap_only": 151,
+        "gold_negative_sentences": 2571,
+        "false_positive_sentences": 386
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2156,
+          "micro_strict": {
+            "precision": 0.010121457489878543,
+            "recall": 0.009174311926605505,
+            "f1": 0.00962463907603465,
+            "true_positive": 5,
+            "predicted": 494,
+            "gold": 545
+          },
+          "micro_overlap": {
+            "precision": 0.14777327935222673,
+            "recall": 0.13394495412844037,
+            "f1": 0.14051973051010586,
+            "true_positive": 73,
+            "predicted": 494,
+            "gold": 545
+          }
+        },
+        "house": {
+          "rows": 1018,
+          "micro_strict": {
+            "precision": 0.040106951871657755,
+            "recall": 0.02857142857142857,
+            "f1": 0.03337041156840934,
+            "true_positive": 15,
+            "predicted": 374,
+            "gold": 525
+          },
+          "micro_overlap": {
+            "precision": 0.2620320855614973,
+            "recall": 0.18666666666666668,
+            "f1": 0.21802002224694103,
+            "true_positive": 98,
+            "predicted": 374,
+            "gold": 525
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "dev",
+      "dataset": "SkillSpan",
+      "engine": "ner",
+      "target": "skills",
+      "rows": 3174,
+      "strict": {
+        "precision": 0.034729098528720456,
+        "recall": 0.046568848081135414,
+        "f1": 0.03767525620077605
+      },
+      "overlap": {
+        "precision": 0.1239233522551103,
+        "recall": 0.1715125873916044,
+        "f1": 0.13408849342214182
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.04109109984262983,
+        "recall": 0.21962616822429906,
+        "f1": 0.06922963617616733,
+        "true_positive": 235,
+        "predicted": 5719,
+        "gold": 1070
+      },
+      "micro_overlap": {
+        "precision": 0.15946843853820597,
+        "recall": 0.8523364485981308,
+        "f1": 0.2686699072028281,
+        "true_positive": 912,
+        "predicted": 5719,
+        "gold": 1070
+      },
+      "errors": {
+        "missed_gold": 158,
+        "unmatched_predictions": 4807,
+        "boundary_overlap_only": 677,
+        "gold_negative_sentences": 2571,
+        "false_positive_sentences": 1609
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2156,
+          "micro_strict": {
+            "precision": 0.04131147540983607,
+            "recall": 0.23119266055045873,
+            "f1": 0.07009735744089014,
+            "true_positive": 126,
+            "predicted": 3050,
+            "gold": 545
+          },
+          "micro_overlap": {
+            "precision": 0.1540983606557377,
+            "recall": 0.8623853211009175,
+            "f1": 0.2614742698191933,
+            "true_positive": 470,
+            "predicted": 3050,
+            "gold": 545
+          }
+        },
+        "house": {
+          "rows": 1018,
+          "micro_strict": {
+            "precision": 0.04083926564256276,
+            "recall": 0.20761904761904762,
+            "f1": 0.06825297432686286,
+            "true_positive": 109,
+            "predicted": 2669,
+            "gold": 525
+          },
+          "micro_overlap": {
+            "precision": 0.16560509554140126,
+            "recall": 0.8419047619047619,
+            "f1": 0.2767689417658109,
+            "true_positive": 442,
+            "predicted": 2669,
+            "gold": 525
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "dev",
+      "dataset": "SkillSpan",
+      "engine": "averaged",
+      "target": "skills",
+      "rows": 3174,
+      "strict": {
+        "precision": 0.01848913793620788,
+        "recall": 0.01534341524889729,
+        "f1": 0.01608758636168844
+      },
+      "overlap": {
+        "precision": 0.10509646832898249,
+        "recall": 0.12074819215650973,
+        "f1": 0.10534311047070971
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.056100217864923745,
+        "recall": 0.09626168224299066,
+        "f1": 0.07088781830695114,
+        "true_positive": 103,
+        "predicted": 1836,
+        "gold": 1070
+      },
+      "micro_overlap": {
+        "precision": 0.3687363834422658,
+        "recall": 0.6327102803738318,
+        "f1": 0.4659325533379215,
+        "true_positive": 677,
+        "predicted": 1836,
+        "gold": 1070
+      },
+      "errors": {
+        "missed_gold": 393,
+        "unmatched_predictions": 1159,
+        "boundary_overlap_only": 574,
+        "gold_negative_sentences": 2571,
+        "false_positive_sentences": 448
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2156,
+          "micro_strict": {
+            "precision": 0.04431599229287091,
+            "recall": 0.08440366972477065,
+            "f1": 0.05811749842072015,
+            "true_positive": 46,
+            "predicted": 1038,
+            "gold": 545
+          },
+          "micro_overlap": {
+            "precision": 0.35452793834296725,
+            "recall": 0.6752293577981652,
+            "f1": 0.4649399873657612,
+            "true_positive": 368,
+            "predicted": 1038,
+            "gold": 545
+          }
+        },
+        "house": {
+          "rows": 1018,
+          "micro_strict": {
+            "precision": 0.07142857142857142,
+            "recall": 0.10857142857142857,
+            "f1": 0.08616780045351473,
+            "true_positive": 57,
+            "predicted": 798,
+            "gold": 525
+          },
+          "micro_overlap": {
+            "precision": 0.38721804511278196,
+            "recall": 0.5885714285714285,
+            "f1": 0.4671201814058957,
+            "true_positive": 309,
+            "predicted": 798,
+            "gold": 525
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "dev",
+      "dataset": "SkillSpan",
+      "engine": "dictionary",
+      "target": "combined",
+      "rows": 3174,
+      "strict": {
+        "precision": 0.03841554895430132,
+        "recall": 0.021284043968353986,
+        "f1": 0.025622823756094076
+      },
+      "overlap": {
+        "precision": 0.09633180304257809,
+        "recall": 0.059715538259961704,
+        "f1": 0.06857779191538782
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.24193548387096775,
+        "recall": 0.0970873786407767,
+        "f1": 0.13856812933025403,
+        "true_positive": 210,
+        "predicted": 868,
+        "gold": 2163
+      },
+      "micro_overlap": {
+        "precision": 0.5391705069124424,
+        "recall": 0.21636615811373092,
+        "f1": 0.3088089739359947,
+        "true_positive": 468,
+        "predicted": 868,
+        "gold": 2163
+      },
+      "errors": {
+        "missed_gold": 1695,
+        "unmatched_predictions": 400,
+        "boundary_overlap_only": 258,
+        "gold_negative_sentences": 2260,
+        "false_positive_sentences": 230
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2156,
+          "micro_strict": {
+            "precision": 0.3481781376518219,
+            "recall": 0.12731310140636565,
+            "f1": 0.18644986449864498,
+            "true_positive": 172,
+            "predicted": 494,
+            "gold": 1351
+          },
+          "micro_overlap": {
+            "precision": 0.6477732793522267,
+            "recall": 0.23686158401184307,
+            "f1": 0.3468834688346883,
+            "true_positive": 320,
+            "predicted": 494,
+            "gold": 1351
+          }
+        },
+        "house": {
+          "rows": 1018,
+          "micro_strict": {
+            "precision": 0.10160427807486631,
+            "recall": 0.046798029556650245,
+            "f1": 0.06408094435075885,
+            "true_positive": 38,
+            "predicted": 374,
+            "gold": 812
+          },
+          "micro_overlap": {
+            "precision": 0.39572192513368987,
+            "recall": 0.18226600985221675,
+            "f1": 0.24957841483979767,
+            "true_positive": 148,
+            "predicted": 374,
+            "gold": 812
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "test",
+      "dataset": "SkillSpan",
+      "engine": "dictionary",
+      "target": "skills",
+      "rows": 3569,
+      "strict": {
+        "precision": 0.007284953768562623,
+        "recall": 0.004198188101242178,
+        "f1": 0.00503142136652924
+      },
+      "overlap": {
+        "precision": 0.041514896796488274,
+        "recall": 0.030703767450755405,
+        "f1": 0.03263674200417068
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.03717026378896882,
+        "recall": 0.02841429880843263,
+        "f1": 0.03220779220779221,
+        "true_positive": 31,
+        "predicted": 834,
+        "gold": 1091
+      },
+      "micro_overlap": {
+        "precision": 0.22062350119904076,
+        "recall": 0.1686526122823098,
+        "f1": 0.19116883116883115,
+        "true_positive": 184,
+        "predicted": 834,
+        "gold": 1091
+      },
+      "errors": {
+        "missed_gold": 907,
+        "unmatched_predictions": 650,
+        "boundary_overlap_only": 153,
+        "gold_negative_sentences": 2985,
+        "false_positive_sentences": 391
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2286,
+          "micro_strict": {
+            "precision": 0.03762376237623762,
+            "recall": 0.04318181818181818,
+            "f1": 0.040211640211640205,
+            "true_positive": 19,
+            "predicted": 505,
+            "gold": 440
+          },
+          "micro_overlap": {
+            "precision": 0.17227722772277226,
+            "recall": 0.19772727272727272,
+            "f1": 0.18412698412698414,
+            "true_positive": 87,
+            "predicted": 505,
+            "gold": 440
+          }
+        },
+        "house": {
+          "rows": 1283,
+          "micro_strict": {
+            "precision": 0.0364741641337386,
+            "recall": 0.018433179723502304,
+            "f1": 0.02448979591836735,
+            "true_positive": 12,
+            "predicted": 329,
+            "gold": 651
+          },
+          "micro_overlap": {
+            "precision": 0.2948328267477204,
+            "recall": 0.1490015360983103,
+            "f1": 0.1979591836734694,
+            "true_positive": 97,
+            "predicted": 329,
+            "gold": 651
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "test",
+      "dataset": "SkillSpan",
+      "engine": "ner",
+      "target": "skills",
+      "rows": 3569,
+      "strict": {
+        "precision": 0.03034697938032205,
+        "recall": 0.038865570001742594,
+        "f1": 0.032424293452002824
+      },
+      "overlap": {
+        "precision": 0.10600589208742753,
+        "recall": 0.14259859330607438,
+        "f1": 0.11208089489606277
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.03682673588578845,
+        "recall": 0.2080659945004583,
+        "f1": 0.0625775327360441,
+        "true_positive": 227,
+        "predicted": 6164,
+        "gold": 1091
+      },
+      "micro_overlap": {
+        "precision": 0.1400064892926671,
+        "recall": 0.7910174152153987,
+        "f1": 0.23790489317711921,
+        "true_positive": 863,
+        "predicted": 6164,
+        "gold": 1091
+      },
+      "errors": {
+        "missed_gold": 228,
+        "unmatched_predictions": 5301,
+        "boundary_overlap_only": 636,
+        "gold_negative_sentences": 2985,
+        "false_positive_sentences": 1815
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2286,
+          "micro_strict": {
+            "precision": 0.03594438792811122,
+            "recall": 0.2409090909090909,
+            "f1": 0.06255532605488344,
+            "true_positive": 106,
+            "predicted": 2949,
+            "gold": 440
+          },
+          "micro_overlap": {
+            "precision": 0.11936249576127501,
+            "recall": 0.8,
+            "f1": 0.20773089406904693,
+            "true_positive": 352,
+            "predicted": 2949,
+            "gold": 440
+          }
+        },
+        "house": {
+          "rows": 1283,
+          "micro_strict": {
+            "precision": 0.037636080870917576,
+            "recall": 0.1858678955453149,
+            "f1": 0.06259699948266943,
+            "true_positive": 121,
+            "predicted": 3215,
+            "gold": 651
+          },
+          "micro_overlap": {
+            "precision": 0.1589424572317263,
+            "recall": 0.7849462365591398,
+            "f1": 0.264355923435075,
+            "true_positive": 511,
+            "predicted": 3215,
+            "gold": 651
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "test",
+      "dataset": "SkillSpan",
+      "engine": "averaged",
+      "target": "skills",
+      "rows": 3569,
+      "strict": {
+        "precision": 0.011879215121184367,
+        "recall": 0.01072297849406283,
+        "f1": 0.01068391774471909
+      },
+      "overlap": {
+        "precision": 0.08456607355747006,
+        "recall": 0.09751873698357308,
+        "f1": 0.08483742371385969
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.0488358886996025,
+        "recall": 0.07882676443629698,
+        "f1": 0.06030855539971951,
+        "true_positive": 86,
+        "predicted": 1761,
+        "gold": 1091
+      },
+      "micro_overlap": {
+        "precision": 0.3532084043157297,
+        "recall": 0.5701191567369386,
+        "f1": 0.43618513323983166,
+        "true_positive": 622,
+        "predicted": 1761,
+        "gold": 1091
+      },
+      "errors": {
+        "missed_gold": 469,
+        "unmatched_predictions": 1139,
+        "boundary_overlap_only": 536,
+        "gold_negative_sentences": 2985,
+        "false_positive_sentences": 460
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2286,
+          "micro_strict": {
+            "precision": 0.0417607223476298,
+            "recall": 0.08409090909090909,
+            "f1": 0.05580693815987934,
+            "true_positive": 37,
+            "predicted": 886,
+            "gold": 440
+          },
+          "micro_overlap": {
+            "precision": 0.3239277652370203,
+            "recall": 0.6522727272727272,
+            "f1": 0.43288084464555054,
+            "true_positive": 287,
+            "predicted": 886,
+            "gold": 440
+          }
+        },
+        "house": {
+          "rows": 1283,
+          "micro_strict": {
+            "precision": 0.056,
+            "recall": 0.07526881720430108,
+            "f1": 0.06422018348623854,
+            "true_positive": 49,
+            "predicted": 875,
+            "gold": 651
+          },
+          "micro_overlap": {
+            "precision": 0.38285714285714284,
+            "recall": 0.5145929339477726,
+            "f1": 0.43905635648754915,
+            "true_positive": 335,
+            "predicted": 875,
+            "gold": 651
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    },
+    {
+      "split": "test",
+      "dataset": "SkillSpan",
+      "engine": "dictionary",
+      "target": "combined",
+      "rows": 3569,
+      "strict": {
+        "precision": 0.04244186046511628,
+        "recall": 0.02345510098382051,
+        "f1": 0.028360891078038738
+      },
+      "overlap": {
+        "precision": 0.09797562342392828,
+        "recall": 0.06122780662567717,
+        "f1": 0.07017434909351412
+      },
+      "schema_version": "career_fit.benchmark.v2",
+      "micro_strict": {
+        "precision": 0.3009592326139089,
+        "recall": 0.11081677704194261,
+        "f1": 0.16198773797999355,
+        "true_positive": 251,
+        "predicted": 834,
+        "gold": 2265
+      },
+      "micro_overlap": {
+        "precision": 0.6270983213429256,
+        "recall": 0.23090507726269316,
+        "f1": 0.3375282349144885,
+        "true_positive": 523,
+        "predicted": 834,
+        "gold": 2265
+      },
+      "errors": {
+        "missed_gold": 1742,
+        "unmatched_predictions": 311,
+        "boundary_overlap_only": 272,
+        "gold_negative_sentences": 2595,
+        "false_positive_sentences": 201
+      },
+      "by_source": {
+        "tech": {
+          "rows": 2286,
+          "micro_strict": {
+            "precision": 0.403960396039604,
+            "recall": 0.1637239165329053,
+            "f1": 0.2330097087378641,
+            "true_positive": 204,
+            "predicted": 505,
+            "gold": 1246
+          },
+          "micro_overlap": {
+            "precision": 0.7108910891089109,
+            "recall": 0.2881219903691814,
+            "f1": 0.4100513992004569,
+            "true_positive": 359,
+            "predicted": 505,
+            "gold": 1246
+          }
+        },
+        "house": {
+          "rows": 1283,
+          "micro_strict": {
+            "precision": 0.14285714285714285,
+            "recall": 0.04612365063788027,
+            "f1": 0.06973293768545993,
+            "true_positive": 47,
+            "predicted": 329,
+            "gold": 1019
+          },
+          "micro_overlap": {
+            "precision": 0.49848024316109424,
+            "recall": 0.16094210009813542,
+            "f1": 0.24332344213649848,
+            "true_positive": 164,
+            "predicted": 329,
+            "gold": 1019
+          }
+        }
+      },
+      "aggregation": "strict/overlap are sentence macro means (empty-reference/prediction rows contribute zero); micro_* pool span counts; overlap uses one-to-one maximum-cardinality matching",
+      "note": "NER is a lightweight supervised perceptron baseline; dictionary remains the transparent reference."
+    }
+  ],
+  "scope": [
+    "The dictionary includes knowledge/software labels that the benchmark may annotate under tags_knowledge instead of tags_skill. Reported scores concern the named tags_skill task and do not measure all occupational coverage.",
+    "Extraction accuracy does not validate evidence strength, transfer weights, capability, hiring probability or training effects.",
+    "Raw source sentences and model weights stay in local analysis directories. Bundled summary results reproduce offline; full re-estimation requires downloading the public source."
+  ],
+  "evaluated_at": "2026-11-16T09:14:04+00:00"
+}

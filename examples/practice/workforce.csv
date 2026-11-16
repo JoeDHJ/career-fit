@@ -1,0 +1,11 @@
+snapshot,employee_id,department,fte
+2026-09,E01,Operations,1
+2026-09,E02,Operations,0.5
+2026-09,E03,People,1
+2026-09,E04,People,0.8
+2026-10,E01,Operations,1
+2026-10,E02,Operations,0.6
+2026-10,E03,People,1
+2026-10,E03,People,1
+2026-10,,People,0.8
+2026-10,E05,Operations,1.2

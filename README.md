@@ -1,31 +1,34 @@
 # Career Fit
 
-**Career Fit** is a **Skills Intelligence and Human Capital Decision System**. It helps job seekers prepare stronger evidence and helps analysts compare feasible training, internal mobility and hiring choices.
+**Career Fit** connects employer research, reviewed work evidence, assessed learning and constrained human-capital decisions. Version **0.8.0** adds an inspectable project showcase, external extraction evaluation and a complete learning-to-evidence workflow.
 
-## Start with the completed decision cases
+## Inspect the work
 
-What can someone build in 90 days with limited time and money? When can an organization train and move employees instead of recruiting externally? Version **0.7.0** answers these questions with reviewed evidence and explicit constraints.
+- **Source research:** eight attributed official employer descriptions and five learning resources, normalized SQLite tables and reproducible SQL. Archived/indexed sources, seniority gates and missing durations stay visible. [Research findings](docs/role-resource-research.md).
+- **External measurement:** three lightweight extractors evaluated on official SkillSpan splits. Exact extraction accuracy is limited; the results constrain the product claims. [Complete evaluation](docs/measurement-evaluation.md).
+- **Assessed learning:** an archived NHS analyst case selects Excel, SQL, a management memo and a reconciliation task in **46 hours**, with zero content/practice fees and **920 USD** at an assumed time value. Track artifacts and actual hours, then return them to a fresh evidence review. [Generated brief](examples/evidence_decisions/analyst_brief.md) · [Practice task](examples/practice/).
+- **Business decisions:** a synthetic **30-person / 12-position** case compares training, internal mobility and recruitment with consent, priorities, backfill, vacancy loss and lead times. Hybrid covers all 12 positions using **21,800 USD cash, 81,040 USD economic cost and 88 release hours**. These are scenario results, not employer savings. [Generated brief](examples/evidence_decisions/business_brief.md) · [Sensitivity inputs/results](examples/evidence_decisions/business_sensitivity.json).
 
-- **Real JD + fictional candidate:** a feasible portfolio costs **$320 and 68 hours** ($1,680 including the supplied time value). Two senior experience gates remain unmet. [Case and findings](docs/human-capital-case-report.md) · [Generated personal brief](examples/human_capital/investment_brief.md).
-- **Public occupational data + synthetic workforce:** two direct moves and two training moves fill **four scenario positions**, costing **$1,400 in fees and $3,016 including 56 released hours**. The baseline, capacity constraints and coverage differences stay visible. [Generated workforce brief](examples/human_capital/workforce_brief.md) · [Complete inputs and results](examples/human_capital/).
-- **Dated market context:** offline BLS 2025–2035 estimates/projections and O*NET 31.0 importance ratings, with explicit national, missing and stale-data states. Public wages are separate from training-return assumptions.
-
-[Executive brief](docs/executive-brief.md) · [Methods and interfaces](docs/human-capital-methods.md) · [Official employer requirements](docs/employer-requirements.md) · [Two-minute demonstration](docs/demo-script.md) · [Validation record](docs/implementation-status.md)
+[Executive brief](docs/executive-brief-0.8.0.md) · [Methods](docs/methods-0.8.0.md) · [Reproduce](docs/reproduction-0.8.0.md) · [Demo and interview](docs/interview-demo-0.8.0.md) · [Validation](docs/implementation-status-0.8.0.md) · [职业准备分析（中文）](docs/career-advancement-0.8.0.zh.md)
 
 ```powershell
-python -m pip install career-fit==0.7.0
-career-fit invest --format markdown
-career-fit workforce --format json
+python -m pip install "career-fit[optimization]==0.8.0"
+career-fit research
+career-fit measurement
+career-fit invest --case analyst --format markdown
+career-fit workforce --case business --format json
 career-fit serve
-# Job seeker workspace: http://127.0.0.1:8766
-# Human capital workspace: http://127.0.0.1:8766/capital
+# Project showcase: http://127.0.0.1:8766/showcase
+# Evidence review: http://127.0.0.1:8766
+# Learning plan: http://127.0.0.1:8766/capital
+# Business case: http://127.0.0.1:8766/capital?case=business
 ```
 
-![Career Fit complete training portfolio and 30/60/90-day plan](docs/assets/career-fit-investment.png)
+![Career Fit project showcase](docs/assets/career-fit-showcase-entry-0.8.png)
 
-![Career Fit complete workforce strategy comparison and proposed moves](docs/assets/career-fit-workforce.png)
+The optimization extra supplies SciPy/HiGHS for medium cases. The base package retains the small exact workforce case: `career-fit workforce`. Packaged summaries and decision cases run offline; full external model re-estimation explicitly downloads public data. Employer observations are a purposive historical sample, and all learners, employees and training effects in the demonstrations are fictional scenarios. No human usability effect, hiring probability or individual salary return is claimed. [Human validation protocol](docs/user-validation.md).
 
-Both CLI cases run from the installed package without a source checkout, network or Atlas server. From a clone, `python tools/run_human_capital_cases.py` regenerates the reports and sensitivity results. All personal/cohort inputs and training effects in these demonstrations are fictional scenarios; public observations are attributed separately.
+Legacy 0.7 examples remain available in [examples/human_capital](examples/human_capital/) and through `career-fit invest` / `career-fit workforce`. The consumer review, multilingual and resume-free routes and existing report exports remain supported.
 
 ## The job seeker entry
 
@@ -50,7 +53,7 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.7 product:
+Given a job description and a candidate profile, the v0.8 product:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates, including background-check, license, education, work-authorization, and experience requirements;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;

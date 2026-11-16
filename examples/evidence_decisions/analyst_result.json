@@ -1,0 +1,580 @@
+{
+  "schema_version": "career_fit.investment.v1",
+  "status": "scenario_plan",
+  "input_status": "Fictional career-switching analyst; archived actual NHS role and official learning resources; practice costs/effects are scenarios",
+  "currency": "USD",
+  "price_year": 2026,
+  "progress": {
+    "records": [],
+    "rubric": {
+      "correctness": "0: not checked; 1: material errors; 2: core checks pass; 3: handles edge cases and reconciles totals",
+      "reproducibility": "0: no artifact; 1: partial instructions; 2: another person can run/review it; 3: fresh run and malformed-input checks documented",
+      "interpretation": "0: no explanation; 1: unsupported interpretation; 2: population, units and assumptions clear; 3: explains decision tradeoffs and remaining uncertainty",
+      "independence": "0: contribution unclear; 1: copied with little explanation; 2: can explain and adapt the work; 3: independently diagnoses a new task variation"
+    },
+    "reported_actual_hours": 0,
+    "records_missing_actual_hours": 0,
+    "passed_records": 0,
+    "interpretation": "Completion records do not automatically change fit, proficiency or eligibility. Explicitly transfer assessed work to the evidence-review workspace and review it there."
+  },
+  "budget": 100.0,
+  "hours_capacity_90_days": 64.0,
+  "preparation_hours": 6.0,
+  "hourly_value": 20.0,
+  "reviewed_summary": {
+    "evidence_fit_score": 6,
+    "role_fit_score": 6,
+    "application_readiness_score": 7,
+    "capability_signal_score": 12,
+    "proof_signal_score": 20,
+    "input_completeness_score": null,
+    "requirements_identified": 5,
+    "minimum_input_threshold": "met",
+    "soft_requirement_count": 5,
+    "requirements_with_reviewable_evidence": 1,
+    "requirements_with_claimed_evidence": 0,
+    "evidence_coverage_score": 11,
+    "claimed_evidence_coverage_score": 0,
+    "eligibility_verification_score": null,
+    "eligibility_status": "no_gate_detected",
+    "evidence_item_count": 2,
+    "requirement_count": 5,
+    "analysis_status": "scored",
+    "analysis_reasons": [],
+    "review_status": "user_confirmed",
+    "review_required": false,
+    "score_visibility": "visible",
+    "readiness_status": "build_evidence_before_prioritizing",
+    "decision": "evidence_building_needed",
+    "decision_label": "Several important requirements need evidence or structured preparation.",
+    "skill_requirement_count": 5,
+    "hard_constraint_count": 0,
+    "blocking_constraint_count": 0,
+    "direct_evidence_count": 0,
+    "evidence_count": 2,
+    "excluded_evidence_count": 0,
+    "candidate_language": {
+      "requested": "auto",
+      "detected": "english_or_mixed",
+      "rule_based_dictionary": "English seed dictionary plus English O*NET labels",
+      "requires_language_review": false,
+      "note": "The current rule-based dictionary is designed for English skill labels; confirm any mixed-language terms during review."
+    }
+  },
+  "eligibility_gates": [],
+  "evidence_map": [
+    {
+      "skill": "Microsoft Excel",
+      "skill_id": "software.excel",
+      "status": "missing",
+      "training_target": true,
+      "importance": "must"
+    },
+    {
+      "skill": "Data analysis",
+      "skill_id": "skill.data_analysis",
+      "status": "missing",
+      "training_target": true,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Stakeholder communication",
+      "skill_id": "skill.stakeholder_communication",
+      "status": "missing",
+      "training_target": true,
+      "importance": "inferred"
+    },
+    {
+      "skill": "SQL",
+      "skill_id": "software.sql",
+      "status": "transferable",
+      "training_target": true,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Data quality",
+      "skill_id": "user.custom.005",
+      "status": "missing",
+      "training_target": true,
+      "importance": "must"
+    }
+  ],
+  "objective": "Maximize distinct reviewed gap importance covered by assumed training outcomes; then minimize economic cost (cash plus supplied foregone income if time value missing), then hours. Coverage is not proficiency or a predicted job outcome.",
+  "best_plan": {
+    "course_ids": [
+      "ou-excel",
+      "ms-sql",
+      "proof-existing",
+      "quality-practice"
+    ],
+    "target_weight_covered": 2.6,
+    "cash_cost": 0.0,
+    "foregone_income": 0.0,
+    "hours": 46.0,
+    "economic_cost": 920.0,
+    "selected_courses": [
+      {
+        "id": "ou-excel",
+        "provider": "The Open University",
+        "title": "Data analysis: visualisations in Excel",
+        "skills": [
+          "software.excel",
+          "skill.data_visualization"
+        ],
+        "provider_hours": 6,
+        "provider_fee": 0,
+        "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+        "learning_hours_assumption": 6,
+        "practice_hours_assumption": 4,
+        "hours": 10.0,
+        "fee": 0.0,
+        "prerequisites": [],
+        "eligibility": "met",
+        "entry_conditions": "Excel or compatible spreadsheet access",
+        "artifact": "Create a reconciled pivot summary and chart from public occupation data",
+        "completion_criterion": "Reviewer reconciles totals and explains the denominator and chart choice",
+        "caution": null,
+        "source": {
+          "source_id": "ou-excel",
+          "source_url": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+          "retrieved_at": "2026-11-16",
+          "retrieval_precision": "day",
+          "source_vintage": "Provider page checked 2026-11-16",
+          "geography": "Online; access may vary",
+          "unit_of_observation": "learning resource",
+          "period": "Provider page checked 2026-11-16",
+          "currency": null,
+          "price_year": null,
+          "schema_version": "portfolio.v1",
+          "status": "observed",
+          "access_state": "direct"
+        },
+        "fee_source": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+        "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns",
+        "entry_confirmation": "Scenario: learner has checked software/access and entry conditions",
+        "foregone_income": 0.0
+      },
+      {
+        "id": "ms-sql",
+        "provider": "Microsoft Learn",
+        "title": "Query and modify data with Transact-SQL",
+        "skills": [
+          "software.sql"
+        ],
+        "provider_hours": null,
+        "provider_fee": 0,
+        "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+        "learning_hours_assumption": 6,
+        "practice_hours_assumption": 6,
+        "hours": 12.0,
+        "fee": 0.0,
+        "prerequisites": [],
+        "eligibility": "met",
+        "entry_conditions": "Familiarity with tabular data; local SQL environment or suitable learning environment",
+        "artifact": "SQL queries joining three public/synthetic tables with reconciliation checks",
+        "completion_criterion": "Reviewer verifies joins, missing values and grouped totals against a hand example",
+        "caution": "Provider duration not visible in the retrieved path; six study hours is an editable planning assumption",
+        "source": {
+          "source_id": "ms-sql",
+          "source_url": "https://learn.microsoft.com/en-us/training/paths/get-started-querying-with-transact-sql/",
+          "retrieved_at": "2026-11-16",
+          "retrieval_precision": "day",
+          "source_vintage": "Provider page checked 2026-11-16",
+          "geography": "Online; access may vary",
+          "unit_of_observation": "learning resource",
+          "period": "Provider page checked 2026-11-16",
+          "currency": null,
+          "price_year": null,
+          "schema_version": "portfolio.v1",
+          "status": "observed",
+          "access_state": "direct"
+        },
+        "fee_source": "https://learn.microsoft.com/en-gb/training/support/faq",
+        "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns",
+        "entry_confirmation": "Scenario: learner has checked software/access and entry conditions",
+        "foregone_income": 0.0
+      },
+      {
+        "id": "proof-existing",
+        "title": "Translate existing research into a workforce briefing",
+        "hours": 6.0,
+        "fee": 0.0,
+        "skills": [
+          "skill.communication",
+          "skill.stakeholder_communication"
+        ],
+        "prerequisites": [],
+        "eligibility": "met",
+        "option_kind": "proof",
+        "artifact": "Two-page workforce memo using an existing public-data analysis",
+        "completion_criterion": "A reviewer identifies the business question, main finding, assumptions and next action",
+        "outcome_status": "Analyst-authored practice option; not a provider promise",
+        "foregone_income": 0.0
+      },
+      {
+        "id": "quality-practice",
+        "title": "Reconcile a workforce data extract",
+        "hours": 12.0,
+        "fee": 0.0,
+        "skills": [
+          "user.custom.005",
+          "skill.data_analysis"
+        ],
+        "skill_labels": {
+          "user.custom.005": "Data quality"
+        },
+        "prerequisites": [
+          "software.sql"
+        ],
+        "eligibility": "met",
+        "option_kind": "practice",
+        "artifact": "SQL checks, reconciled headcount table and management memo; use examples/practice",
+        "completion_criterion": "Detect duplicate snapshots, missing IDs and invalid FTE; reconcile denominators and explain the decision impact",
+        "outcome_status": "Analyst-authored 12-hour planning assumption; completion requires task assessment",
+        "foregone_income": 0.0
+      }
+    ]
+  },
+  "alternatives": [
+    {
+      "course_ids": [
+        "ou-excel",
+        "ms-sql",
+        "proof-existing",
+        "quality-practice"
+      ],
+      "target_weight_covered": 2.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 46.0,
+      "economic_cost": 920.0,
+      "selected_courses": [
+        {
+          "id": "ou-excel",
+          "provider": "The Open University",
+          "title": "Data analysis: visualisations in Excel",
+          "skills": [
+            "software.excel",
+            "skill.data_visualization"
+          ],
+          "provider_hours": 6,
+          "provider_fee": 0,
+          "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+          "learning_hours_assumption": 6,
+          "practice_hours_assumption": 4,
+          "hours": 10.0,
+          "fee": 0.0,
+          "prerequisites": [],
+          "eligibility": "met",
+          "entry_conditions": "Excel or compatible spreadsheet access",
+          "artifact": "Create a reconciled pivot summary and chart from public occupation data",
+          "completion_criterion": "Reviewer reconciles totals and explains the denominator and chart choice",
+          "caution": null,
+          "source": {
+            "source_id": "ou-excel",
+            "source_url": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+            "retrieved_at": "2026-11-16",
+            "retrieval_precision": "day",
+            "source_vintage": "Provider page checked 2026-11-16",
+            "geography": "Online; access may vary",
+            "unit_of_observation": "learning resource",
+            "period": "Provider page checked 2026-11-16",
+            "currency": null,
+            "price_year": null,
+            "schema_version": "portfolio.v1",
+            "status": "observed",
+            "access_state": "direct"
+          },
+          "fee_source": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+          "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns",
+          "entry_confirmation": "Scenario: learner has checked software/access and entry conditions",
+          "foregone_income": 0.0
+        },
+        {
+          "id": "ms-sql",
+          "provider": "Microsoft Learn",
+          "title": "Query and modify data with Transact-SQL",
+          "skills": [
+            "software.sql"
+          ],
+          "provider_hours": null,
+          "provider_fee": 0,
+          "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+          "learning_hours_assumption": 6,
+          "practice_hours_assumption": 6,
+          "hours": 12.0,
+          "fee": 0.0,
+          "prerequisites": [],
+          "eligibility": "met",
+          "entry_conditions": "Familiarity with tabular data; local SQL environment or suitable learning environment",
+          "artifact": "SQL queries joining three public/synthetic tables with reconciliation checks",
+          "completion_criterion": "Reviewer verifies joins, missing values and grouped totals against a hand example",
+          "caution": "Provider duration not visible in the retrieved path; six study hours is an editable planning assumption",
+          "source": {
+            "source_id": "ms-sql",
+            "source_url": "https://learn.microsoft.com/en-us/training/paths/get-started-querying-with-transact-sql/",
+            "retrieved_at": "2026-11-16",
+            "retrieval_precision": "day",
+            "source_vintage": "Provider page checked 2026-11-16",
+            "geography": "Online; access may vary",
+            "unit_of_observation": "learning resource",
+            "period": "Provider page checked 2026-11-16",
+            "currency": null,
+            "price_year": null,
+            "schema_version": "portfolio.v1",
+            "status": "observed",
+            "access_state": "direct"
+          },
+          "fee_source": "https://learn.microsoft.com/en-gb/training/support/faq",
+          "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns",
+          "entry_confirmation": "Scenario: learner has checked software/access and entry conditions",
+          "foregone_income": 0.0
+        },
+        {
+          "id": "proof-existing",
+          "title": "Translate existing research into a workforce briefing",
+          "hours": 6.0,
+          "fee": 0.0,
+          "skills": [
+            "skill.communication",
+            "skill.stakeholder_communication"
+          ],
+          "prerequisites": [],
+          "eligibility": "met",
+          "option_kind": "proof",
+          "artifact": "Two-page workforce memo using an existing public-data analysis",
+          "completion_criterion": "A reviewer identifies the business question, main finding, assumptions and next action",
+          "outcome_status": "Analyst-authored practice option; not a provider promise",
+          "foregone_income": 0.0
+        },
+        {
+          "id": "quality-practice",
+          "title": "Reconcile a workforce data extract",
+          "hours": 12.0,
+          "fee": 0.0,
+          "skills": [
+            "user.custom.005",
+            "skill.data_analysis"
+          ],
+          "skill_labels": {
+            "user.custom.005": "Data quality"
+          },
+          "prerequisites": [
+            "software.sql"
+          ],
+          "eligibility": "met",
+          "option_kind": "practice",
+          "artifact": "SQL checks, reconciled headcount table and management memo; use examples/practice",
+          "completion_criterion": "Detect duplicate snapshots, missing IDs and invalid FTE; reconcile denominators and explain the decision impact",
+          "outcome_status": "Analyst-authored 12-hour planning assumption; completion requires task assessment",
+          "foregone_income": 0.0
+        }
+      ]
+    },
+    {
+      "course_ids": [
+        "ou-excel",
+        "ms-sql",
+        "ms-bi",
+        "proof-existing",
+        "quality-practice"
+      ],
+      "target_weight_covered": 2.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 56.0,
+      "economic_cost": 1120.0
+    },
+    {
+      "course_ids": [
+        "ou-excel",
+        "ms-sql",
+        "quality-practice"
+      ],
+      "target_weight_covered": 2.4,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 40.0,
+      "economic_cost": 800.0
+    },
+    {
+      "course_ids": [
+        "ou-excel",
+        "ms-sql",
+        "ms-bi",
+        "quality-practice"
+      ],
+      "target_weight_covered": 2.4,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 50.0,
+      "economic_cost": 1000.0
+    },
+    {
+      "course_ids": [
+        "ms-sql",
+        "proof-existing",
+        "quality-practice"
+      ],
+      "target_weight_covered": 1.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 36.0,
+      "economic_cost": 720.0
+    },
+    {
+      "course_ids": [
+        "ms-sql",
+        "ms-bi",
+        "proof-existing",
+        "quality-practice"
+      ],
+      "target_weight_covered": 1.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 46.0,
+      "economic_cost": 920.0
+    },
+    {
+      "course_ids": [
+        "ms-sql",
+        "ou-communication",
+        "quality-practice"
+      ],
+      "target_weight_covered": 1.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 58.0,
+      "economic_cost": 1160.0
+    },
+    {
+      "course_ids": [
+        "ms-sql",
+        "ou-communication",
+        "proof-existing",
+        "quality-practice"
+      ],
+      "target_weight_covered": 1.6,
+      "cash_cost": 0.0,
+      "foregone_income": 0.0,
+      "hours": 64.0,
+      "economic_cost": 1280.0
+    }
+  ],
+  "feasible_portfolios": 40,
+  "blocked_options": [
+    {
+      "id": "ou-python",
+      "reason": "Training eligibility unknown"
+    }
+  ],
+  "remaining_targets": [],
+  "timeline": [
+    {
+      "day": 30,
+      "training": [
+        {
+          "course_id": "ou-excel",
+          "title": "Data analysis: visualisations in Excel",
+          "hours": 10.0,
+          "artifact": "Create a reconciled pivot summary and chart from public occupation data",
+          "completion_criterion": "Reviewer reconciles totals and explains the denominator and chart choice",
+          "due_day": 19
+        },
+        {
+          "course_id": "ms-sql",
+          "title": "Query and modify data with Transact-SQL",
+          "hours": 8.43,
+          "artifact": "SQL queries joining three public/synthetic tables with reconciliation checks",
+          "completion_criterion": "Reviewer verifies joins, missing values and grouped totals against a hand example",
+          "due_day": 35
+        }
+      ],
+      "actions": [
+        "Recheck eligibility against the complete current posting.",
+        "Translate one existing direct or transferable example into task, context, result, and a reviewable artifact."
+      ],
+      "artifact": "Reviewed eligibility checklist and one role-specific evidence card",
+      "completion_criterion": "Each gate has a source or an explicit unresolved status; the evidence card links to an actual work sample."
+    },
+    {
+      "day": 60,
+      "training": [
+        {
+          "course_id": "ms-sql",
+          "title": "Query and modify data with Transact-SQL",
+          "hours": 3.57,
+          "artifact": "SQL queries joining three public/synthetic tables with reconciliation checks",
+          "completion_criterion": "Reviewer verifies joins, missing values and grouped totals against a hand example",
+          "due_day": 35
+        },
+        {
+          "course_id": "proof-existing",
+          "title": "Translate existing research into a workforce briefing",
+          "hours": 6.0,
+          "artifact": "Two-page workforce memo using an existing public-data analysis",
+          "completion_criterion": "A reviewer identifies the business question, main finding, assumptions and next action",
+          "due_day": 44
+        },
+        {
+          "course_id": "quality-practice",
+          "title": "Reconcile a workforce data extract",
+          "hours": 11.86,
+          "artifact": "SQL checks, reconciled headcount table and management memo; use examples/practice",
+          "completion_criterion": "Detect duplicate snapshots, missing IDs and invalid FTE; reconcile denominators and explain the decision impact",
+          "due_day": 61
+        }
+      ],
+      "actions": [
+        "Test the selected work sample against the role's named requirements; request a human critique."
+      ],
+      "artifact": "Runnable work sample, validation checks, and short decision memo",
+      "completion_criterion": "Another person can reproduce the result and locate the requirement it supports."
+    },
+    {
+      "day": 90,
+      "training": [
+        {
+          "course_id": "quality-practice",
+          "title": "Reconcile a workforce data extract",
+          "hours": 0.14,
+          "artifact": "SQL checks, reconciled headcount table and management memo; use examples/practice",
+          "completion_criterion": "Detect duplicate snapshots, missing IDs and invalid FTE; reconcile denominators and explain the decision impact",
+          "due_day": 61
+        }
+      ],
+      "actions": [
+        "Reassess the evidence map, document remaining gaps, and prepare an application or an adjacent-role search."
+      ],
+      "artifact": "Updated evidence map and tailored application pack",
+      "completion_criterion": "Every new claim points to completed work; unresolved gates remain visible."
+    }
+  ],
+  "market_context": {
+    "schema_version": "portfolio.v1",
+    "requested_occupation": "",
+    "requested_geography": "UK",
+    "as_of": "2026-11-16",
+    "coverage": {
+      "occupations_in_snapshot": 3,
+      "requested_occupation_found": false
+    },
+    "interpretation": "Occupation context is descriptive. Wages are population estimates, and openings are official projections; neither measures a training return or a job offer probability.",
+    "status": "missing",
+    "geography_status": "uncovered",
+    "occupation": null,
+    "sources": [],
+    "skills": []
+  },
+  "returns": {
+    "status": "not_computed",
+    "reason": "No explicit benefit input. Market wages are not substituted for benefits."
+  },
+  "assumptions": [
+    "Training skill outcomes, effort, costs and benefits are user-supplied scenarios; completion requires the stated artifact and human review.",
+    "Course prerequisites can be met only by confirmed prerequisites, direct evidence, or earlier selected training.",
+    "Preparation hours reserve time for verification, evidence translation and final review; course hours include their work samples.",
+    "Training cannot resolve an experience, license, authorization or degree gate automatically."
+  ],
+  "infeasibility_reason": null
+}

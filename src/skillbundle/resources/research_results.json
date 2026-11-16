@@ -1,0 +1,918 @@
+{
+  "schema_version": "career_fit.research.v1",
+  "sample_size": 8,
+  "employers": 7,
+  "sampling": "Purposive eight-description portfolio sample across US/UK/Ireland and several seniority levels; includes closed/indexed descriptions. It is neither a representative market sample nor a vacancy-count time series.",
+  "missing_semantics": "A skill not coded is unobserved in this sample coding, not proof that the employer does not require it.",
+  "queries": {
+    "skill_mentions": "SELECT skill, label, COUNT(DISTINCT job_id) AS descriptions, SUM(level='required') AS explicitly_required, SUM(level='preferred') AS preferred FROM requirements GROUP BY skill,label ORDER BY descriptions DESC,skill",
+    "family_skills": "SELECT j.family, r.label, COUNT(*) AS descriptions FROM jobs j JOIN requirements r USING(job_id) GROUP BY j.family,r.label ORDER BY j.family,descriptions DESC,r.label",
+    "sample_coverage": "SELECT geography,access_state,COUNT(*) AS descriptions FROM jobs GROUP BY geography,access_state ORDER BY geography,access_state",
+    "seniority": "SELECT seniority,COUNT(*) AS descriptions FROM jobs GROUP BY seniority ORDER BY descriptions DESC,seniority",
+    "resource_completeness": "SELECT COUNT(*) AS resources, SUM(provider_hours IS NOT NULL) AS observed_duration, SUM(provider_hours IS NULL) AS duration_needs_assumption, SUM(provider_fee=0) AS free_content_access FROM learning"
+  },
+  "results": {
+    "skill_mentions": [
+      {
+        "skill": "reporting",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 8,
+        "explicitly_required": 1,
+        "preferred": 0
+      },
+      {
+        "skill": "sql",
+        "label": "SQL",
+        "descriptions": 6,
+        "explicitly_required": 2,
+        "preferred": 1
+      },
+      {
+        "skill": "bi",
+        "label": "BI / dashboards",
+        "descriptions": 5,
+        "explicitly_required": 0,
+        "preferred": 0
+      },
+      {
+        "skill": "excel",
+        "label": "Spreadsheets / Excel",
+        "descriptions": 4,
+        "explicitly_required": 2,
+        "preferred": 1
+      },
+      {
+        "skill": "forecasting",
+        "label": "Planning / forecasting",
+        "descriptions": 3,
+        "explicitly_required": 0,
+        "preferred": 1
+      },
+      {
+        "skill": "hr_systems",
+        "label": "HR / workforce systems",
+        "descriptions": 3,
+        "explicitly_required": 1,
+        "preferred": 1
+      },
+      {
+        "skill": "python",
+        "label": "Python",
+        "descriptions": 3,
+        "explicitly_required": 1,
+        "preferred": 1
+      },
+      {
+        "skill": "data_quality",
+        "label": "Data quality",
+        "descriptions": 2,
+        "explicitly_required": 0,
+        "preferred": 0
+      },
+      {
+        "skill": "research",
+        "label": "Market research",
+        "descriptions": 1,
+        "explicitly_required": 0,
+        "preferred": 0
+      }
+    ],
+    "family_skills": [
+      {
+        "family": "adjacent_analytics",
+        "label": "BI / dashboards",
+        "descriptions": 1
+      },
+      {
+        "family": "adjacent_analytics",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 1
+      },
+      {
+        "family": "adjacent_analytics",
+        "label": "SQL",
+        "descriptions": 1
+      },
+      {
+        "family": "adjacent_analytics",
+        "label": "Spreadsheets / Excel",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 2
+      },
+      {
+        "family": "people_analytics",
+        "label": "SQL",
+        "descriptions": 2
+      },
+      {
+        "family": "people_analytics",
+        "label": "Data quality",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics",
+        "label": "HR / workforce systems",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics",
+        "label": "Python",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics",
+        "label": "Spreadsheets / Excel",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics_engineering",
+        "label": "BI / dashboards",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics_engineering",
+        "label": "Data quality",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics_engineering",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics_engineering",
+        "label": "Python",
+        "descriptions": 1
+      },
+      {
+        "family": "people_analytics_engineering",
+        "label": "SQL",
+        "descriptions": 1
+      },
+      {
+        "family": "talent_intelligence",
+        "label": "BI / dashboards",
+        "descriptions": 1
+      },
+      {
+        "family": "talent_intelligence",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 1
+      },
+      {
+        "family": "talent_intelligence",
+        "label": "HR / workforce systems",
+        "descriptions": 1
+      },
+      {
+        "family": "talent_intelligence",
+        "label": "Market research",
+        "descriptions": 1
+      },
+      {
+        "family": "talent_intelligence",
+        "label": "Spreadsheets / Excel",
+        "descriptions": 1
+      },
+      {
+        "family": "workforce_planning",
+        "label": "Decision reporting / stakeholder communication",
+        "descriptions": 3
+      },
+      {
+        "family": "workforce_planning",
+        "label": "Planning / forecasting",
+        "descriptions": 3
+      },
+      {
+        "family": "workforce_planning",
+        "label": "BI / dashboards",
+        "descriptions": 2
+      },
+      {
+        "family": "workforce_planning",
+        "label": "SQL",
+        "descriptions": 2
+      },
+      {
+        "family": "workforce_planning",
+        "label": "HR / workforce systems",
+        "descriptions": 1
+      },
+      {
+        "family": "workforce_planning",
+        "label": "Python",
+        "descriptions": 1
+      },
+      {
+        "family": "workforce_planning",
+        "label": "Spreadsheets / Excel",
+        "descriptions": 1
+      }
+    ],
+    "sample_coverage": [
+      {
+        "geography": "IE",
+        "access_state": "official_indexed_description",
+        "descriptions": 1
+      },
+      {
+        "geography": "UK",
+        "access_state": "direct_archived",
+        "descriptions": 2
+      },
+      {
+        "geography": "UK",
+        "access_state": "official_indexed_archived",
+        "descriptions": 1
+      },
+      {
+        "geography": "US",
+        "access_state": "direct",
+        "descriptions": 1
+      },
+      {
+        "geography": "US",
+        "access_state": "official_indexed_description",
+        "descriptions": 3
+      }
+    ],
+    "seniority": [
+      {
+        "seniority": "analyst",
+        "descriptions": 2
+      },
+      {
+        "seniority": "senior",
+        "descriptions": 2
+      },
+      {
+        "seniority": "director",
+        "descriptions": 1
+      },
+      {
+        "seniority": "manager",
+        "descriptions": 1
+      },
+      {
+        "seniority": "senior_analyst",
+        "descriptions": 1
+      },
+      {
+        "seniority": "unspecified",
+        "descriptions": 1
+      }
+    ],
+    "resource_completeness": [
+      {
+        "resources": 5,
+        "observed_duration": 3,
+        "duration_needs_assumption": 2,
+        "free_content_access": 5
+      }
+    ]
+  },
+  "jobs": [
+    {
+      "job_id": "amazon-10569918",
+      "native_id": "amazon-10569918",
+      "employer": "Amazon",
+      "title": "Talent Intelligence Analyst",
+      "family": "talent_intelligence",
+      "seniority": "senior",
+      "geography": "US",
+      "source_id": "amazon-10569918",
+      "paraphrase": "Research talent markets across locations, triangulate sources, automate dashboards and communicate strategy to leaders. Recruiting/CRM tools and complex spreadsheets are preferred.",
+      "coded_requirements": [
+        {
+          "skill": "research",
+          "label": "Market research",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "preferred"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "5+ years executive leadership advising",
+        "7+ years corporate/search recruiting",
+        "Bachelor's degree or higher"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "apple-200682909-1418",
+      "native_id": "apple-200682909-1418",
+      "employer": "Apple",
+      "title": "People Analytics Full Stack Developer",
+      "family": "people_analytics_engineering",
+      "seniority": "senior",
+      "geography": "IE",
+      "source_id": "apple-200682909-1418",
+      "paraphrase": "Build SQL/Snowflake data models, Python services, dashboards and refresh pipelines. Operate Linux services and communicate data definitions and findings to senior partners.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "required"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "required"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "data_quality",
+          "label": "Data quality",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Demonstrated SQL/Snowflake and Python delivery",
+        "Independent Linux operation"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-7087716",
+      "native_id": "nhs-7087716",
+      "employer": "Tees, Esk and Wear Valleys NHS Trust",
+      "title": "Data Analyst - People & Culture",
+      "family": "people_analytics",
+      "seniority": "analyst",
+      "geography": "UK",
+      "source_id": "nhs-7087716",
+      "paraphrase": "Support workforce information and statutory submissions. Advanced spreadsheet use, information analysis, comprehensive reporting, data quality and task prioritization are described. SQL/reporting-tool experience appears in the person specification.",
+      "coded_requirements": [
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "required"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "data_quality",
+          "label": "Data quality",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Experience in an information-analysis/reporting environment",
+        "Employer-specific application and work-eligibility checks"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-7657488",
+      "native_id": "nhs-7657488",
+      "employer": "Lancashire Teaching Hospitals NHS Foundation Trust",
+      "title": "Senior Workforce Information Analyst",
+      "family": "workforce_planning",
+      "seniority": "senior_analyst",
+      "geography": "UK",
+      "source_id": "nhs-7657488",
+      "paraphrase": "Support workforce and financial planning, SQL extraction, advanced spreadsheets and dashboards. ESR/workforce-system knowledge is essential; Power BI and workforce-planning experience appear as desirable criteria.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "required"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "required"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "required"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "required"
+        },
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "Relevant degree or equivalent relevant experience",
+        "Significant workforce-information experience",
+        "Background-check process"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "workday-JR-0108449",
+      "native_id": "workday-JR-0108449",
+      "employer": "Workday",
+      "title": "People Analytics Analyst",
+      "family": "people_analytics",
+      "seniority": "analyst",
+      "geography": "US",
+      "source_id": "workday-JR-0108449",
+      "paraphrase": "Partner with People centers of excellence to build analytical insights. Scripting/query languages including Python, R and SQL are described as a bonus.",
+      "coded_requirements": [
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "preferred"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "Full qualification details require checking the current employer page"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "walmart-R-2643323",
+      "native_id": "walmart-R-2643323",
+      "employer": "Walmart",
+      "title": "Senior Director, Data Analytics - Workforce Planning",
+      "family": "workforce_planning",
+      "seniority": "director",
+      "geography": "US",
+      "source_id": "walmart-R-2643323",
+      "paraphrase": "Frame workforce/business problems, translate workforce intelligence into practical recommendations and embed evidence into business decisions. The technical qualification list includes SQL, Python and BI tools.",
+      "coded_requirements": [
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "mentioned"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "mentioned"
+        }
+      ],
+      "qualification_notes": [
+        "Senior leadership/supervisory and industry experience",
+        "Extensive analytics experience; inspect full qualification alternatives"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "walmart-R-2637733",
+      "native_id": "walmart-R-2637733",
+      "employer": "Walmart",
+      "title": "Manager, Workforce Management Financial Planning",
+      "family": "workforce_planning",
+      "seniority": "manager",
+      "geography": "US",
+      "source_id": "walmart-R-2637733",
+      "paraphrase": "Lead financial planning and budget management for a workforce-management organization working on forecasting, capacity planning, scheduling and workforce analytics.",
+      "coded_requirements": [
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Manager-level financial/workforce planning experience; full details need rechecking"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-6997514",
+      "native_id": "nhs-6997514",
+      "employer": "University Hospitals of Derby and Burton NHS Foundation Trust",
+      "title": "Insight Analyst",
+      "family": "adjacent_analytics",
+      "seniority": "unspecified",
+      "geography": "UK",
+      "source_id": "nhs-6997514",
+      "paraphrase": "Provide routine and ad-hoc analysis for planning and performance. Person specification names basic analytical-tool knowledge/training such as SQL Server, Excel, Power BI or QlikView, with qualification/equivalent-experience routes.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "mentioned"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "mentioned"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Published qualification or equivalent-experience route",
+        "Full current employer criteria need checking"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "amazon-10569918",
+      "source_url": "https://www.amazon.jobs/en/jobs/10569918/talent-intelligence-analyst-global-specialty-recruiting",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Observed 2026-11-16; live posting content",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Observed 2026-11-16; live posting content",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct"
+    },
+    {
+      "source_id": "apple-200682909-1418",
+      "source_url": "https://jobs.apple.com/en-us/details/200682909-1418/people-analytics-full-stack-developer",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Posted 2026-10-02; indexed official description checked 2026-11-16; direct page is a script shell",
+      "geography": "IE",
+      "unit_of_observation": "job description",
+      "period": "Posted 2026-10-02; indexed official description checked 2026-11-16; direct page is a script shell",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "nhs-7087716",
+      "source_url": "https://apps.trac.jobs/job-advert/7087716?ShowJobAdvert=&feedid=9002",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Closed 2025-03-25; official employer ATS description inspected 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Closed 2025-03-25; official employer ATS description inspected 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct_archived"
+    },
+    {
+      "source_id": "nhs-7657488",
+      "source_url": "https://apps.trac.jobs/job-advert/7657488?FromJobsNHS=1&ShowJobAdvert=",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Closed 2026-04-13; official employer ATS description inspected 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Closed 2026-04-13; official employer ATS description inspected 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct_archived"
+    },
+    {
+      "source_id": "workday-JR-0108449",
+      "source_url": "https://workday.wd5.myworkdayjobs.com/Workday/job/USA-CA-Pleasanton/People-Analytics-Analyst_JR-0108449-1",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Dated indexed employer ATS description; checked 2026-11-16; current vacancy status unverified",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Dated indexed employer ATS description; checked 2026-11-16; current vacancy status unverified",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "walmart-R-2643323",
+      "source_url": "https://careers.walmart.com/us/en/jobs/R-2643323",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "walmart-R-2637733",
+      "source_url": "https://careers.walmart.com/us/en/jobs/R-2637733",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "nhs-6997514",
+      "source_url": "https://apps.trac.jobs/job-advert/6997514?ShowJobAdvert=&feedid=365&set-locale=en-gb",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Archived official employer ATS description checked 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Archived official employer ATS description checked 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_archived"
+    }
+  ],
+  "learning_resources": [
+    {
+      "id": "ou-excel",
+      "provider": "The Open University",
+      "title": "Data analysis: visualisations in Excel",
+      "skills": [
+        "software.excel",
+        "skill.data_visualization"
+      ],
+      "provider_hours": 6,
+      "provider_fee": 0,
+      "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+      "learning_hours_assumption": 6,
+      "practice_hours_assumption": 4,
+      "hours": 10,
+      "fee": 0,
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "entry_conditions": "Excel or compatible spreadsheet access",
+      "artifact": "Create a reconciled pivot summary and chart from public occupation data",
+      "completion_criterion": "Reviewer reconciles totals and explains the denominator and chart choice",
+      "caution": null,
+      "source": {
+        "source_id": "ou-excel",
+        "source_url": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+        "retrieved_at": "2026-11-16",
+        "retrieval_precision": "day",
+        "source_vintage": "Provider page checked 2026-11-16",
+        "geography": "Online; access may vary",
+        "unit_of_observation": "learning resource",
+        "period": "Provider page checked 2026-11-16",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "observed",
+        "access_state": "direct"
+      },
+      "fee_source": "https://www.open.edu/openlearn/science-maths-technology/data-analysis-visualisations-excel/content-section-0",
+      "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns"
+    },
+    {
+      "id": "ou-python",
+      "provider": "The Open University",
+      "title": "Learn to code for data analysis",
+      "skills": [
+        "software.python"
+      ],
+      "provider_hours": 24,
+      "provider_fee": 0,
+      "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+      "learning_hours_assumption": 24,
+      "practice_hours_assumption": 8,
+      "hours": 32,
+      "fee": 0,
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "entry_conditions": "Python/Jupyter setup; provider reports software/quiz issues",
+      "artifact": "Runnable public-data cleaning notebook with checks and source notes",
+      "completion_criterion": "A fresh local run reproduces the table and catches malformed data",
+      "caution": "Provider flags software/quiz issues; confirm a workable local environment before relying on this path",
+      "source": {
+        "source_id": "ou-python",
+        "source_url": "https://www.open.edu/openlearn/digital-computing/learn-code-data-analysis/content-section-overview",
+        "retrieved_at": "2026-11-16",
+        "retrieval_precision": "day",
+        "source_vintage": "Provider page checked 2026-11-16",
+        "geography": "Online; access may vary",
+        "unit_of_observation": "learning resource",
+        "period": "Provider page checked 2026-11-16",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "observed",
+        "access_state": "direct"
+      },
+      "fee_source": "https://www.open.edu/openlearn/digital-computing/learn-code-data-analysis/content-section-overview",
+      "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns"
+    },
+    {
+      "id": "ms-sql",
+      "provider": "Microsoft Learn",
+      "title": "Query and modify data with Transact-SQL",
+      "skills": [
+        "software.sql"
+      ],
+      "provider_hours": null,
+      "provider_fee": 0,
+      "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+      "learning_hours_assumption": 6,
+      "practice_hours_assumption": 6,
+      "hours": 12,
+      "fee": 0,
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "entry_conditions": "Familiarity with tabular data; local SQL environment or suitable learning environment",
+      "artifact": "SQL queries joining three public/synthetic tables with reconciliation checks",
+      "completion_criterion": "Reviewer verifies joins, missing values and grouped totals against a hand example",
+      "caution": "Provider duration not visible in the retrieved path; six study hours is an editable planning assumption",
+      "source": {
+        "source_id": "ms-sql",
+        "source_url": "https://learn.microsoft.com/en-us/training/paths/get-started-querying-with-transact-sql/",
+        "retrieved_at": "2026-11-16",
+        "retrieval_precision": "day",
+        "source_vintage": "Provider page checked 2026-11-16",
+        "geography": "Online; access may vary",
+        "unit_of_observation": "learning resource",
+        "period": "Provider page checked 2026-11-16",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "observed",
+        "access_state": "direct"
+      },
+      "fee_source": "https://learn.microsoft.com/en-gb/training/support/faq",
+      "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns"
+    },
+    {
+      "id": "ms-bi",
+      "provider": "Microsoft Learn",
+      "title": "Get started building with Power BI",
+      "skills": [
+        "software.power_bi",
+        "skill.data_visualization"
+      ],
+      "provider_hours": null,
+      "provider_fee": 0,
+      "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+      "learning_hours_assumption": 3,
+      "practice_hours_assumption": 7,
+      "hours": 10,
+      "fee": 0,
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "entry_conditions": "Compatible Power BI access; account/software/service costs may be separate",
+      "artifact": "A decision dashboard with definitions and accessible chart labels",
+      "completion_criterion": "Reviewer can locate sources, filter the sample and interpret coverage correctly",
+      "caution": "Provider duration not visible; three study hours and seven practice hours are editable assumptions",
+      "source": {
+        "source_id": "ms-bi",
+        "source_url": "https://learn.microsoft.com/en-us/training/modules/get-started-with-power-bi/",
+        "retrieved_at": "2026-11-16",
+        "retrieval_precision": "day",
+        "source_vintage": "Provider page checked 2026-11-16",
+        "geography": "Online; access may vary",
+        "unit_of_observation": "learning resource",
+        "period": "Provider page checked 2026-11-16",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "observed",
+        "access_state": "direct"
+      },
+      "fee_source": "https://learn.microsoft.com/en-gb/training/support/faq",
+      "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns"
+    },
+    {
+      "id": "ou-communication",
+      "provider": "The Open University",
+      "title": "Effective communication in the workplace",
+      "skills": [
+        "skill.communication",
+        "skill.stakeholder_communication"
+      ],
+      "provider_hours": 24,
+      "provider_fee": 0,
+      "provider_fee_scope": "Self-study content access only; excludes certification exams, software subscriptions, equipment and connectivity",
+      "learning_hours_assumption": 24,
+      "practice_hours_assumption": 4,
+      "hours": 28,
+      "fee": 0,
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "entry_conditions": "Self-paced study; optional free account for participation record",
+      "artifact": "A two-page workforce decision memo and five-minute briefing",
+      "completion_criterion": "Reviewer identifies the decision, evidence, assumptions and recommended next step",
+      "caution": null,
+      "source": {
+        "source_id": "ou-communication",
+        "source_url": "https://www.open.edu/openlearn/money-business/effective-communication-the-workplace/content-section-overview",
+        "retrieved_at": "2026-11-16",
+        "retrieval_precision": "day",
+        "source_vintage": "Provider page checked 2026-11-16",
+        "geography": "Online; access may vary",
+        "unit_of_observation": "learning resource",
+        "period": "Provider page checked 2026-11-16",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "observed",
+        "access_state": "direct"
+      },
+      "fee_source": "https://www.open.edu/openlearn/money-business/effective-communication-the-workplace/content-section-overview",
+      "outcome_status": "Proposed work-sample target; provider content does not establish individual proficiency or employment returns"
+    }
+  ],
+  "interpretation": "Counts describe the coded eight-description sample only. Archived and indexed material is shown separately; no market trend, vacancy total or individual return is estimated."
+}

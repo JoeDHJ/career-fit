@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Career Fit | Project evidence</title>
+    <link rel="stylesheet" href="/capital.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <a class="brand" href="/showcase">Career Fit <span>0.8</span></a>
+        <nav>
+          <a href="/">Evidence review</a><a href="/capital">Learning plan</a
+          ><a href="/capital?case=business">Workforce case</a
+          ><a href="https://github.com/JoeDHJ/career-fit"
+            >Source &amp; reproduction ↗</a
+          >
+        </nav>
+      </header>
+      <section class="hero">
+        <p class="eyebrow">A PROJECT BY HAOJIAN DUI · RESEARCH TO DECISIONS</p>
+        <h1>Make the evidence<br />part of the decision.</h1>
+        <p class="lead">
+          An inspectable career and human capital workbench: research employer
+          requirements, distinguish skill claims from work evidence, plan
+          assessed learning, and compare workforce investments under shared
+          constraints.
+        </p>
+        <div class="chips">
+          <span>SQL source research</span><span>External model evaluation</span
+          ><span>Constrained optimization</span><span>Task-based evidence</span>
+        </div>
+      </section>
+      <section class="timeline">
+        <article class="step">
+          <span class="day">01 · INVESTIGATE</span>
+          <h2>What does the role ask for?</h2>
+          <p>
+            Eight attributed employer descriptions, explicit seniority gates,
+            reproducible SQL and five provider resources.
+          </p>
+          <a href="#research">Inspect the research ↓</a>
+        </article>
+        <article class="step">
+          <span class="day">02 · BUILD EVIDENCE</span>
+          <h2>What should I work on?</h2>
+          <p>
+            Time and cash limits select a feasible portfolio. Track actual work,
+            apply a four-part rubric and review new evidence.
+          </p>
+          <a href="/capital">Try the learning workflow →</a>
+        </article>
+        <article class="step">
+          <span class="day">03 · MAKE A TRADEOFF</span>
+          <h2>Develop, move or hire?</h2>
+          <p>
+            A 30-person scenario includes consent, scarce training seats,
+            backfill, vacancy costs and lead times.
+          </p>
+          <a href="/capital?case=business">Adjust the business case →</a>
+        </article>
+      </section>
+      <section id="research" class="panel section">
+        <p class="eyebrow">EMPLOYER RESEARCH · SQL</p>
+        <h2>Translate role text into a traceable comparison.</h2>
+        <p id="research-note" class="muted">Loading packaged research…</p>
+        <div id="research-metrics" class="metrics"></div>
+        <div
+          id="skill-chart"
+          class="chart"
+          aria-label="Skill mentions in the eight-description sample"
+        ></div>
+        <details>
+          <summary>Inspect descriptions and qualification gates</summary>
+          <div id="jobs" class="table-scroll"></div>
+          <div id="job-sources"></div>
+        </details>
+        <details>
+          <summary>Inspect the actual SQL query</summary>
+          <pre id="sql-query"></pre>
+        </details>
+      </section>
+      <section id="measurement" class="panel section">
+        <p class="eyebrow">MEASUREMENT · OUTSIDE THE DEMO</p>
+        <h2>A useful workflow must expose weak extraction.</h2>
+        <p class="muted">
+          SkillSpan test results show limited exact-span accuracy. These
+          extractors generate review suggestions; they do not measure capability
+          or predict hiring. Skill-only and combined skill/knowledge targets
+          answer different questions.
+        </p>
+        <div id="measurement-table" class="table-scroll"></div>
+        <p id="measurement-protocol" class="muted"></p>
+        <a href="https://aclanthology.org/2022.naacl-main.366/"
+          >SkillSpan paper and dataset ↗</a
+        >
+        <details>
+          <summary>What the metrics mean</summary>
+          <p class="muted">
+            Exact F1 requires both span boundaries to match. Overlap F1 allows
+            intersecting boundaries with maximum one-to-one matching. Micro
+            scores pool all spans, including negative sentences. Neither metric
+            validates downstream fit weights or training effects.
+          </p>
+        </details>
+      </section>
+      <section id="business" class="panel section">
+        <p class="eyebrow">BUSINESS CASE · OPTIMIZATION</p>
+        <h2>Cover priority roles under a shared resource budget.</h2>
+        <p class="muted">
+          30 fictional employees · 12 positions · 3 training packages · 60-day
+          horizon · 35,000 USD budget · 120 release hours. O*NET supplies
+          importance weights; people, thresholds, priorities and costs are
+          synthetic. Objective: fill priority units, then minimize incremental
+          cost, then prefer internal moves.
+        </p>
+        <div id="business-metrics" class="metrics"></div>
+        <div id="business-table" class="table-scroll"></div>
+        <div id="cost-components" class="chart"></div>
+        <p id="business-note" class="notice"></p>
+        <label class="section"
+          >Sensitivity to<select id="sensitivity-choice">
+            <option value="hours_budget">Released training hours</option>
+            <option value="training_effect_multiplier">
+              Assumed learning effect
+            </option>
+            <option value="backfill_per_employee">
+              Backfill cost per employee
+            </option>
+          </select></label
+        >
+        <div id="sensitivity-table" class="table-scroll"></div>
+        <p class="muted">
+          Sensitivity changes one input at a time. These are scenario
+          comparisons, with no estimated causal training effect or demonstrated
+          financial return.
+        </p>
+        <a href="/capital?case=business">Change the assumptions and solve →</a>
+      </section>
+      <section class="panel section">
+        <p class="eyebrow">PROFESSIONAL JUDGMENT</p>
+        <h2>Each layer has a different evidence standard.</h2>
+        <div class="timeline">
+          <article class="step">
+            <h3>Observed</h3>
+            <p>
+              Public occupation statistics, employer text, provider facts and
+              external annotations carry dates and attribution.
+            </p>
+          </article>
+          <article class="step">
+            <h3>Designed</h3>
+            <p>
+              Taxonomy mappings, evidence weights, task rubrics and optimization
+              objectives are transparent design choices.
+            </p>
+          </article>
+          <article class="step">
+            <h3>Still to validate</h3>
+            <p>
+              Actual learning gains, job outcomes, employer adoption and human
+              usability have not been established. Local work and feedback
+              records support a future study.
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="section">
+        <p class="eyebrow">REVIEWER ROUTES</p>
+        <h2>Choose the depth you want to inspect.</h2>
+        <div class="timeline">
+          <article class="step">
+            <h3>2 minutes · product</h3>
+            <p>
+              Change the learning time budget, compare the portfolio and inspect
+              a task’s acceptance criterion.
+            </p>
+            <a href="/capital">Try it →</a>
+          </article>
+          <article class="step">
+            <h3>10 minutes · methods</h3>
+            <p>
+              Inspect SQL, external evaluation and sensitivity; then change
+              backfill cost.
+            </p>
+            <a
+              href="https://github.com/JoeDHJ/career-fit/blob/main/docs/methods-0.8.0.md"
+              >Read methods →</a
+            >
+          </article>
+          <article class="step">
+            <h3>30 minutes · reproduction</h3>
+            <p>
+              Run the research and both decision cases, then inspect tests and
+              package checks.
+            </p>
+            <a
+              href="https://github.com/JoeDHJ/career-fit/blob/main/docs/reproduction-0.8.0.md"
+              >Reproduce →</a
+            >
+          </article>
+        </div>
+      </section>
+      <footer>
+        Career Fit · Haojian Dui · Bundled results support offline inspection.
+        Employer observations are a purposive historical snapshot, not a
+        representative market sample. This server does not store personal
+        inputs.
+      </footer>
+    </main>
+    <script src="/showcase.js" defer></script>
+  </body>
+</html>

@@ -17,6 +17,7 @@ from .investment import plan_investment
 from .workforce import allocate_workforce
 from .capital_reports import capital_markdown
 from .market import market_context
+from .learning import progress_to_review
 
 
 DEFAULT_JOB = (
@@ -425,7 +426,7 @@ HTML = r"""<!doctype html>
   <main id="app" class="shell" data-workflow-stage="intake">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Career Fit</span></div>
-      <a href="/capital" style="color:var(--blue);font-size:.85rem">Training investment &amp; workforce decisions ↗</a>
+      <a href="/showcase">Project showcase</a> · <a href="/capital" style="color:var(--blue);font-size:.85rem">Training investment &amp; workforce decisions ↗</a>
     </header>
 
     <section class="hero">
@@ -781,6 +782,7 @@ HTML = r"""<!doctype html>
         return { removed_requirement_ids: [], added_requirements: [], importance_overrides: {}, constraint_status_overrides: {}, added_evidence: [], applied: false, base_signature: "" };
       }
       let reviewState = newReviewState();
+      let explicitProfileEvidence = null;
       function inputSignature() { return jobInput.value + "\n---\n" + candidateInput.value + "\n---language---\n" + candidateLanguage.value; }
       function currentAnalysisIsFresh() { return Boolean(latest && analyzedSignature === inputSignature()); }
       function currentReviewIsFresh() { return currentAnalysisIsFresh() && analyzedReviewSignature === JSON.stringify(reviewState); }
@@ -1427,7 +1429,8 @@ HTML = r"""<!doctype html>
         status.textContent = "Analyzing your inputs…";
         try {
           const request = { job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value };
-          if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
+          if (explicitProfileEvidence !== null) request.evidence = explicitProfileEvidence;
+          else if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
           if (requestReview) request.review = Object.assign({}, requestReview, { scope: "role_requirements" });
           const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) throw new Error("request failed");
@@ -1473,6 +1476,7 @@ HTML = r"""<!doctype html>
         status.textContent = "Preparing your " + (format === "pdf" ? "PDF" : "Markdown") + " plan…";
         try {
           const request = { format: format, job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, review: Object.assign({}, reviewState, { scope: "role_requirements" }) };
+          if (explicitProfileEvidence !== null) request.evidence = explicitProfileEvidence;
           if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
           const response = await fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request) });
           if (!response.ok) { const payload = await response.json(); throw new Error(payload.detail || "report unavailable"); }
@@ -1492,6 +1496,7 @@ HTML = r"""<!doctype html>
       document.getElementById("investment-button").addEventListener("click", function () {
         if (!currentReviewIsFresh() || !latestScoreVisible) { status.textContent = "Review and recalculate the current role and evidence before planning training."; return; }
         const request = {job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, review: Object.assign({}, reviewState, {scope: "role_requirements"})};
+        if (explicitProfileEvidence !== null) request.evidence = explicitProfileEvidence;
         if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
         sessionStorage.setItem("career-fit-investment", JSON.stringify({analysis_input: request, requirements: latest.requirements}));
         window.location.href = "/capital";
@@ -1568,8 +1573,9 @@ HTML = r"""<!doctype html>
       });
       useDocumentPreviewButton.addEventListener("click", function () { const text = documentPreviewText.value.trim(); if (!text) { candidateFileStatus.textContent = "Review text is empty. Paste your experience instead."; return; } invalidateCurrentResult("Reviewed document text loaded. Analyze when ready."); candidateInput.value = text; documentPreview.hidden = true; candidateFileStatus.textContent = "Reviewed text is now in your experience field."; });
       cancelDocumentPreviewButton.addEventListener("click", function () { documentPreview.hidden = true; documentPreviewText.value = ""; candidateFile.value = ""; candidateFileStatus.textContent = "Import discarded. Your existing experience text was not changed."; });
-      exampleButton.addEventListener("click", function () { reviewState = newReviewState(); jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
+      exampleButton.addEventListener("click", function () { explicitProfileEvidence = null; reviewState = newReviewState(); jobInput.value = DEFAULT_JOB; candidateInput.value = DEFAULT_CANDIDATE; analyze(); });
       [jobInput, candidateInput, candidateLanguage].forEach(function (input) { input.addEventListener("input", handleInputChange); });
+      [candidateInput, candidateLanguage, clearButton].forEach(function(input) { input.addEventListener(input === clearButton ? "click" : "input", function() { explicitProfileEvidence = null; }); });
       rolesInput.addEventListener("input", function () { comparisonRoleReviews = {}; activeComparisonRoleId = ""; if (!comparisonPanel.hidden) { compareRequestId += 1; clearComparisonResult(); compareStatus.textContent = "Target roles changed. Compare again to refresh the ranking."; } });
       analyzeButton.addEventListener("click", analyze);
       compareButton.addEventListener("click", compare);
@@ -1593,6 +1599,20 @@ HTML = r"""<!doctype html>
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";
       setWorkflowStage("intake");
+      const assessedTransfer = sessionStorage.getItem("career-fit-review-input");
+      if (assessedTransfer) {
+        sessionStorage.removeItem("career-fit-review-input");
+        try {
+          const incoming = JSON.parse(assessedTransfer);
+          jobInput.value = incoming.job_text || "";
+          candidateInput.value = incoming.candidate_text || "";
+          candidateLanguage.value = incoming.candidate_language || "auto";
+          explicitProfileEvidence = Array.isArray(incoming.evidence) ? incoming.evidence : null;
+          reviewState = Object.assign(newReviewState(), incoming.review || {});
+          reviewState.applied = false;
+          analyze();
+        } catch { status.textContent = "Transferred evidence could not be read. Reopen the investment workspace."; }
+      }
     }());
   </script>
 </body>
@@ -1698,6 +1718,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/report": 320_000,
             "/api/invest": 320_000,
             "/api/workforce": 320_000,
+            "/api/progress-evidence": 320_000,
         }
         if parsed.path in request_limits:
             try:
@@ -1717,12 +1738,15 @@ class Handler(BaseHTTPRequestHandler):
                     status=413,
                 )
                 return
-        if parsed.path in {"/api/invest", "/api/workforce"}:
+        if parsed.path in {"/api/invest", "/api/workforce", "/api/progress-evidence"}:
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 payload = json.loads(self.rfile.read(length).decode("utf-8"))
-                result = plan_investment(payload) if parsed.path == "/api/invest" else allocate_workforce(payload)
-                self._send_json({"result": result, "markdown": capital_markdown(result)})
+                if parsed.path == "/api/progress-evidence":
+                    self._send_json(progress_to_review(payload))
+                else:
+                    result = plan_investment(payload) if parsed.path == "/api/invest" else allocate_workforce(payload)
+                    self._send_json({"result": result, "markdown": capital_markdown(result)})
             except (TypeError, ValueError, KeyError, json.JSONDecodeError) as exc:
                 self._send_json({"error": "invalid_decision_input", "detail": str(exc)}, status=400)
             return
@@ -1892,7 +1916,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
-        assets = {"/capital": ("capital.html", "text/html"), "/capital.js": ("capital.js", "text/javascript"), "/capital.css": ("capital.css", "text/css")}
+        assets = {"/capital": ("capital.html", "text/html"), "/capital.js": ("capital.js", "text/javascript"), "/capital-editor.js": ("capital-editor.js", "text/javascript"), "/capital.css": ("capital.css", "text/css"), "/showcase": ("showcase.html", "text/html"), "/showcase.js": ("showcase.js", "text/javascript")}
         if parsed.path in assets:
             name, mime = assets[parsed.path]
             body = read_resource_text(name).encode("utf-8")
@@ -1904,10 +1928,16 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/capital-demo":
             mode = parse_qs(parsed.query).get("mode", ["personal"])[0]
-            if mode not in {"personal", "workforce"}:
+            case = parse_qs(parsed.query).get("case", ["legacy"])[0]
+            cases = {("personal", "legacy"): "investment_demo.json", ("workforce", "legacy"): "workforce_demo.json", ("personal", "analyst"): "analyst_learning_demo.json", ("workforce", "business"): "workforce_business_demo.json"}
+            if (mode, case) not in cases:
                 self._send_json({"error": "invalid_mode"}, status=400)
             else:
-                self._send_json(json.loads(read_resource_text("investment_demo.json" if mode == "personal" else "workforce_demo.json")))
+                self._send_json(json.loads(read_resource_text(cases[mode, case])))
+            return
+        summaries = {"/api/research": "research_results.json", "/api/measurement": "measurement_results.json", "/api/decision-cases": "decision_case_results.json", "/api/learning-resources": "learning_resources.json"}
+        if parsed.path in summaries:
+            self._send_json(json.loads(read_resource_text(summaries[parsed.path])))
             return
         if parsed.path == "/api/market":
             params = parse_qs(parsed.query)

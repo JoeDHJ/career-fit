@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]" -c constraints-ci.txt
-      - run: python -m unittest discover -s tests -v
+      - run: python -m pytest -q
       - run: python -m compileall -q src tests tools
       - run: python -m ruff check .
 
@@ -94,7 +94,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - run: python -m pip install . -c constraints-ci.txt
+      - run: python -m pip install ".[optimization]" -c constraints-ci.txt
       - name: Install decision-workspace browser runner
         run: |
           npm install --prefix "$RUNNER_TEMP/capital-browser" --no-save playwright@1.60.0
@@ -111,6 +111,18 @@ jobs:
             sleep 1
           done
           PLAYWRIGHT_MODULE="$RUNNER_TEMP/capital-browser/node_modules/playwright" node tools/verify_capital_browser.cjs
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/capital-browser/node_modules/playwright" node tools/verify_evidence_browser.cjs
+
+  optimization:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e ".[dev,optimization]" -c constraints-ci.txt
+      - run: python -m pytest -q tests/test_evidence_decisions.py
+      - run: career-fit workforce --case business > business.json
 
   audit:
     runs-on: ubuntu-24.04
@@ -160,8 +172,8 @@ jobs:
           import skillbundle
 
           report = json.loads(Path("career-fit-report.json").read_text())
-          assert version("career-fit") == career_fit.__version__ == "0.7.0"
-          assert skillbundle.__version__ == "0.7.0"
+          assert version("career-fit") == career_fit.__version__ == "0.8.0"
+          assert skillbundle.__version__ == "0.8.0"
           assert report["schema_version"] == "career_fit.v0.5"
           assert report["review"]["status"] == "user_confirmed"
           assert report["summary"]["analysis_status"] == "scored"

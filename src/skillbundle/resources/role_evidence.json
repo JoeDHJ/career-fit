@@ -1,0 +1,464 @@
+{
+  "schema_version": "portfolio.v1",
+  "snapshot_id": "career-fit-role-sample-2026-11-16",
+  "sources": [
+    {
+      "source_id": "amazon-10569918",
+      "source_url": "https://www.amazon.jobs/en/jobs/10569918/talent-intelligence-analyst-global-specialty-recruiting",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Observed 2026-11-16; live posting content",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Observed 2026-11-16; live posting content",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct"
+    },
+    {
+      "source_id": "apple-200682909-1418",
+      "source_url": "https://jobs.apple.com/en-us/details/200682909-1418/people-analytics-full-stack-developer",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Posted 2026-10-02; indexed official description checked 2026-11-16; direct page is a script shell",
+      "geography": "IE",
+      "unit_of_observation": "job description",
+      "period": "Posted 2026-10-02; indexed official description checked 2026-11-16; direct page is a script shell",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "nhs-7087716",
+      "source_url": "https://apps.trac.jobs/job-advert/7087716?ShowJobAdvert=&feedid=9002",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Closed 2025-03-25; official employer ATS description inspected 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Closed 2025-03-25; official employer ATS description inspected 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct_archived"
+    },
+    {
+      "source_id": "nhs-7657488",
+      "source_url": "https://apps.trac.jobs/job-advert/7657488?FromJobsNHS=1&ShowJobAdvert=",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Closed 2026-04-13; official employer ATS description inspected 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Closed 2026-04-13; official employer ATS description inspected 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "direct_archived"
+    },
+    {
+      "source_id": "workday-JR-0108449",
+      "source_url": "https://workday.wd5.myworkdayjobs.com/Workday/job/USA-CA-Pleasanton/People-Analytics-Analyst_JR-0108449-1",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Dated indexed employer ATS description; checked 2026-11-16; current vacancy status unverified",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Dated indexed employer ATS description; checked 2026-11-16; current vacancy status unverified",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "walmart-R-2643323",
+      "source_url": "https://careers.walmart.com/us/en/jobs/R-2643323",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "walmart-R-2637733",
+      "source_url": "https://careers.walmart.com/us/en/jobs/R-2637733",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "geography": "US",
+      "unit_of_observation": "job description",
+      "period": "Official indexed description checked 2026-11-16; direct URL now redirects to job-not-found",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_description"
+    },
+    {
+      "source_id": "nhs-6997514",
+      "source_url": "https://apps.trac.jobs/job-advert/6997514?ShowJobAdvert=&feedid=365&set-locale=en-gb",
+      "retrieved_at": "2026-11-16",
+      "retrieval_precision": "day",
+      "source_vintage": "Archived official employer ATS description checked 2026-11-16",
+      "geography": "UK",
+      "unit_of_observation": "job description",
+      "period": "Archived official employer ATS description checked 2026-11-16",
+      "currency": null,
+      "price_year": null,
+      "schema_version": "portfolio.v1",
+      "status": "observed",
+      "access_state": "official_indexed_archived"
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "amazon-10569918",
+      "native_id": "amazon-10569918",
+      "employer": "Amazon",
+      "title": "Talent Intelligence Analyst",
+      "family": "talent_intelligence",
+      "seniority": "senior",
+      "geography": "US",
+      "source_id": "amazon-10569918",
+      "paraphrase": "Research talent markets across locations, triangulate sources, automate dashboards and communicate strategy to leaders. Recruiting/CRM tools and complex spreadsheets are preferred.",
+      "coded_requirements": [
+        {
+          "skill": "research",
+          "label": "Market research",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "preferred"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "5+ years executive leadership advising",
+        "7+ years corporate/search recruiting",
+        "Bachelor's degree or higher"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "apple-200682909-1418",
+      "native_id": "apple-200682909-1418",
+      "employer": "Apple",
+      "title": "People Analytics Full Stack Developer",
+      "family": "people_analytics_engineering",
+      "seniority": "senior",
+      "geography": "IE",
+      "source_id": "apple-200682909-1418",
+      "paraphrase": "Build SQL/Snowflake data models, Python services, dashboards and refresh pipelines. Operate Linux services and communicate data definitions and findings to senior partners.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "required"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "required"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "data_quality",
+          "label": "Data quality",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Demonstrated SQL/Snowflake and Python delivery",
+        "Independent Linux operation"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-7087716",
+      "native_id": "nhs-7087716",
+      "employer": "Tees, Esk and Wear Valleys NHS Trust",
+      "title": "Data Analyst - People & Culture",
+      "family": "people_analytics",
+      "seniority": "analyst",
+      "geography": "UK",
+      "source_id": "nhs-7087716",
+      "paraphrase": "Support workforce information and statutory submissions. Advanced spreadsheet use, information analysis, comprehensive reporting, data quality and task prioritization are described. SQL/reporting-tool experience appears in the person specification.",
+      "coded_requirements": [
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "required"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "data_quality",
+          "label": "Data quality",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Experience in an information-analysis/reporting environment",
+        "Employer-specific application and work-eligibility checks"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-7657488",
+      "native_id": "nhs-7657488",
+      "employer": "Lancashire Teaching Hospitals NHS Foundation Trust",
+      "title": "Senior Workforce Information Analyst",
+      "family": "workforce_planning",
+      "seniority": "senior_analyst",
+      "geography": "UK",
+      "source_id": "nhs-7657488",
+      "paraphrase": "Support workforce and financial planning, SQL extraction, advanced spreadsheets and dashboards. ESR/workforce-system knowledge is essential; Power BI and workforce-planning experience appear as desirable criteria.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "required"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "required"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "required"
+        },
+        {
+          "skill": "hr_systems",
+          "label": "HR / workforce systems",
+          "level": "required"
+        },
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "Relevant degree or equivalent relevant experience",
+        "Significant workforce-information experience",
+        "Background-check process"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "workday-JR-0108449",
+      "native_id": "workday-JR-0108449",
+      "employer": "Workday",
+      "title": "People Analytics Analyst",
+      "family": "people_analytics",
+      "seniority": "analyst",
+      "geography": "US",
+      "source_id": "workday-JR-0108449",
+      "paraphrase": "Partner with People centers of excellence to build analytical insights. Scripting/query languages including Python, R and SQL are described as a bonus.",
+      "coded_requirements": [
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "preferred"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "preferred"
+        }
+      ],
+      "qualification_notes": [
+        "Full qualification details require checking the current employer page"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "walmart-R-2643323",
+      "native_id": "walmart-R-2643323",
+      "employer": "Walmart",
+      "title": "Senior Director, Data Analytics - Workforce Planning",
+      "family": "workforce_planning",
+      "seniority": "director",
+      "geography": "US",
+      "source_id": "walmart-R-2643323",
+      "paraphrase": "Frame workforce/business problems, translate workforce intelligence into practical recommendations and embed evidence into business decisions. The technical qualification list includes SQL, Python and BI tools.",
+      "coded_requirements": [
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        },
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "responsibility"
+        },
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "python",
+          "label": "Python",
+          "level": "mentioned"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "mentioned"
+        }
+      ],
+      "qualification_notes": [
+        "Senior leadership/supervisory and industry experience",
+        "Extensive analytics experience; inspect full qualification alternatives"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "walmart-R-2637733",
+      "native_id": "walmart-R-2637733",
+      "employer": "Walmart",
+      "title": "Manager, Workforce Management Financial Planning",
+      "family": "workforce_planning",
+      "seniority": "manager",
+      "geography": "US",
+      "source_id": "walmart-R-2637733",
+      "paraphrase": "Lead financial planning and budget management for a workforce-management organization working on forecasting, capacity planning, scheduling and workforce analytics.",
+      "coded_requirements": [
+        {
+          "skill": "forecasting",
+          "label": "Planning / forecasting",
+          "level": "responsibility"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Manager-level financial/workforce planning experience; full details need rechecking"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    },
+    {
+      "job_id": "nhs-6997514",
+      "native_id": "nhs-6997514",
+      "employer": "University Hospitals of Derby and Burton NHS Foundation Trust",
+      "title": "Insight Analyst",
+      "family": "adjacent_analytics",
+      "seniority": "unspecified",
+      "geography": "UK",
+      "source_id": "nhs-6997514",
+      "paraphrase": "Provide routine and ad-hoc analysis for planning and performance. Person specification names basic analytical-tool knowledge/training such as SQL Server, Excel, Power BI or QlikView, with qualification/equivalent-experience routes.",
+      "coded_requirements": [
+        {
+          "skill": "sql",
+          "label": "SQL",
+          "level": "mentioned"
+        },
+        {
+          "skill": "excel",
+          "label": "Spreadsheets / Excel",
+          "level": "mentioned"
+        },
+        {
+          "skill": "bi",
+          "label": "BI / dashboards",
+          "level": "mentioned"
+        },
+        {
+          "skill": "reporting",
+          "label": "Decision reporting / stakeholder communication",
+          "level": "responsibility"
+        }
+      ],
+      "qualification_notes": [
+        "Published qualification or equivalent-experience route",
+        "Full current employer criteria need checking"
+      ],
+      "coding_method": "Analyst-coded paraphrase of the stated primary-source material; not independently human-labeled ground truth"
+    }
+  ],
+  "sampling": "Purposive eight-description portfolio sample across US/UK/Ireland and several seniority levels; includes closed/indexed descriptions. It is neither a representative market sample nor a vacancy-count time series.",
+  "missing_semantics": "A skill not coded is unobserved in this sample coding, not proof that the employer does not require it.",
+  "skill_taxonomy": {
+    "name": "Career Fit role-sample coding",
+    "version": "1",
+    "labels": {
+      "sql": "SQL",
+      "python": "Python",
+      "excel": "Spreadsheets / Excel",
+      "bi": "BI / dashboards",
+      "reporting": "Decision reporting / stakeholder communication",
+      "data_quality": "Data quality",
+      "forecasting": "Planning / forecasting",
+      "hr_systems": "HR / workforce systems",
+      "research": "Market research"
+    }
+  }
+}

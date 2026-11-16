@@ -24,7 +24,7 @@ async function run() {
     await page.screenshot({path:path.join(asset,name),fullPage:true,clip:bounds});
   };
   try {
-    await page.goto(base+"/capital");await ready();
+    await page.goto(base+"/capital?case=legacy");await ready();
     await page.locator("#calculate").click();assert.match(await page.locator("#status").innerText(), /Confirm/);
     await screenshot("career-fit-capital-inputs.png",["header",".hero",".tabs","#inputs"]);
     await calculate();assert.match(await page.locator("#metrics").innerText(), /1,680/);

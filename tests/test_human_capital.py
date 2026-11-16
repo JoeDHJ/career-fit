@@ -167,6 +167,7 @@ class WorkforceTests(unittest.TestCase):
             "employees": [
                 {
                     "id": "flexible",
+                    "consent": "met",
                     "skills": {"s": 1},
                     "available_hours": 0,
                     "hourly_cost": 0,
@@ -174,6 +175,7 @@ class WorkforceTests(unittest.TestCase):
                 },
                 {
                     "id": "specialist",
+                    "consent": "met",
                     "skills": {"s": 1},
                     "available_hours": 0,
                     "hourly_cost": 0,
@@ -267,6 +269,7 @@ class WorkforceTests(unittest.TestCase):
             "employees": [
                 {
                     "id": "E1",
+                    "consent": "met",
                     "skills": {"a": 0, "b": 0},
                     "available_hours": 1,
                     "hourly_cost": 0,

@@ -19,6 +19,7 @@ from .workforce import allocate_workforce
 from .market import market_context
 from .resources import read_resource_text
 from .capital_reports import capital_markdown
+from .research import build_research
 
 
 def _non_negative_int(value: str) -> int:
@@ -102,7 +103,12 @@ def parser():
     )
     bench.add_argument("--input", required=True, type=Path)
     bench.add_argument("--limit", type=_non_negative_int)
-    bench.add_argument("--engine", choices=["dictionary", "ner"], default="dictionary")
+    bench.add_argument(
+        "--engine", choices=["dictionary", "ner", "averaged"], default="dictionary"
+    )
+    bench.add_argument(
+        "--target", choices=["skills", "knowledge", "combined"], default="skills"
+    )
     bench.add_argument("--model", type=Path)
     train = sub.add_parser(
         "train", help="train the lightweight supervised SkillSpan NER baseline"
@@ -111,6 +117,11 @@ def parser():
     train.add_argument("--output", required=True, type=Path)
     train.add_argument("--limit", type=_non_negative_int)
     train.add_argument("--epochs", type=_positive_int, default=5)
+    train.add_argument(
+        "--averaged",
+        action="store_true",
+        help="train an averaged greedy sequence baseline",
+    )
     normalize = sub.add_parser("normalize", help="normalize one label or return NIL")
     normalize.add_argument("label")
     esco = sub.add_parser(
@@ -119,11 +130,29 @@ def parser():
     esco.add_argument("--input", required=True, type=Path)
     sub.add_parser("taxonomy", help="print the analytical taxonomy")
     sub.add_parser("serve", help="start the local Career Fit explorer")
-    for name, help_text in (("invest", "choose a feasible 90-day training portfolio"), ("workforce", "compare reviewed mobility, training and hiring scenarios")):
+    for name, help_text in (
+        ("invest", "choose a feasible 90-day training portfolio"),
+        ("workforce", "compare reviewed mobility, training and hiring scenarios"),
+    ):
         command = sub.add_parser(name, help=help_text)
-        command.add_argument("--input", type=Path, help="reviewed JSON input; omit for the attributed fictional demo")
+        command.add_argument(
+            "--input",
+            type=Path,
+            help="reviewed JSON input; omit for the attributed fictional demo",
+        )
         command.add_argument("--format", choices=["json", "markdown"], default="json")
-    market = sub.add_parser("market", help="inspect an offline portfolio.v1 occupation snapshot")
+        command.add_argument(
+            "--case", choices=["legacy", "analyst", "business"], default="legacy"
+        )
+    sub.add_parser(
+        "research", help="run SQL over the attributed employer/resource sample"
+    )
+    sub.add_parser(
+        "measurement", help="show the bundled external extraction evaluation"
+    )
+    market = sub.add_parser(
+        "market", help="inspect an offline portfolio.v1 occupation snapshot"
+    )
     market.add_argument("--occupation-id", required=True)
     market.add_argument("--geography", default="US")
     market.add_argument("--snapshot-file", type=Path)
@@ -143,15 +172,62 @@ def _main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
+    if args.command == "research":
+        print(json.dumps(build_research(), ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "measurement":
+        print(read_resource_text("measurement_results.json"))
+        return 0
     if args.command in {"invest", "workforce"}:
-        filename = "investment_demo.json" if args.command == "invest" else "workforce_demo.json"
-        payload = json.loads(args.input.read_text(encoding="utf-8") if args.input else read_resource_text(filename))
-        result = plan_investment(payload) if args.command == "invest" else allocate_workforce(payload)
-        print(capital_markdown(result) if args.format == "markdown" else json.dumps(result, ensure_ascii=False, indent=2))
+        filename = (
+            "investment_demo.json"
+            if args.command == "invest"
+            else "workforce_demo.json"
+        )
+        if args.case != "legacy":
+            if (args.command, args.case) not in {
+                ("invest", "analyst"),
+                ("workforce", "business"),
+            }:
+                raise ValueError(
+                    "Use invest --case analyst or workforce --case business"
+                )
+            filename = (
+                "analyst_learning_demo.json"
+                if args.case == "analyst"
+                else "workforce_business_demo.json"
+            )
+        payload = json.loads(
+            args.input.read_text(encoding="utf-8")
+            if args.input
+            else read_resource_text(filename)
+        )
+        result = (
+            plan_investment(payload)
+            if args.command == "invest"
+            else allocate_workforce(payload)
+        )
+        print(
+            capital_markdown(result)
+            if args.format == "markdown"
+            else json.dumps(result, ensure_ascii=False, indent=2)
+        )
         return 0
     if args.command == "market":
-        snapshot = json.loads(args.snapshot_file.read_text(encoding="utf-8")) if args.snapshot_file else None
-        print(json.dumps(market_context(args.occupation_id, args.geography, snapshot, args.as_of), ensure_ascii=False, indent=2))
+        snapshot = (
+            json.loads(args.snapshot_file.read_text(encoding="utf-8"))
+            if args.snapshot_file
+            else None
+        )
+        print(
+            json.dumps(
+                market_context(
+                    args.occupation_id, args.geography, snapshot, args.as_of
+                ),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return 0
     if args.command == "analyze":
         try:
@@ -222,7 +298,9 @@ def _main(argv: list[str] | None = None) -> int:
     if args.command == "benchmark":
         print(
             json.dumps(
-                benchmark_skillspan(args.input, args.limit, args.engine, args.model),
+                benchmark_skillspan(
+                    args.input, args.limit, args.engine, args.model, args.target
+                ),
                 ensure_ascii=False,
                 indent=2,
             )
@@ -230,7 +308,7 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "train":
         rows = load_skillspan_rows(args.input, args.limit)
-        model = PerceptronNER()
+        model = PerceptronNER(sequence=args.averaged)
         metadata = model.train(rows, epochs=args.epochs)
         model.save(args.output, {"dataset": "SkillSpan", **metadata})
         print(
