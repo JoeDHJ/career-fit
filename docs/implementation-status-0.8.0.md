@@ -26,6 +26,7 @@ Two read-only reviewers inspected methods/calculations and the actual browser wo
 - The Systems Evaluation label and supervised model variant could be mislabeled. Both now match the source/method.
 - Offline evaluation could rewrite source retrieval dates. Acquisition manifests and local file times are separated from evaluation time.
 - New pytest functions were initially outside the old unittest CI runner. CI now uses pytest and includes a dedicated optimization job.
+- Cloud integration exposed Atlas's changed homepage: its existing explorer moved to `/explorer.html`. The browser check now verifies both homepage layout and the explicit explorer route, retaining keyboard and API checks.
 
 ## Independent round 2
 

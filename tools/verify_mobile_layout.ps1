@@ -72,6 +72,16 @@ try {
         'JSON.stringify({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})'
     ))
     Assert-NoHorizontalOverflow "AI Labor Atlas" $atlasMeasurement
+    # Atlas now serves its research workbench at / and keeps the established
+    # accessible occupation explorer/API at this explicit compatibility route.
+    Invoke-PlaywrightCli @("open", "$($AtlasUrl.TrimEnd('/'))/explorer.html") | Out-Null
+    Invoke-PlaywrightCli @("resize", "$Width", "$Height") | Out-Null
+    Wait-ForCondition "document.querySelectorAll('.bubble').length > 0"
+    $explorerMeasurement = Read-PlaywrightJson (Invoke-PlaywrightCli @(
+        "eval",
+        'JSON.stringify({width:innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth})'
+    ))
+    Assert-NoHorizontalOverflow "AI Labor Atlas occupation explorer" $explorerMeasurement
     $atlasAccessibility = Read-PlaywrightJson (Invoke-PlaywrightCli @(
         "eval",
         "JSON.stringify({count:document.querySelectorAll('.bubble').length,role:document.querySelector('.bubble').getAttribute('role'),tabindex:document.querySelector('.bubble').getAttribute('tabindex'),demo:document.querySelector('.dataset-notice').textContent})"
