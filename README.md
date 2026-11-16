@@ -1,6 +1,33 @@
 # Career Fit
 
-**Career Fit** is an explainable, evidence-first job-search planner for job seekers, career coaches, and labor-market researchers.
+**Career Fit** is a **Skills Intelligence and Human Capital Decision System**. It helps job seekers prepare stronger evidence and helps analysts compare feasible training, internal mobility and hiring choices.
+
+## Start with the completed decision cases
+
+What can someone build in 90 days with limited time and money? When can an organization train and move employees instead of recruiting externally? Version **0.7.0** answers these questions with reviewed evidence and explicit constraints.
+
+- **Real JD + fictional candidate:** a feasible portfolio costs **$320 and 68 hours** ($1,680 including the supplied time value). Two senior experience gates remain unmet. [Case and findings](docs/human-capital-case-report.md) · [Generated personal brief](examples/human_capital/investment_brief.md).
+- **Public occupational data + synthetic workforce:** two direct moves and two training moves fill **four scenario positions**, costing **$1,400 in fees and $3,016 including 56 released hours**. The baseline, capacity constraints and coverage differences stay visible. [Generated workforce brief](examples/human_capital/workforce_brief.md) · [Complete inputs and results](examples/human_capital/).
+- **Dated market context:** offline BLS 2025–2035 estimates/projections and O*NET 31.0 importance ratings, with explicit national, missing and stale-data states. Public wages are separate from training-return assumptions.
+
+[Executive brief](docs/executive-brief.md) · [Methods and interfaces](docs/human-capital-methods.md) · [Official employer requirements](docs/employer-requirements.md) · [Two-minute demonstration](docs/demo-script.md) · [Validation record](docs/implementation-status.md)
+
+```powershell
+python -m pip install career-fit==0.7.0
+career-fit invest --format markdown
+career-fit workforce --format json
+career-fit serve
+# Job seeker workspace: http://127.0.0.1:8766
+# Human capital workspace: http://127.0.0.1:8766/capital
+```
+
+![Career Fit complete training portfolio and 30/60/90-day plan](docs/assets/career-fit-investment.png)
+
+![Career Fit complete workforce strategy comparison and proposed moves](docs/assets/career-fit-workforce.png)
+
+Both CLI cases run from the installed package without a source checkout, network or Atlas server. From a clone, `python tools/run_human_capital_cases.py` regenerates the reports and sensitivity results. All personal/cohort inputs and training effects in these demonstrations are fictional scenarios; public observations are attributed separately.
+
+## The job seeker entry
 
 It answers three questions that keyword tools usually collapse into one:
 
@@ -23,7 +50,7 @@ Career Fit keeps these cases separate so a user leaves with a better next move r
 
 ## What it does
 
-Given a job description and a candidate profile, the v0.5 product:
+Given a job description and a candidate profile, the v0.7 product:
 
 1. extracts dictionary-backed skill requirements and explicit hard gates, including background-check, license, education, work-authorization, and experience requirements;
 2. detects conservative local negation so statements such as “no direct HR-data experience” are not counted as positive evidence;
@@ -33,12 +60,12 @@ Given a job description and a candidate profile, the v0.5 product:
 6. ranks proof, translation, bridge, foundation, and verification gaps;
 7. proposes an expected proof artifact and an evidence prompt for each priority action;
 8. shows a multidimensional Role Fingerprint and the skill bundles that appear together in the supplied posting;
-9. accepts a local plain-text or Markdown resume import and lets users label structured evidence as work, research, portfolio, GitHub, course, certificate, or claim;
+9. accepts a local TXT, Markdown, JSON, DOCX, or selectable-text PDF resume import and lets users label structured evidence as work, research, portfolio, GitHub, course, certificate, or claim;
 10. exposes an explicit profile-language route so non-English profiles are not silently treated as fully mapped; users can add translated or structured evidence before relying on a score;
 11. keeps claim-only evidence distinct from reviewable proof and aggregates multiple evidence items without letting a weak extra claim erase stronger proof;
 12. offers a resume-free guided intake when mapped evidence is sparse: choose a role requirement and describe one task, context, optional result, evidence type, duration, and recency.
 
-It can also compare two or three target roles against the same candidate profile after candidate evidence has been reviewed. The comparison carries that reviewed evidence state forward, while each role still requires its own checklist confirmation before role-specific scores are shown.
+It can also compare two or three target roles against the same candidate profile after candidate evidence has been reviewed. The comparison carries that reviewed evidence state forward, while each role still requires its own checklist confirmation before role-specific scores are shown. The reviewed evidence map can then seed self-directed work-sample options in the investment workspace; effort, costs and occupation context require review before relying on that plan.
 
 ## Quick start
 
@@ -55,7 +82,7 @@ python -m pip install -e .
 
 # Analyze one role locally
 career-fit analyze --job-file examples\single_job\people_analytics_job.txt --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json
-# Add --review-file review.json to reveal the reviewed score
+# Add --review-file examples\single_job\role_review.json to reveal the reviewed score
 
 # Compare a small target-role portfolio
 career-fit compare --roles-file examples\role_portfolio.json --candidate-file examples\single_job\candidate_profile.txt --evidence-file examples\single_job\evidence.json --review-file examples\single_job\candidate_evidence_review.json

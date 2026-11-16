@@ -165,7 +165,13 @@ def _importance(context: str) -> str:
 
 
 def _context(text: str, start: int, end: int, window: int = 90) -> str:
-    return text[max(0, start - window) : min(len(text), end + window)]
+    left, right = max(0, start - window), min(len(text), end + window)
+    # Expand to whole tokens so the excerpt never begins or ends inside a word.
+    while left > 0 and not text[left - 1].isspace():
+        left -= 1
+    while right < len(text) and not text[right].isspace():
+        right += 1
+    return ("... " if left else "") + text[left:right].strip() + (" ..." if right < len(text) else "")
 
 
 def _local_clause(text: str, start: int, end: int) -> str:

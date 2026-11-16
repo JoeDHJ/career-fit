@@ -1,0 +1,177 @@
+{
+  "input_status": "fictional_candidate_and_training_assumptions; real_JD_paraphrase",
+  "analysis_input": {
+    "job_text": "Talent Intelligence Analyst, Global Specialty Recruiting, Amazon, Seattle or New York. Reviewed paraphrase of official posting 10569918, retrieved 2026-11-16. Responsibilities include market research across locations and competitors, quantitative and qualitative research, executive communication, data visualization, strategy documents, self-service dashboards, automated workflows and AI tools. Synthesize market trends and triangulate sources; advise recruiting, HR, finance and business leaders. Manage multiple projects and communicate delivery timelines independently. Must have 5 years of executive leadership advising experience. Must have 7 years of corporate recruiting experience focused on passive engineering candidates in technology markets. Must have a bachelor's degree or higher. Preferred: executive search experience, recruiting and people-related tools, CRM systems, and complex spreadsheets.",
+    "candidate_text": "FICTIONAL CANDIDATE A, constructed for this demonstration, not Haojian Dui's resume. A labor economist with a master's degree and three years of academic research experience. Built Python data pipelines, analyzed employment datasets, wrote research reports and presented results to policy audiences. No corporate recruiting experience and no executive leadership advising experience. Has not used CRM systems or complex spreadsheets professionally. Interested in translating research into talent-market intelligence; has not built a self-service dashboard.",
+    "evidence": [
+      {
+        "evidence_id": "fictional-python",
+        "skill_id": "software.python",
+        "canonical_skill": "Python",
+        "analysis_category_code": "specific_software_skill",
+        "evidence_type": "research_project",
+        "source_text": "Fictional work sample: built a Python employment-data pipeline",
+        "measurable_result": "A runnable public-data notebook",
+        "duration_months": 18,
+        "recency_years": 1
+      },
+      {
+        "evidence_id": "fictional-writing",
+        "skill_id": "skill.writing",
+        "canonical_skill": "Writing",
+        "analysis_category_code": "writing_skill",
+        "evidence_type": "research_project",
+        "source_text": "Fictional work sample: wrote a labor-market research memo",
+        "measurable_result": "A two-page evidence brief",
+        "duration_months": 12,
+        "recency_years": 1
+      },
+      {
+        "evidence_id": "fictional-research",
+        "skill_id": "skill.research",
+        "canonical_skill": "Research",
+        "analysis_category_code": "cognitive_skill",
+        "evidence_type": "research_project",
+        "source_text": "Fictional work sample: triangulated public employment sources",
+        "measurable_result": "Source registry with two datasets",
+        "duration_months": 24,
+        "recency_years": 1
+      }
+    ],
+    "review": {
+      "scope": "role_requirements",
+      "applied": true,
+      "constraint_status_overrides": {
+        "constraint-008": "not_met",
+        "constraint-009": "not_met"
+      },
+      "removed_requirement_ids": [
+        "req-009"
+      ],
+      "added_requirements": [
+        {
+          "text": "Complex spreadsheets",
+          "importance_level": "preferred"
+        },
+        {
+          "text": "CRM systems",
+          "importance_level": "preferred"
+        }
+      ]
+    }
+  },
+  "budget": 600,
+  "hours": 90,
+  "weekly_hours": 7,
+  "preparation_hours": 6,
+  "currency": "USD",
+  "hourly_value": 20,
+  "occupation_id": "13-1071",
+  "geography": "US-WA-Seattle",
+  "confirmed_prerequisites": [
+    "software.python"
+  ],
+  "courses": [
+    {
+      "id": "dashboard",
+      "title": "Talent-market dashboard work sample",
+      "hours": 32,
+      "fee": 120,
+      "skills": [
+        "skill.data_visualization"
+      ],
+      "prerequisites": [
+        "software.python"
+      ],
+      "eligibility": "met",
+      "artifact": "Interactive occupation comparison with source dates and missing-data states",
+      "completion_criterion": "Reproduce three occupation totals and explain each chart's population and period"
+    },
+    {
+      "id": "spreadsheet",
+      "title": "Spreadsheet scenario model",
+      "hours": 20,
+      "fee": 80,
+      "skills": [
+        "user.custom.009"
+      ],
+      "skill_labels": {
+        "user.custom.009": "Complex spreadsheets"
+      },
+      "prerequisites": [],
+      "eligibility": "met",
+      "artifact": "A training-versus-hiring cost workbook using synthetic people",
+      "completion_criterion": "A reviewer can reconcile fees, released hours and all scenario totals"
+    },
+    {
+      "id": "stakeholder",
+      "title": "Executive research translation sprint",
+      "hours": 18,
+      "fee": 60,
+      "skills": [
+        "skill.communication"
+      ],
+      "prerequisites": [],
+      "eligibility": "met",
+      "artifact": "One-page talent-market decision memo and five-minute briefing",
+      "completion_criterion": "Separate observations from scenarios and answer two reviewer objections"
+    },
+    {
+      "id": "ai",
+      "title": "AI-assisted research verification sprint",
+      "hours": 24,
+      "fee": 180,
+      "skills": [
+        "ai.artificial_intelligence"
+      ],
+      "prerequisites": [
+        "software.python"
+      ],
+      "eligibility": "met",
+      "artifact": "A source-linked research workflow with a manually checked error log",
+      "completion_criterion": "A human verifies every factual statement in the final memo"
+    },
+    {
+      "id": "advanced",
+      "title": "Advanced dashboard deployment",
+      "hours": 40,
+      "fee": 350,
+      "skills": [
+        "skill.data_visualization",
+        "skill.project_management"
+      ],
+      "prerequisites": [
+        "skill.data_visualization"
+      ],
+      "eligibility": "met",
+      "artifact": "Locally served dashboard and operations checklist",
+      "completion_criterion": "Fresh installation and malformed-input checks pass"
+    },
+    {
+      "id": "coaching",
+      "title": "Recruiting leadership seminar",
+      "hours": 24,
+      "fee": 500,
+      "skills": [
+        "skill.leadership"
+      ],
+      "prerequisites": [],
+      "eligibility": "unknown",
+      "artifact": "Reviewed practice case",
+      "completion_criterion": "Confirm provider entry requirements before purchase"
+    }
+  ],
+  "jd_source": {
+    "source_id": "amazon-10569918",
+    "source_url": "https://www.amazon.jobs/en/jobs/10569918/talent-intelligence-analyst-global-specialty-recruiting",
+    "retrieved_at": "2026-11-16",
+    "source_vintage": "Official posting observed 2026-11-16",
+    "geography": "US-WA-Seattle; US-NY-New York",
+    "unit_of_observation": "job posting",
+    "period": "2026-11-16",
+    "status": "observed",
+    "schema_version": "portfolio.v1",
+    "content": "Decision-relevant paraphrase, not a verbatim copy; no claim that the dictionary captures every requirement"
+  },
+  "as_of": "2026-11-16"
+}

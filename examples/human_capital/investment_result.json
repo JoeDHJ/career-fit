@@ -1,0 +1,1055 @@
+{
+  "schema_version": "career_fit.investment.v1",
+  "status": "scenario_plan",
+  "input_status": "fictional_candidate_and_training_assumptions; real_JD_paraphrase",
+  "currency": "USD",
+  "budget": 600.0,
+  "hours_capacity_90_days": 90.0,
+  "preparation_hours": 6.0,
+  "hourly_value": 20.0,
+  "reviewed_summary": {
+    "evidence_fit_score": 28,
+    "role_fit_score": 28,
+    "application_readiness_score": 27,
+    "capability_signal_score": 31,
+    "proof_signal_score": 42,
+    "input_completeness_score": null,
+    "requirements_identified": 10,
+    "minimum_input_threshold": "met",
+    "soft_requirement_count": 7,
+    "requirements_with_reviewable_evidence": 3,
+    "requirements_with_claimed_evidence": 0,
+    "evidence_coverage_score": 30,
+    "claimed_evidence_coverage_score": 0,
+    "eligibility_verification_score": 100,
+    "eligibility_status": "verified",
+    "evidence_item_count": 3,
+    "requirement_count": 10,
+    "analysis_status": "scored",
+    "analysis_reasons": [],
+    "review_status": "user_confirmed",
+    "review_required": false,
+    "score_visibility": "visible",
+    "readiness_status": "blocked_by_constraint",
+    "decision": "blocked_by_constraint",
+    "decision_label": "A hard requirement appears unmet; resolve it before prioritizing this application.",
+    "skill_requirement_count": 7,
+    "hard_constraint_count": 3,
+    "blocking_constraint_count": 2,
+    "direct_evidence_count": 1,
+    "evidence_count": 3,
+    "excluded_evidence_count": 0,
+    "candidate_language": {
+      "requested": "auto",
+      "detected": "english_or_mixed",
+      "rule_based_dictionary": "English seed dictionary plus English O*NET labels",
+      "requires_language_review": false,
+      "note": "The current rule-based dictionary is designed for English skill labels; confirm any mixed-language terms during review."
+    }
+  },
+  "eligibility_gates": [
+    {
+      "requirement_id": "constraint-007",
+      "requirement_type": "education",
+      "canonical_skill": "bachelor's",
+      "original_text": "Must have a bachelor's degree or higher",
+      "importance_level": "must",
+      "importance_weight": 1.0,
+      "hard_constraint": true,
+      "extraction_method": "constraint_rule",
+      "source_context": "... corporate recruiting experience focused on passive engineering candidates in technology markets. Must have a bachelor's degree or higher. Preferred: executive search experience, recruiting and people-related tools, CRM systems, ...",
+      "review_required": true,
+      "education_level": 1,
+      "education_field": null,
+      "status": "met",
+      "status_label": "Requirement appears met",
+      "match_score": 1.0,
+      "evidence_ids": [],
+      "matching_method": "candidate_constraint_rule"
+    },
+    {
+      "requirement_id": "constraint-008",
+      "requirement_type": "experience_floor",
+      "canonical_skill": "5+ years of executive leadership advising experience",
+      "original_text": "5 years of executive leadership advising experience",
+      "importance_level": "must",
+      "importance_weight": 1.0,
+      "hard_constraint": true,
+      "extraction_method": "constraint_rule",
+      "source_context": "... leaders. Manage multiple projects and communicate delivery timelines independently. Must have 5 years of executive leadership advising experience. Must have 7 years of corporate recruiting experience focused on passive engineering candidates ...",
+      "review_required": true,
+      "required_years": 5,
+      "experience_area": "executive leadership advising",
+      "review_status": "user_confirmed",
+      "user_confirmed_status": "not_met",
+      "status": "not_met",
+      "status_label": "Explicitly not met",
+      "match_score": 0.0,
+      "evidence_ids": [],
+      "matching_method": "user_confirmed_constraint"
+    },
+    {
+      "requirement_id": "constraint-009",
+      "requirement_type": "experience_floor",
+      "canonical_skill": "7+ years of corporate recruiting experience",
+      "original_text": "7 years of corporate recruiting experience focused on passive engineering candidates in technology markets",
+      "importance_level": "must",
+      "importance_weight": 1.0,
+      "hard_constraint": true,
+      "extraction_method": "constraint_rule",
+      "source_context": "... timelines independently. Must have 5 years of executive leadership advising experience. Must have 7 years of corporate recruiting experience focused on passive engineering candidates in technology markets. Must have a bachelor's degree or higher. Preferred: executive search experience, recruiting ...",
+      "review_required": true,
+      "required_years": 7,
+      "experience_area": "corporate recruiting",
+      "review_status": "user_confirmed",
+      "user_confirmed_status": "not_met",
+      "status": "not_met",
+      "status_label": "Explicitly not met",
+      "match_score": 0.0,
+      "evidence_ids": [],
+      "matching_method": "user_confirmed_constraint"
+    }
+  ],
+  "evidence_map": [
+    {
+      "skill": "Recruiting",
+      "skill_id": "skill.recruiting",
+      "status": "missing",
+      "training_target": false,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Research",
+      "skill_id": "skill.research",
+      "status": "direct",
+      "training_target": false,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Communication",
+      "skill_id": "skill.communication",
+      "status": "transferable",
+      "training_target": true,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Data visualization",
+      "skill_id": "skill.data_visualization",
+      "status": "transferable",
+      "training_target": false,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Artificial intelligence",
+      "skill_id": "ai.artificial_intelligence",
+      "status": "missing",
+      "training_target": true,
+      "importance": "inferred"
+    },
+    {
+      "skill": "Complex spreadsheets",
+      "skill_id": "user.custom.009",
+      "status": "missing",
+      "training_target": true,
+      "importance": "preferred"
+    },
+    {
+      "skill": "CRM systems",
+      "skill_id": "user.custom.010",
+      "status": "missing",
+      "training_target": false,
+      "importance": "preferred"
+    }
+  ],
+  "objective": "Maximize distinct reviewed gap importance covered by assumed training outcomes; then minimize economic cost (cash plus supplied foregone income if time value missing), then hours. Coverage is not proficiency or a predicted job outcome.",
+  "best_plan": {
+    "course_ids": [
+      "spreadsheet",
+      "stakeholder",
+      "ai"
+    ],
+    "target_weight_covered": 0.8,
+    "cash_cost": 320.0,
+    "foregone_income": 0.0,
+    "hours": 68.0,
+    "economic_cost": 1680.0,
+    "selected_courses": [
+      {
+        "id": "spreadsheet",
+        "title": "Spreadsheet scenario model",
+        "hours": 20.0,
+        "fee": 80.0,
+        "skills": [
+          "user.custom.009"
+        ],
+        "skill_labels": {
+          "user.custom.009": "Complex spreadsheets"
+        },
+        "prerequisites": [],
+        "eligibility": "met",
+        "artifact": "A training-versus-hiring cost workbook using synthetic people",
+        "completion_criterion": "A reviewer can reconcile fees, released hours and all scenario totals",
+        "foregone_income": 0.0
+      },
+      {
+        "id": "stakeholder",
+        "title": "Executive research translation sprint",
+        "hours": 18.0,
+        "fee": 60.0,
+        "skills": [
+          "skill.communication"
+        ],
+        "prerequisites": [],
+        "eligibility": "met",
+        "artifact": "One-page talent-market decision memo and five-minute briefing",
+        "completion_criterion": "Separate observations from scenarios and answer two reviewer objections",
+        "foregone_income": 0.0
+      },
+      {
+        "id": "ai",
+        "title": "AI-assisted research verification sprint",
+        "hours": 24.0,
+        "fee": 180.0,
+        "skills": [
+          "ai.artificial_intelligence"
+        ],
+        "prerequisites": [
+          "software.python"
+        ],
+        "eligibility": "met",
+        "artifact": "A source-linked research workflow with a manually checked error log",
+        "completion_criterion": "A human verifies every factual statement in the final memo",
+        "foregone_income": 0.0
+      }
+    ]
+  },
+  "alternatives": [
+    {
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "target_weight_covered": 0.8,
+      "cash_cost": 320.0,
+      "foregone_income": 0.0,
+      "hours": 68.0,
+      "economic_cost": 1680.0,
+      "selected_courses": [
+        {
+          "id": "spreadsheet",
+          "title": "Spreadsheet scenario model",
+          "hours": 20.0,
+          "fee": 80.0,
+          "skills": [
+            "user.custom.009"
+          ],
+          "skill_labels": {
+            "user.custom.009": "Complex spreadsheets"
+          },
+          "prerequisites": [],
+          "eligibility": "met",
+          "artifact": "A training-versus-hiring cost workbook using synthetic people",
+          "completion_criterion": "A reviewer can reconcile fees, released hours and all scenario totals",
+          "foregone_income": 0.0
+        },
+        {
+          "id": "stakeholder",
+          "title": "Executive research translation sprint",
+          "hours": 18.0,
+          "fee": 60.0,
+          "skills": [
+            "skill.communication"
+          ],
+          "prerequisites": [],
+          "eligibility": "met",
+          "artifact": "One-page talent-market decision memo and five-minute briefing",
+          "completion_criterion": "Separate observations from scenarios and answer two reviewer objections",
+          "foregone_income": 0.0
+        },
+        {
+          "id": "ai",
+          "title": "AI-assisted research verification sprint",
+          "hours": 24.0,
+          "fee": 180.0,
+          "skills": [
+            "ai.artificial_intelligence"
+          ],
+          "prerequisites": [
+            "software.python"
+          ],
+          "eligibility": "met",
+          "artifact": "A source-linked research workflow with a manually checked error log",
+          "completion_criterion": "A human verifies every factual statement in the final memo",
+          "foregone_income": 0.0
+        }
+      ]
+    },
+    {
+      "course_ids": [
+        "dashboard",
+        "spreadsheet",
+        "stakeholder"
+      ],
+      "target_weight_covered": 0.8,
+      "cash_cost": 260.0,
+      "foregone_income": 0.0,
+      "hours": 76.0,
+      "economic_cost": 1780.0
+    },
+    {
+      "course_ids": [
+        "dashboard",
+        "spreadsheet",
+        "ai"
+      ],
+      "target_weight_covered": 0.8,
+      "cash_cost": 380.0,
+      "foregone_income": 0.0,
+      "hours": 82.0,
+      "economic_cost": 2020.0
+    },
+    {
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder"
+      ],
+      "target_weight_covered": 0.6,
+      "cash_cost": 140.0,
+      "foregone_income": 0.0,
+      "hours": 44.0,
+      "economic_cost": 1020.0
+    },
+    {
+      "course_ids": [
+        "spreadsheet",
+        "ai"
+      ],
+      "target_weight_covered": 0.6,
+      "cash_cost": 260.0,
+      "foregone_income": 0.0,
+      "hours": 50.0,
+      "economic_cost": 1260.0
+    },
+    {
+      "course_ids": [
+        "dashboard",
+        "spreadsheet"
+      ],
+      "target_weight_covered": 0.6,
+      "cash_cost": 200.0,
+      "foregone_income": 0.0,
+      "hours": 58.0,
+      "economic_cost": 1360.0
+    },
+    {
+      "course_ids": [
+        "dashboard",
+        "stakeholder",
+        "ai"
+      ],
+      "target_weight_covered": 0.6,
+      "cash_cost": 360.0,
+      "foregone_income": 0.0,
+      "hours": 80.0,
+      "economic_cost": 1960.0
+    },
+    {
+      "course_ids": [
+        "spreadsheet"
+      ],
+      "target_weight_covered": 0.4,
+      "cash_cost": 80.0,
+      "foregone_income": 0.0,
+      "hours": 26.0,
+      "economic_cost": 600.0
+    }
+  ],
+  "feasible_portfolios": 16,
+  "blocked_options": [
+    {
+      "id": "coaching",
+      "reason": "Training eligibility unknown"
+    }
+  ],
+  "remaining_targets": [
+    "Recruiting",
+    "Data visualization",
+    "CRM systems"
+  ],
+  "timeline": [
+    {
+      "day": 30,
+      "training": [
+        {
+          "course_id": "spreadsheet",
+          "title": "Spreadsheet scenario model",
+          "hours": 20.0,
+          "artifact": "A training-versus-hiring cost workbook using synthetic people",
+          "completion_criterion": "A reviewer can reconcile fees, released hours and all scenario totals",
+          "due_day": 23
+        },
+        {
+          "course_id": "stakeholder",
+          "title": "Executive research translation sprint",
+          "hours": 7.0,
+          "artifact": "One-page talent-market decision memo and five-minute briefing",
+          "completion_criterion": "Separate observations from scenarios and answer two reviewer objections",
+          "due_day": 41
+        }
+      ],
+      "actions": [
+        "Verify each unresolved eligibility gate with the employer or records: 5+ years of executive leadership advising experience (not_met); 7+ years of corporate recruiting experience (not_met)",
+        "Translate one existing direct or transferable example into task, context, result, and a reviewable artifact."
+      ],
+      "artifact": "Reviewed eligibility checklist and one role-specific evidence card",
+      "completion_criterion": "Each gate has a source or an explicit unresolved status; the evidence card links to an actual work sample."
+    },
+    {
+      "day": 60,
+      "training": [
+        {
+          "course_id": "stakeholder",
+          "title": "Executive research translation sprint",
+          "hours": 11.0,
+          "artifact": "One-page talent-market decision memo and five-minute briefing",
+          "completion_criterion": "Separate observations from scenarios and answer two reviewer objections",
+          "due_day": 41
+        },
+        {
+          "course_id": "ai",
+          "title": "AI-assisted research verification sprint",
+          "hours": 19.0,
+          "artifact": "A source-linked research workflow with a manually checked error log",
+          "completion_criterion": "A human verifies every factual statement in the final memo",
+          "due_day": 65
+        }
+      ],
+      "actions": [
+        "Test the selected work sample against the role's named requirements; request a human critique."
+      ],
+      "artifact": "Runnable work sample, validation checks, and short decision memo",
+      "completion_criterion": "Another person can reproduce the result and locate the requirement it supports."
+    },
+    {
+      "day": 90,
+      "training": [
+        {
+          "course_id": "ai",
+          "title": "AI-assisted research verification sprint",
+          "hours": 5.0,
+          "artifact": "A source-linked research workflow with a manually checked error log",
+          "completion_criterion": "A human verifies every factual statement in the final memo",
+          "due_day": 65
+        }
+      ],
+      "actions": [
+        "Reassess the evidence map, document remaining gaps, and prepare an application or an adjacent-role search."
+      ],
+      "artifact": "Updated evidence map and tailored application pack",
+      "completion_criterion": "Every new claim points to completed work; unresolved gates remain visible."
+    }
+  ],
+  "market_context": {
+    "schema_version": "portfolio.v1",
+    "requested_occupation": "13-1071",
+    "requested_geography": "US-WA-Seattle",
+    "as_of": "2026-11-16",
+    "coverage": {
+      "occupations_in_snapshot": 3,
+      "requested_occupation_found": true
+    },
+    "interpretation": "Occupation context is descriptive. Wages are population estimates, and openings are official projections; neither measures a training return or a job offer probability.",
+    "status": "available",
+    "retrieval_age_days": 0,
+    "geography_status": "national_only",
+    "occupation": {
+      "occupation_id": "13-1071",
+      "native_id": "13-1071",
+      "taxonomy": "SOC",
+      "taxonomy_vintage": "2018",
+      "title": "Human resources specialists",
+      "geography": "US",
+      "source_id": "bls-ep-2025-2035",
+      "employment": 939700,
+      "projected_employment": 999700,
+      "projected_change_pct": 6.4,
+      "annual_openings": 73700,
+      "median_annual_wage": 75940.0,
+      "currency": "USD",
+      "price_year": 2025,
+      "period": "2025–2035",
+      "employment_status": "estimated",
+      "projection_status": "estimated",
+      "wage_status": "estimated"
+    },
+    "sources": [
+      {
+        "source_id": "onet31-essential_skills",
+        "source_url": "https://www.onetcenter.org/dl_files/database/db_31_0_csv/essential_skills.csv",
+        "retrieved_at": "2026-11-16T06:47:43+00:00",
+        "source_vintage": "O*NET 31.0 (August 2026)",
+        "geography": "US",
+        "unit_of_observation": "O*NET-SOC 2019 occupation × skill importance",
+        "period": "occupation-specific survey dates",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "estimated",
+        "rows_in_source": 18200,
+        "download_bytes": 2328135,
+        "license": "CC BY 4.0; U.S. Department of Labor/Employment and Training Administration; National Center for O*NET Development",
+        "retrieval_age_days": 0,
+        "freshness_status": "available"
+      },
+      {
+        "source_id": "onet31-transferable_skills",
+        "source_url": "https://www.onetcenter.org/dl_files/database/db_31_0_csv/transferable_skills.csv",
+        "retrieved_at": "2026-11-16T06:47:43+00:00",
+        "source_vintage": "O*NET 31.0 (August 2026)",
+        "geography": "US",
+        "unit_of_observation": "O*NET-SOC 2019 occupation × skill importance",
+        "period": "occupation-specific survey dates",
+        "currency": null,
+        "price_year": null,
+        "schema_version": "portfolio.v1",
+        "status": "estimated",
+        "rows_in_source": 45500,
+        "download_bytes": 6081245,
+        "license": "CC BY 4.0; U.S. Department of Labor/Employment and Training Administration; National Center for O*NET Development",
+        "retrieval_age_days": 0,
+        "freshness_status": "available"
+      },
+      {
+        "source_id": "bls-ep-2025-2035",
+        "source_url": "https://www.bls.gov/emp/tables/occupational-projections-and-characteristics.htm",
+        "retrieved_at": "2026-11-16T06:47:43+00:00",
+        "source_vintage": "Table 1.2, 2025–2035 (August 2026)",
+        "geography": "US",
+        "unit_of_observation": "SOC 2018 occupation",
+        "period": "2025–2035",
+        "currency": "USD",
+        "price_year": 2025,
+        "schema_version": "portfolio.v1",
+        "status": "estimated",
+        "download_bytes": 730438,
+        "rows_in_snapshot": 3,
+        "license": "U.S. government public data",
+        "retrieval_age_days": 0,
+        "freshness_status": "available"
+      }
+    ],
+    "skills": [
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.d",
+        "label": "Speaking",
+        "importance": 4.12,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.d",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.a",
+        "label": "Reading Comprehension",
+        "importance": 4.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.a",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.b",
+        "label": "Active Listening",
+        "importance": 4.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.b",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.c",
+        "label": "Writing",
+        "importance": 3.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.c",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.2.a",
+        "label": "Critical Thinking",
+        "importance": 3.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.2.a",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.a",
+        "label": "Social Perceptiveness",
+        "importance": 3.38,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.a",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.f",
+        "label": "Service Orientation",
+        "importance": 3.38,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.f",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.2.b",
+        "label": "Active Learning",
+        "importance": 3.25,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.2.b",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.4.e",
+        "label": "Judgment and Decision Making",
+        "importance": 3.25,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.4.e",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.e",
+        "label": "Instructing",
+        "importance": 3.12,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.e",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.2.i",
+        "label": "Complex Problem Solving",
+        "importance": 3.12,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.2.i",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.2.c",
+        "label": "Learning Strategies",
+        "importance": 3.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.2.c",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.2.d",
+        "label": "Monitoring",
+        "importance": 3.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.2.d",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.b",
+        "label": "Coordination",
+        "importance": 3.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.b",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.d",
+        "label": "Negotiation",
+        "importance": 3.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.d",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.5.a",
+        "label": "Time Management",
+        "importance": 3.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.5.a",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.1.c",
+        "label": "Persuasion",
+        "importance": 2.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.1.c",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.4.g",
+        "label": "Systems Analysis",
+        "importance": 2.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.4.g",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.5.d",
+        "label": "Management of Personnel Resources",
+        "importance": 2.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.5.d",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.4.h",
+        "label": "Systems Evaluation",
+        "importance": 2.38,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.4.h",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.e",
+        "label": "Mathematics",
+        "importance": 2.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.e",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.5.b",
+        "label": "Management of Financial Resources",
+        "importance": 1.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.5.b",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.5.c",
+        "label": "Management of Material Resources",
+        "importance": 1.88,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.5.c",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.b",
+        "label": "Technology Design",
+        "importance": 1.75,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.b",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.m",
+        "label": "Quality Control Analysis",
+        "importance": 1.75,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.m",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.e",
+        "label": "Programming",
+        "importance": 1.62,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.e",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.g",
+        "label": "Operations Monitoring",
+        "importance": 1.5,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.g",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.a",
+        "label": "Operations Analysis",
+        "importance": 1.25,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.a",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.A.1.f",
+        "label": "Science",
+        "importance": 1.12,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-essential_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.A.1.f",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.h",
+        "label": "Operation and Control",
+        "importance": 1.12,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.h",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.c",
+        "label": "Equipment Selection",
+        "importance": 1.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.c",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.d",
+        "label": "Installation",
+        "importance": 1.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.d",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.j",
+        "label": "Equipment Maintenance",
+        "importance": 1.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.j",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.k",
+        "label": "Troubleshooting",
+        "importance": 1.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.k",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      },
+      {
+        "occupation_id": "13-1071.00",
+        "skill_id": "2.B.3.l",
+        "label": "Repairing",
+        "importance": 1.0,
+        "scale": "IM (1–5)",
+        "source_id": "onet31-transferable_skills",
+        "observation_date": "08/2019",
+        "not_relevant": "",
+        "recommend_suppress": "N",
+        "native_skill_id": "2.B.3.l",
+        "skill_taxonomy": "O*NET Content Model",
+        "skill_taxonomy_version": "31.0"
+      }
+    ],
+    "crosswalk": {
+      "type": "exact parent SOC for these three .00 occupations",
+      "from": "O*NET-SOC 2019, database 31.0",
+      "to": "SOC 2018",
+      "weight": 1.0,
+      "coverage": "3/3 selected occupations; not a general crosswalk",
+      "aggregation": "No many-to-many aggregation"
+    },
+    "missing_metrics": []
+  },
+  "returns": {
+    "status": "not_computed",
+    "reason": "No explicit benefit input. Market wages are not substituted for benefits."
+  },
+  "assumptions": [
+    "Training skill outcomes, effort, costs and benefits are user-supplied scenarios; completion requires the stated artifact and human review.",
+    "Course prerequisites can be met only by confirmed prerequisites, direct evidence, or earlier selected training.",
+    "Preparation hours reserve time for verification, evidence translation and final review; course hours include their work samples.",
+    "Training cannot resolve an experience, license, authorization or degree gate automatically."
+  ],
+  "infeasibility_reason": null
+}

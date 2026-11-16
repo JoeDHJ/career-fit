@@ -12,6 +12,11 @@ from .career import analyze_fit, compare_roles
 from .document_io import DocumentExtractionError, extract_import_preview
 from .llm_review import LLMNotConfiguredError, LLMReviewClient, LLMReviewError
 from .reports import build_markdown_plan, build_pdf_plan
+from .resources import read_resource_text
+from .investment import plan_investment
+from .workforce import allocate_workforce
+from .capital_reports import capital_markdown
+from .market import market_context
 
 
 DEFAULT_JOB = (
@@ -420,7 +425,7 @@ HTML = r"""<!doctype html>
   <main id="app" class="shell" data-workflow-stage="intake">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Career Fit</span></div>
-      <span class="micro">Evidence-led · action-ready career planning</span>
+      <a href="/capital" style="color:var(--blue);font-size:.85rem">Training investment &amp; workforce decisions ↗</a>
     </header>
 
     <section class="hero">
@@ -518,6 +523,7 @@ HTML = r"""<!doctype html>
         </div>
         <div class="toolbar plan-stage">
           <button id="edit-inputs-button" class="secondary" type="button">Edit inputs</button>
+          <button id="edit-review-button" class="secondary" type="button">Review evidence</button>
           <button id="download-markdown-button" class="secondary" type="button" disabled>Download Markdown plan</button>
           <button id="download-pdf-button" class="secondary" type="button" disabled>Download PDF plan</button>
           <button id="deep-review-button" class="secondary" type="button" disabled>Optional semantic review</button>
@@ -583,6 +589,7 @@ HTML = r"""<!doctype html>
     </section>
 
     <section class="section plan-stage">
+      <div class="panel"><span class="eyebrow">Skills intelligence</span><h2>Make the next investment feasible.</h2><p class="detail-copy">Use this reviewed evidence map to compare training within your available time and budget, with a specific 30/60/90-day plan.</p><button id="investment-button" type="button">Plan training from this evidence</button></div>
       <div class="section-head"><div><span class="eyebrow">Three questions</span><h2>Capability, proof, and readiness are different signals.</h2></div><p id="decision-label">Run an analysis to see what the current text can support.</p></div>
       <div class="signal-grid">
         <article class="signal-card"><div id="capability-ring" class="ring" style="--ring-color: var(--violet)"><strong id="capability-signal">—</strong></div><div><span class="eyebrow">Can I do it?</span><h3>Capability signal</h3><p>Includes direct and transferable overlap. Transfer is a lead for exploration, not proof of equivalence.</p></div></article>
@@ -759,6 +766,7 @@ HTML = r"""<!doctype html>
       let latestOccupationContext = null;
       let latestScoreVisible = false;
       let analyzedSignature = "";
+      let analyzedReviewSignature = "";
       let analysisRequestId = 0;
       let compareRequestId = 0;
       let comparisonEvidence = [];
@@ -775,6 +783,21 @@ HTML = r"""<!doctype html>
       let reviewState = newReviewState();
       function inputSignature() { return jobInput.value + "\n---\n" + candidateInput.value + "\n---language---\n" + candidateLanguage.value; }
       function currentAnalysisIsFresh() { return Boolean(latest && analyzedSignature === inputSignature()); }
+      function currentReviewIsFresh() { return currentAnalysisIsFresh() && analyzedReviewSignature === JSON.stringify(reviewState); }
+      function markReviewDirty() {
+        analysisRequestId += 1;
+        compareRequestId += 1;
+        reviewState.applied = false;
+        latestScoreVisible = false;
+        downloadMarkdownButton.disabled = true; downloadPdfButton.disabled = true; deepReviewButton.disabled = true;
+        document.getElementById("investment-button").disabled = true;
+        [fitScore, readinessScore].forEach(function (node) { node.textContent = "—"; });
+        ["capability-signal", "proof-signal", "readiness-signal"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
+        clearNode(matrix); clearNode(gapList); clearNode(fitChart); clearComparisonResult();
+        fingerprintPanel.hidden = true;
+        decisionLabel.textContent = "Review edits are pending. Recalculate to refresh the evidence map and plan.";
+        setWorkflowStage("review");
+      }
       function clearComparisonResult() { clearNode(comparisonGrid); comparisonPanel.hidden = true; }
       function clearRenderedAnalysis() {
         compareRequestId += 1;
@@ -1311,7 +1334,7 @@ HTML = r"""<!doctype html>
             reviewState.added_evidence = reviewState.added_evidence.filter(function (value) { return value.skill_id !== item.skill_id; });
             reviewState.added_evidence.push({ skill_id: item.skill_id, canonical_skill: item.canonical_skill, analysis_category_code: item.analysis_category_code, source_text: sourceText || resultText, result: resultText, evidence_type: typeSelect.value, duration_months: durationInput.value, recency_years: recencyInput.value });
             sourceInput.value = ""; resultInput.value = ""; durationInput.value = ""; recencyInput.value = "";
-            renderAddedReviewItems(); reviewStatus.textContent = (evidenceTypeLabels[typeSelect.value] || "Evidence") + " recorded. Recalculate when the review is complete.";
+            markReviewDirty(); renderAddedReviewItems(); reviewStatus.textContent = (evidenceTypeLabels[typeSelect.value] || "Evidence") + " recorded. Recalculate when the review is complete.";
           });
           evidenceRow.append(typeField, sourceField, resultField, durationField, recencyField, evidenceButton); row.appendChild(evidenceRow);
           }
@@ -1361,6 +1384,7 @@ HTML = r"""<!doctype html>
       function render(payload) {
         latest = payload;
         analyzedSignature = inputSignature();
+        analyzedReviewSignature = JSON.stringify(reviewState);
         deepReviewButton.disabled = !llmEnabled;
         const summary = payload.summary || {};
         const language = summary.candidate_language || {};
@@ -1370,6 +1394,7 @@ HTML = r"""<!doctype html>
         latestScoreVisible = summary.score_visibility === "visible" && summary.review_status === "user_confirmed";
         downloadMarkdownButton.disabled = !latestScoreVisible;
         downloadPdfButton.disabled = !latestScoreVisible;
+        document.getElementById("investment-button").disabled = !latestScoreVisible;
         setText(fitScore, scoreText(summary.evidence_fit_score, latestScoreVisible));
         setText(readinessScore, scoreText(summary.application_readiness_score, latestScoreVisible));
         setText(inputCoverageScore, summary.requirements_identified == null ? "—" : String(summary.requirements_identified) + " found");
@@ -1422,6 +1447,7 @@ HTML = r"""<!doctype html>
         reviewState.base_signature = inputSignature();
         reviewStatus.textContent = "Recalculating from the reviewed inputs...";
         await analyze();
+        if (latest && (latest.summary || {}).review_status === "user_confirmed") comparisonEvidence = latest.evidence || [];
         if (activeComparisonRoleId && latest && (latest.summary || {}).review_status === "user_confirmed") {
           comparisonRoleReviews[activeComparisonRoleId] = Object.assign(
             {},
@@ -1440,7 +1466,7 @@ HTML = r"""<!doctype html>
         reviewStatus.textContent = "The added requirement will be mapped when you recalculate.";
       }
       async function downloadPlan(format) {
-        if (!currentAnalysisIsFresh()) { invalidateCurrentResult("Inputs changed. Analyze the current text before downloading the plan."); return; }
+        if (!currentReviewIsFresh()) { status.textContent = "Inputs or review edits changed. Recalculate before downloading the plan."; return; }
         if (!latestScoreVisible) { status.textContent = "Review the extracted requirements before downloading the plan."; return; }
         const button = format === "pdf" ? downloadPdfButton : downloadMarkdownButton;
         button.disabled = true;
@@ -1463,12 +1489,19 @@ HTML = r"""<!doctype html>
         } catch (error) { status.textContent = "The plan could not be created. Confirm the reviewed analysis and try again."; }
         finally { button.disabled = !latestScoreVisible; }
       }
+      document.getElementById("investment-button").addEventListener("click", function () {
+        if (!currentReviewIsFresh() || !latestScoreVisible) { status.textContent = "Review and recalculate the current role and evidence before planning training."; return; }
+        const request = {job_text: jobInput.value, candidate_text: candidateInput.value, candidate_language: candidateLanguage.value, review: Object.assign({}, reviewState, {scope: "role_requirements"})};
+        if (activeComparisonRoleId && comparisonEvidence.length) request.evidence = comparisonEvidence;
+        sessionStorage.setItem("career-fit-investment", JSON.stringify({analysis_input: request, requirements: latest.requirements}));
+        window.location.href = "/capital";
+      });
       async function compare() {
         const roles = rolesInput.value.split(/\r?\n\s*---+\s*\r?\n/).map(function (value) { return value.trim(); }).filter(Boolean);
         if (roles.length < 2) { compareStatus.textContent = "Add at least two roles, separated by a line containing --- ."; return; }
         if (roles.length > 3) { compareStatus.textContent = "Compare up to three roles at a time."; return; }
         if (!candidateInput.value.trim()) { compareStatus.textContent = "Add a candidate profile before comparing roles."; return; }
-        if (!currentAnalysisIsFresh() || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Run the analysis and review the current candidate evidence before comparing roles."; return; }
+        if (!currentReviewIsFresh() || !reviewState.applied || !reviewState.base_signature || reviewState.base_signature !== inputSignature()) { compareStatus.textContent = "Recalculate after reviewing the current candidate evidence before comparing roles."; return; }
         if (!latest || !["user_confirmed", "candidate_evidence_confirmed"].includes((latest.summary || {}).review_status)) { compareStatus.textContent = "Review the candidate evidence before comparing roles."; return; }
         if (!comparisonEvidence.length) comparisonEvidence = latest.evidence || [];
         const requestSignature = inputSignature();
@@ -1548,11 +1581,15 @@ HTML = r"""<!doctype html>
       sendSemanticReviewButton.addEventListener("click", sendDeepReview);
       cancelSemanticReviewButton.addEventListener("click", function () { semanticPreview.hidden = true; semanticStatus.textContent = "Optional review was not sent."; });
       editInputsButton.addEventListener("click", function () { setWorkflowStage("intake"); jobInput.focus(); });
+      document.getElementById("edit-review-button").addEventListener("click", function () { reviewPanel.hidden = false; setWorkflowStage("review"); reviewPanel.scrollIntoView({block: "start"}); });
       backToInputsButton.addEventListener("click", function () { setWorkflowStage("intake"); jobInput.focus(); });
       clearButton.addEventListener("click", reset);
       addRequirementButton.addEventListener("click", addRequirement);
       guidedIntakeButton.addEventListener("click", addGuidedIntake);
       applyReviewButton.addEventListener("click", applyReview);
+      reviewPanel.addEventListener("change", markReviewDirty);
+      addRequirementButton.addEventListener("click", function () { if (latest) markReviewDirty(); });
+      guidedIntakeButton.addEventListener("click", function () { if (latest) markReviewDirty(); });
       deepReviewButton.disabled = !llmEnabled;
       if (llmEnabled) semanticStatus.textContent = "Optional review available.";
       setWorkflowStage("intake");
@@ -1659,6 +1696,8 @@ class Handler(BaseHTTPRequestHandler):
             "/api/analyze": 160_000,
             "/api/document-preview": 1_500_000,
             "/api/report": 320_000,
+            "/api/invest": 320_000,
+            "/api/workforce": 320_000,
         }
         if parsed.path in request_limits:
             try:
@@ -1678,6 +1717,15 @@ class Handler(BaseHTTPRequestHandler):
                     status=413,
                 )
                 return
+        if parsed.path in {"/api/invest", "/api/workforce"}:
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                result = plan_investment(payload) if parsed.path == "/api/invest" else allocate_workforce(payload)
+                self._send_json({"result": result, "markdown": capital_markdown(result)})
+            except (TypeError, ValueError, KeyError, json.JSONDecodeError) as exc:
+                self._send_json({"error": "invalid_decision_input", "detail": str(exc)}, status=400)
+            return
         if parsed.path == "/api/deep-review":
             try:
                 length = min(int(self.headers.get("Content-Length", "0")), 120_000)
@@ -1844,6 +1892,30 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        assets = {"/capital": ("capital.html", "text/html"), "/capital.js": ("capital.js", "text/javascript"), "/capital.css": ("capital.css", "text/css")}
+        if parsed.path in assets:
+            name, mime = assets[parsed.path]
+            body = read_resource_text(name).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", mime + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if parsed.path == "/api/capital-demo":
+            mode = parse_qs(parsed.query).get("mode", ["personal"])[0]
+            if mode not in {"personal", "workforce"}:
+                self._send_json({"error": "invalid_mode"}, status=400)
+            else:
+                self._send_json(json.loads(read_resource_text("investment_demo.json" if mode == "personal" else "workforce_demo.json")))
+            return
+        if parsed.path == "/api/market":
+            params = parse_qs(parsed.query)
+            try:
+                self._send_json(market_context(params.get("occupation_id", [""])[0], params.get("geography", ["US"])[0]))
+            except (TypeError, ValueError) as exc:
+                self._send_json({"error": "invalid_market_input", "detail": str(exc)}, status=400)
+            return
         if parsed.path == "/favicon.ico":
             self.send_response(204)
             self.end_headers()

@@ -1,4 +1,4 @@
-# Career Fit v0.5 requirements
+# Career Fit v0.7 requirements
 
 ## User problem
 
@@ -64,3 +64,12 @@ Career Fit must make those distinctions legible and actionable without claiming 
 - A user can compare two or three roles, see the ranking basis, and load a selected role into the detailed view.
 - A single-role response contains category profiles, largest mismatch dimensions, and posting-specific skill bundles with auditable statuses.
 - The visual page explains the economic meaning and limitations of every metric in plain English.
+
+## Human capital decisions in 0.7
+
+- Offline, dated portfolio.v1 market context with source/vintage/geography and stale/missing states.
+- Budget/time-constrained training portfolios, prerequisites, assessment artifacts and 30/60/90-day plans from reviewed evidence.
+- Separate fees, released time and foregone income; returns require explicit benefits.
+- No-training, hiring, internal development and hybrid workforce comparisons under qualification, release-hour and training-seat constraints.
+- Public occupation observations combined with explicitly synthetic people; protected matching fields rejected and human review required.
+- Complete cases, structured exports, executive brief, employer requirement mapping and reproducible workflow.

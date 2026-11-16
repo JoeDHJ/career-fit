@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "career-fit"
-version = "0.6.0"
-description = "Explainable job-fit, skill-gap, and career-pathway analysis built on transparent skill evidence."
+version = "0.7.0"
+description = "Evidence-led career preparation, training investment and human-capital allocation."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -42,4 +42,4 @@ skillbundle = "skillbundle.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"skillbundle.resources" = ["*.json", "*.ttf"]
+"skillbundle.resources" = ["*.json", "*.ttf", "*.txt", "*.html", "*.js", "*.css"]
