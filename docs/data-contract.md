@@ -147,3 +147,7 @@ With AI Labor Atlas serving a demo release on port 8765 and Career Fit configure
 The comparison accepts exactly two or three non-empty role descriptions. A request with fewer than two or more than three roles is rejected with a user-facing validation error.
 
 Roles are ordered by application readiness, then Evidence Fit and reviewable evidence coverage. This ordering describes where the supplied evidence supports preparation first; it is not a hiring-probability ranking. A lower-ranked role may reflect missing proof or an unresolved eligibility gate rather than lower underlying ability.
+
+## Human capital interfaces (0.7.0)
+
+The consumer schemas above remain compatible. New results use `career_fit.investment.v1` and `career_fit.workforce.v1`; public snapshots use `portfolio.v1`. See [human-capital-methods.md](human-capital-methods.md) for complete inputs, units, source metadata, review gates, constraints and offline adapters. Complete examples are in `examples/human_capital/`.

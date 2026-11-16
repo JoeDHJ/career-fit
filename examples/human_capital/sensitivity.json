@@ -1,0 +1,1167 @@
+{
+  "personal": [
+    {
+      "available_hours": 40,
+      "cash_budget": 150,
+      "course_ids": [
+        "spreadsheet"
+      ],
+      "cash_cost": 80.0,
+      "economic_cost": 600.0,
+      "target_weight": 0.4
+    },
+    {
+      "available_hours": 40,
+      "cash_budget": 320,
+      "course_ids": [
+        "spreadsheet"
+      ],
+      "cash_cost": 80.0,
+      "economic_cost": 600.0,
+      "target_weight": 0.4
+    },
+    {
+      "available_hours": 40,
+      "cash_budget": 600,
+      "course_ids": [
+        "spreadsheet"
+      ],
+      "cash_cost": 80.0,
+      "economic_cost": 600.0,
+      "target_weight": 0.4
+    },
+    {
+      "available_hours": 68,
+      "cash_budget": 150,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder"
+      ],
+      "cash_cost": 140.0,
+      "economic_cost": 1020.0,
+      "target_weight": 0.6
+    },
+    {
+      "available_hours": 68,
+      "cash_budget": 320,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    },
+    {
+      "available_hours": 68,
+      "cash_budget": 600,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    },
+    {
+      "available_hours": 90,
+      "cash_budget": 150,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder"
+      ],
+      "cash_cost": 140.0,
+      "economic_cost": 1020.0,
+      "target_weight": 0.6
+    },
+    {
+      "available_hours": 90,
+      "cash_budget": 320,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    },
+    {
+      "available_hours": 90,
+      "cash_budget": 600,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    },
+    {
+      "available_hours": 110,
+      "cash_budget": 150,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder"
+      ],
+      "cash_cost": 140.0,
+      "economic_cost": 1020.0,
+      "target_weight": 0.6
+    },
+    {
+      "available_hours": 110,
+      "cash_budget": 320,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    },
+    {
+      "available_hours": 110,
+      "cash_budget": 600,
+      "course_ids": [
+        "spreadsheet",
+        "stakeholder",
+        "ai"
+      ],
+      "cash_cost": 320.0,
+      "economic_cost": 1680.0,
+      "target_weight": 0.8
+    }
+  ],
+  "workforce": [
+    {
+      "released_hours": 0,
+      "cash_budget": 1400,
+      "hybrid": {
+        "filled": 2,
+        "unfilled": 2,
+        "internal_moves": 2,
+        "external_hires": 0,
+        "cash_cost": 0,
+        "economic_cost": 0.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 19
+      },
+      "no_training": {
+        "filled": 2,
+        "unfilled": 2,
+        "internal_moves": 2,
+        "external_hires": 0,
+        "cash_cost": 0,
+        "economic_cost": 0.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 19
+      },
+      "comparison": {
+        "same_positions_filled": true,
+        "additional_positions_filled": 0,
+        "economic_cost_difference": 0.0,
+        "cost_saving_at_equal_coverage": 0.0
+      }
+    },
+    {
+      "released_hours": 0,
+      "cash_budget": 10000,
+      "hybrid": {
+        "filled": 3,
+        "unfilled": 1,
+        "internal_moves": 2,
+        "external_hires": 1,
+        "cash_cost": 7000.0,
+        "economic_cost": 7000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 41
+      },
+      "no_training": {
+        "filled": 3,
+        "unfilled": 1,
+        "internal_moves": 2,
+        "external_hires": 1,
+        "cash_cost": 7000.0,
+        "economic_cost": 7000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 41
+      },
+      "comparison": {
+        "same_positions_filled": true,
+        "additional_positions_filled": 0,
+        "economic_cost_difference": 0.0,
+        "cost_saving_at_equal_coverage": 0.0
+      }
+    },
+    {
+      "released_hours": 0,
+      "cash_budget": 30000,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 2,
+        "external_hires": 2,
+        "cash_cost": 15000.0,
+        "economic_cost": 15000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 8000.0,
+            "economic_cost": 8000.0,
+            "hours": 0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 25
+      },
+      "no_training": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 2,
+        "external_hires": 2,
+        "cash_cost": 15000.0,
+        "economic_cost": 15000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 8000.0,
+            "economic_cost": 8000.0,
+            "hours": 0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 25
+      },
+      "comparison": {
+        "same_positions_filled": true,
+        "additional_positions_filled": 0,
+        "economic_cost_difference": 0.0,
+        "cost_saving_at_equal_coverage": 0.0
+      }
+    },
+    {
+      "released_hours": 24,
+      "cash_budget": 1400,
+      "hybrid": {
+        "filled": 3,
+        "unfilled": 1,
+        "internal_moves": 3,
+        "external_hires": 0,
+        "cash_cost": 600.0,
+        "economic_cost": 1272.0,
+        "hours": 24.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": "E02",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1272.0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 53
+      },
+      "no_training": {
+        "filled": 2,
+        "unfilled": 2,
+        "internal_moves": 2,
+        "external_hires": 0,
+        "cash_cost": 0,
+        "economic_cost": 0.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 19
+      },
+      "comparison": {
+        "same_positions_filled": false,
+        "additional_positions_filled": 1,
+        "economic_cost_difference": 1272.0,
+        "cost_saving_at_equal_coverage": null
+      }
+    },
+    {
+      "released_hours": 24,
+      "cash_budget": 10000,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 3,
+        "external_hires": 1,
+        "cash_cost": 7600.0,
+        "economic_cost": 8320.0,
+        "hours": 24.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": "E01",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1320.0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 44
+      },
+      "no_training": {
+        "filled": 3,
+        "unfilled": 1,
+        "internal_moves": 2,
+        "external_hires": 1,
+        "cash_cost": 7000.0,
+        "economic_cost": 7000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 41
+      },
+      "comparison": {
+        "same_positions_filled": false,
+        "additional_positions_filled": 1,
+        "economic_cost_difference": 1320.0,
+        "cost_saving_at_equal_coverage": null
+      }
+    },
+    {
+      "released_hours": 24,
+      "cash_budget": 30000,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 3,
+        "external_hires": 1,
+        "cash_cost": 7600.0,
+        "economic_cost": 8320.0,
+        "hours": 24.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": "E01",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1320.0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 51
+      },
+      "no_training": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 2,
+        "external_hires": 2,
+        "cash_cost": 15000.0,
+        "economic_cost": 15000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 8000.0,
+            "economic_cost": 8000.0,
+            "hours": 0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 25
+      },
+      "comparison": {
+        "same_positions_filled": true,
+        "additional_positions_filled": 0,
+        "economic_cost_difference": -6680.0,
+        "cost_saving_at_equal_coverage": 6680.0
+      }
+    },
+    {
+      "released_hours": 56,
+      "cash_budget": 1400,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 4,
+        "external_hires": 0,
+        "cash_cost": 1400.0,
+        "economic_cost": 3016.0,
+        "hours": 56.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": "E01",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1320.0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": "E02",
+            "training_id": "math",
+            "mode": "train_and_move",
+            "cash_cost": 800.0,
+            "hours": 32.0,
+            "economic_cost": 1696.0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 70
+      },
+      "no_training": {
+        "filled": 2,
+        "unfilled": 2,
+        "internal_moves": 2,
+        "external_hires": 0,
+        "cash_cost": 0,
+        "economic_cost": 0.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 19
+      },
+      "comparison": {
+        "same_positions_filled": false,
+        "additional_positions_filled": 2,
+        "economic_cost_difference": 3016.0,
+        "cost_saving_at_equal_coverage": null
+      }
+    },
+    {
+      "released_hours": 56,
+      "cash_budget": 10000,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 4,
+        "external_hires": 0,
+        "cash_cost": 1400.0,
+        "economic_cost": 3016.0,
+        "hours": 56.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": "E01",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1320.0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": "E02",
+            "training_id": "math",
+            "mode": "train_and_move",
+            "cash_cost": 800.0,
+            "hours": 32.0,
+            "economic_cost": 1696.0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 99
+      },
+      "no_training": {
+        "filled": 3,
+        "unfilled": 1,
+        "internal_moves": 2,
+        "external_hires": 1,
+        "cash_cost": 7000.0,
+        "economic_cost": 7000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "mode": "unfilled",
+            "cash_cost": 0,
+            "economic_cost": 0,
+            "hours": 0,
+            "employee_id": null,
+            "training_id": null,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 41
+      },
+      "comparison": {
+        "same_positions_filled": false,
+        "additional_positions_filled": 1,
+        "economic_cost_difference": -3984.0,
+        "cost_saving_at_equal_coverage": null
+      }
+    },
+    {
+      "released_hours": 56,
+      "cash_budget": 30000,
+      "hybrid": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 4,
+        "external_hires": 0,
+        "cash_cost": 1400.0,
+        "economic_cost": 3016.0,
+        "hours": 56.0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": "E01",
+            "training_id": "systems",
+            "mode": "train_and_move",
+            "cash_cost": 600.0,
+            "hours": 24.0,
+            "economic_cost": 1320.0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": "E02",
+            "training_id": "math",
+            "mode": "train_and_move",
+            "cash_cost": 800.0,
+            "hours": 32.0,
+            "economic_cost": 1696.0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 99
+      },
+      "no_training": {
+        "filled": 4,
+        "unfilled": 0,
+        "internal_moves": 2,
+        "external_hires": 2,
+        "cash_cost": 15000.0,
+        "economic_cost": 15000.0,
+        "hours": 0,
+        "assignments": [
+          {
+            "employee_id": "E03",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "ops",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 8000.0,
+            "economic_cost": 8000.0,
+            "hours": 0,
+            "role_id": "ops",
+            "position": 2
+          },
+          {
+            "employee_id": "E04",
+            "training_id": null,
+            "mode": "direct_internal",
+            "cash_cost": 0,
+            "hours": 0,
+            "economic_cost": 0.0,
+            "role_id": "people",
+            "position": 1
+          },
+          {
+            "employee_id": null,
+            "training_id": null,
+            "mode": "external_hire",
+            "cash_cost": 7000.0,
+            "economic_cost": 7000.0,
+            "hours": 0,
+            "role_id": "people",
+            "position": 2
+          }
+        ],
+        "search_nodes": 25
+      },
+      "comparison": {
+        "same_positions_filled": true,
+        "additional_positions_filled": 0,
+        "economic_cost_difference": -11984.0,
+        "cost_saving_at_equal_coverage": 11984.0
+      }
+    }
+  ]
+}

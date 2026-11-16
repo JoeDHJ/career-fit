@@ -1,0 +1,204 @@
+{
+  "input_status": "synthetic_employee_cohort_and_costs; actual_ONET_importance_weights",
+  "review_confirmed": true,
+  "currency": "USD",
+  "budget": 10000,
+  "hours_budget": 56,
+  "roles": [
+    {
+      "id": "ops",
+      "title": "Operations analysis role",
+      "occupation_id": "15-2031.00",
+      "positions": 2,
+      "requirements": {
+        "2.A.1.e": {
+          "minimum": 0.7,
+          "weight": 4.5
+        },
+        "2.A.2.a": {
+          "minimum": 0.7,
+          "weight": 4.0
+        },
+        "2.A.1.d": {
+          "minimum": 0.6,
+          "weight": 4.0
+        },
+        "2.B.4.h": {
+          "minimum": 0.6,
+          "weight": 3.88
+        }
+      },
+      "external_cost": 8000,
+      "external_eligible": "met"
+    },
+    {
+      "id": "people",
+      "title": "People reporting role",
+      "occupation_id": "13-1071.00",
+      "positions": 2,
+      "requirements": {
+        "2.A.1.e": {
+          "minimum": 0.45,
+          "weight": 2.0
+        },
+        "2.A.2.a": {
+          "minimum": 0.65,
+          "weight": 3.88
+        },
+        "2.A.1.d": {
+          "minimum": 0.7,
+          "weight": 4.12
+        },
+        "2.B.4.h": {
+          "minimum": 0.65,
+          "weight": 2.38
+        }
+      },
+      "external_cost": 7000,
+      "external_eligible": "met"
+    }
+  ],
+  "employees": [
+    {
+      "id": "E01",
+      "skills": {
+        "2.A.1.e": 0.8,
+        "2.A.2.a": 0.8,
+        "2.A.1.d": 0.7,
+        "2.B.4.h": 0.4
+      },
+      "available_hours": 40,
+      "hourly_cost": 30,
+      "eligibility": {
+        "ops": "met",
+        "people": "met"
+      }
+    },
+    {
+      "id": "E02",
+      "skills": {
+        "2.A.1.e": 0.5,
+        "2.A.2.a": 0.7,
+        "2.A.1.d": 0.8,
+        "2.B.4.h": 0.5
+      },
+      "available_hours": 40,
+      "hourly_cost": 28,
+      "eligibility": {
+        "ops": "met",
+        "people": "met"
+      }
+    },
+    {
+      "id": "E03",
+      "skills": {
+        "2.A.1.e": 0.75,
+        "2.A.2.a": 0.75,
+        "2.A.1.d": 0.65,
+        "2.B.4.h": 0.7
+      },
+      "available_hours": 20,
+      "hourly_cost": 35,
+      "eligibility": {
+        "ops": "met",
+        "people": "unknown"
+      }
+    },
+    {
+      "id": "E04",
+      "skills": {
+        "2.A.1.e": 0.5,
+        "2.A.2.a": 0.7,
+        "2.A.1.d": 0.8,
+        "2.B.4.h": 0.7
+      },
+      "available_hours": 30,
+      "hourly_cost": 25,
+      "eligibility": {
+        "ops": "met",
+        "people": "met"
+      }
+    },
+    {
+      "id": "E05",
+      "skills": {
+        "2.A.1.e": 0.4,
+        "2.A.2.a": 0.6,
+        "2.A.1.d": 0.6,
+        "2.B.4.h": 0.4
+      },
+      "available_hours": 16,
+      "hourly_cost": 24,
+      "eligibility": {
+        "ops": "unknown",
+        "people": "met"
+      }
+    },
+    {
+      "id": "E06",
+      "skills": {
+        "2.A.1.e": 0.7,
+        "2.A.2.a": 0.7,
+        "2.A.1.d": 0.7,
+        "2.B.4.h": 0.5
+      },
+      "available_hours": 24,
+      "hourly_cost": 32,
+      "eligibility": {
+        "ops": "not_met",
+        "people": "unknown"
+      }
+    }
+  ],
+  "training": [
+    {
+      "id": "systems",
+      "title": "Systems evaluation practicum",
+      "hours": 24,
+      "fee": 600,
+      "outcomes": {
+        "2.B.4.h": 0.7
+      },
+      "prerequisites": {
+        "2.A.2.a": 0.65
+      },
+      "capacity": 1,
+      "eligibility": "met",
+      "artifact": "Tested workforce dashboard and decision-log walkthrough",
+      "completion_criterion": "Human assessor confirms systems-evaluation threshold using a common rubric"
+    },
+    {
+      "id": "math",
+      "title": "Operations mathematics bridge",
+      "hours": 32,
+      "fee": 800,
+      "outcomes": {
+        "2.A.1.e": 0.75,
+        "2.B.4.h": 0.65
+      },
+      "prerequisites": {
+        "2.A.2.a": 0.65
+      },
+      "capacity": 1,
+      "eligibility": "met",
+      "artifact": "Hand-checked allocation model and sensitivity memo",
+      "completion_criterion": "Independent reviewer reproduces the optimum and verifies feasibility"
+    }
+  ],
+  "public_reference": {
+    "schema_version": "portfolio.v1",
+    "snapshot_id": "career-fit-public-2026-11-16",
+    "source_ids": [
+      "onet31-essential_skills",
+      "onet31-transferable_skills",
+      "bls-ep-2025-2035"
+    ],
+    "mapping": "Four exact O*NET skill IDs in each of two .00 occupations. Published importance weights inform priorities; all competency levels, vacancies, qualification flags and costs are scenario inputs.",
+    "skill_labels": {
+      "2.A.1.d": "Speaking",
+      "2.A.1.e": "Mathematics",
+      "2.A.2.a": "Critical Thinking",
+      "2.B.4.h": "Systems Evaluation"
+    }
+  }
+}

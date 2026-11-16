@@ -2,7 +2,7 @@
 
 ## Product boundary
 
-Career Fit is a decision-support tool for all job seekers. The v0.5 product supports one detailed job description, a local redacted resume text import, and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
+Career Fit is a decision-support tool for all job seekers. The v0.7 product supports one detailed job description, a local redacted resume text import, and a small comparison set of target roles for one candidate profile. The output is an auditable preparation report, not an employment forecast.
 
 The product has three audiences:
 

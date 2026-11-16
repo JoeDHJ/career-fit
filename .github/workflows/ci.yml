@@ -84,6 +84,34 @@ jobs:
           done
           pwsh -NoProfile -ExecutionPolicy Bypass -File tools/verify_mobile_layout.ps1
 
+  capital-browser:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - run: python -m pip install . -c constraints-ci.txt
+      - name: Install decision-workspace browser runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/capital-browser" --no-save playwright@1.60.0
+          "$RUNNER_TEMP/capital-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify independent browser workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u -m skillbundle.cli serve > "$RUNNER_TEMP/capital.log" 2>&1 &
+          career_pid=$!
+          trap 'kill "$career_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8766/capital > /dev/null; then break; fi
+            sleep 1
+          done
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/capital-browser/node_modules/playwright" node tools/verify_capital_browser.cjs
+
   audit:
     runs-on: ubuntu-24.04
     steps:
@@ -116,6 +144,8 @@ jobs:
             --review-file "$GITHUB_WORKSPACE/examples/single_job/role_review.json" \
             > career-fit-report.json
           career-fit taxonomy > career-fit-taxonomy.json
+          career-fit invest > career-fit-investment.json
+          career-fit workforce > career-fit-workforce.json
           career-fit compare \
             --roles-file "$GITHUB_WORKSPACE/examples/role_portfolio.json" \
             --candidate-file "$GITHUB_WORKSPACE/examples/single_job/candidate_profile.txt" \
@@ -130,8 +160,8 @@ jobs:
           import skillbundle
 
           report = json.loads(Path("career-fit-report.json").read_text())
-          assert version("career-fit") == career_fit.__version__ == "0.6.0"
-          assert skillbundle.__version__ == "0.6.0"
+          assert version("career-fit") == career_fit.__version__ == "0.7.0"
+          assert skillbundle.__version__ == "0.7.0"
           assert report["schema_version"] == "career_fit.v0.5"
           assert report["review"]["status"] == "user_confirmed"
           assert report["summary"]["analysis_status"] == "scored"
@@ -143,6 +173,12 @@ jobs:
           assert comparison["comparison_status"] == "role_review_required"
           assert all(role["priority_rank"] is None for role in comparison["roles"])
           assert len(comparison["roles"]) in {2, 3}
+          investment = json.loads(Path("career-fit-investment.json").read_text())
+          assert investment["best_plan"]["cash_cost"] == 320
+          workforce = json.loads(Path("career-fit-workforce.json").read_text())
+          assert workforce["scenarios"]["hybrid"]["economic_cost"] == 3016
+          from skillbundle.resources import read_resource_text
+          assert "Copyright (c) 2003 by Bitstream" in read_resource_text("DejaVu-LICENSE.txt")
           PY
       - name: Rebuild and run from the source distribution
         run: |

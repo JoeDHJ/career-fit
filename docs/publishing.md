@@ -24,7 +24,7 @@ publish job is the only job granted `id-token: write`.
 2. Merge only after the full CI matrix, release smoke, audit, and browser
    regression pass.
 3. Create a stable GitHub release whose tag exactly matches the package version,
-   for example `v0.5.2`.
+   for example `v0.7.0`.
 4. The `publish` workflow checks out that tag, verifies that the GitHub release
    is published and non-prerelease, builds one wheel and one source
    distribution, validates their metadata, and uploads them to PyPI.

@@ -14,6 +14,11 @@ from .normalization import normalize_label
 from .esco import load_esco_skills
 from .server import serve
 from .taxonomy import load_taxonomy, pair_codes
+from .investment import plan_investment
+from .workforce import allocate_workforce
+from .market import market_context
+from .resources import read_resource_text
+from .capital_reports import capital_markdown
 
 
 def _non_negative_int(value: str) -> int:
@@ -114,6 +119,15 @@ def parser():
     esco.add_argument("--input", required=True, type=Path)
     sub.add_parser("taxonomy", help="print the analytical taxonomy")
     sub.add_parser("serve", help="start the local Career Fit explorer")
+    for name, help_text in (("invest", "choose a feasible 90-day training portfolio"), ("workforce", "compare reviewed mobility, training and hiring scenarios")):
+        command = sub.add_parser(name, help=help_text)
+        command.add_argument("--input", type=Path, help="reviewed JSON input; omit for the attributed fictional demo")
+        command.add_argument("--format", choices=["json", "markdown"], default="json")
+    market = sub.add_parser("market", help="inspect an offline portfolio.v1 occupation snapshot")
+    market.add_argument("--occupation-id", required=True)
+    market.add_argument("--geography", default="US")
+    market.add_argument("--snapshot-file", type=Path)
+    market.add_argument("--as-of")
     return root
 
 
@@ -129,6 +143,16 @@ def _main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = parser().parse_args(argv)
+    if args.command in {"invest", "workforce"}:
+        filename = "investment_demo.json" if args.command == "invest" else "workforce_demo.json"
+        payload = json.loads(args.input.read_text(encoding="utf-8") if args.input else read_resource_text(filename))
+        result = plan_investment(payload) if args.command == "invest" else allocate_workforce(payload)
+        print(capital_markdown(result) if args.format == "markdown" else json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "market":
+        snapshot = json.loads(args.snapshot_file.read_text(encoding="utf-8")) if args.snapshot_file else None
+        print(json.dumps(market_context(args.occupation_id, args.geography, snapshot, args.as_of), ensure_ascii=False, indent=2))
+        return 0
     if args.command == "analyze":
         try:
             job_text = _input_text(args.job, args.job_file, "job")
