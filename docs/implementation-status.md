@@ -34,4 +34,12 @@ Two independent read-only reviewers covered requirements, calculations, edge cas
 
 ## Publication
 
-Version: **0.7.0**. Branch: `codex/human-capital-0.7.0`. Initial release CI: https://github.com/JoeDHJ/career-fit/actions/runs/43824442487. Publication links will be recorded after the final release workflow.
+Version: **0.7.0**. Branch: `codex/human-capital-0.7.0`.
+
+- Reviewed change: https://github.com/JoeDHJ/career-fit/pull/25
+- Full cloud CI passed: https://github.com/JoeDHJ/career-fit/actions/runs/43824587271 (Python 3.10–3.14, original Atlas integration, independent capital browser, release smoke and journey regression).
+- Release destination: https://github.com/JoeDHJ/career-fit/releases/tag/v0.7.0
+- Package destination: https://pypi.org/project/career-fit/0.7.0/
+- Distribution status: https://github.com/JoeDHJ/career-fit/actions/workflows/publish.yml
+
+The existing GitHub release workflow publishes the immutable version to PyPI. The release page and publishing workflow provide the final distribution status. No user output files were committed or modified.
