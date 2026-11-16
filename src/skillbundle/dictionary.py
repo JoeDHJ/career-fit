@@ -4,6 +4,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 from .resources import read_resource_text
@@ -81,6 +82,7 @@ def _entry_from_json(item: dict[str, object]) -> DictionaryEntry:
     )
 
 
+@lru_cache(maxsize=4096)
 def _pattern(alias: str) -> re.Pattern[str]:
     escaped = re.escape(alias.strip())
     return re.compile(rf"(?<![\w]){escaped}(?![\w])", re.IGNORECASE)

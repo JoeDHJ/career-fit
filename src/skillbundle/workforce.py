@@ -55,6 +55,28 @@ def _levels(value, label: str) -> dict:
     return {_skill_id(k): number(v, label, 0, 1) for k, v in value.items()}
 
 
+def unfilled_option(role, horizon):
+    return {
+        "mode": "unfilled",
+        "cash_cost": 0,
+        "economic_cost": role["vacancy_daily_cost"] * horizon,
+        "hours": 0,
+        "employee_index": -1,
+        "training_index": -1,
+        "employee_id": None,
+        "training_id": None,
+        "lead_days": horizon,
+        "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": role["vacancy_daily_cost"] * horizon,
+        },
+    }
+
+
 def allocate_workforce(payload: dict) -> dict:
     if not isinstance(payload, dict) or payload.get("review_confirmed") is not True:
         raise ValueError(
@@ -63,14 +85,24 @@ def allocate_workforce(payload: dict) -> dict:
     employees = payload.get("employees")
     roles = payload.get("roles")
     training = payload.get("training", [])
-    if not isinstance(employees, list) or not 1 <= len(employees) <= 8:
+    solver = payload.get("solver", "exact")
+    if solver not in {"exact", "milp"}:
+        raise ValueError("solver must be exact or milp")
+    medium = solver == "milp"
+    horizon = number(payload.get("horizon_days", 90), "planning horizon days", 1, 365)
+    effect_multiplier = number(
+        payload.get("training_effect_multiplier", 1), "training effect multiplier", 0, 2
+    )
+    if not isinstance(employees, list) or not 1 <= len(employees) <= (
+        100 if medium else 8
+    ):
         raise ValueError(
-            "Provide 1–8 pseudonymous employees for this exact small-cohort solver"
+            f"Provide 1–{100 if medium else 8} pseudonymous employees for the {solver} solver"
         )
-    if not isinstance(roles, list) or not 1 <= len(roles) <= 4:
-        raise ValueError("Provide 1–4 target roles")
-    if not isinstance(training, list) or len(training) > 6:
-        raise ValueError("Provide at most 6 training packages")
+    if not isinstance(roles, list) or not 1 <= len(roles) <= (12 if medium else 4):
+        raise ValueError(f"Provide 1–{12 if medium else 4} target roles")
+    if not isinstance(training, list) or len(training) > (12 if medium else 6):
+        raise ValueError(f"Provide at most {12 if medium else 6} training packages")
     currency = text(payload.get("currency"), "currency")
     budget = number(payload.get("budget"), "cash budget")
     hour_budget = number(payload.get("hours_budget"), "cohort release hours")
@@ -78,7 +110,15 @@ def allocate_workforce(payload: dict) -> dict:
     for e in employees:
         _fields(
             e,
-            {"id", "skills", "available_hours", "hourly_cost", "eligibility"},
+            {
+                "id",
+                "skills",
+                "available_hours",
+                "hourly_cost",
+                "eligibility",
+                "backfill_cost",
+                "consent",
+            },
             "employee",
         )
         eligible = e.get("eligibility", {})
@@ -88,6 +128,9 @@ def allocate_workforce(payload: dict) -> dict:
             raise ValueError(
                 "employee eligibility must map role IDs to met, unknown, or not_met"
             )
+        consent = e.get("consent", "unknown")
+        if consent not in {"met", "unknown", "not_met"}:
+            raise ValueError("employee consent must be met, unknown, or not_met")
         staff.append(
             {
                 "id": text(e.get("id"), "employee ID"),
@@ -95,6 +138,8 @@ def allocate_workforce(payload: dict) -> dict:
                 "available_hours": number(e.get("available_hours"), "available hours"),
                 "hourly_cost": number(e.get("hourly_cost"), "hourly cost"),
                 "eligibility": eligible,
+                "consent": consent,
+                "backfill_cost": number(e.get("backfill_cost", 0), "backfill cost"),
             }
         )
     target_roles = []
@@ -109,10 +154,16 @@ def allocate_workforce(payload: dict) -> dict:
                 "positions",
                 "external_cost",
                 "external_eligible",
+                "priority",
+                "vacancy_daily_cost",
+                "external_lead_days",
+                "internal_lead_days",
             },
             "role",
         )
-        positions = number(r.get("positions", 1), "role positions", 1, 4)
+        positions = number(
+            r.get("positions", 1), "role positions", 1, 30 if medium else 4
+        )
         if int(positions) != positions:
             raise ValueError("role positions must be integers")
         requirements = r.get("requirements")
@@ -140,10 +191,22 @@ def allocate_workforce(payload: dict) -> dict:
                 if cost is not None
                 else None,
                 "external_eligible": r.get("external_eligible", "unknown"),
+                "priority": number(r.get("priority", 1), "role priority", 0.01, 100),
+                "vacancy_daily_cost": number(
+                    r.get("vacancy_daily_cost", 0), "vacancy daily cost"
+                ),
+                "external_lead_days": number(
+                    r.get("external_lead_days", 0), "external lead days", 0, 365
+                ),
+                "internal_lead_days": number(
+                    r.get("internal_lead_days", 0), "internal lead days", 0, 365
+                ),
             }
         )
-    if sum(r["positions"] for r in target_roles) > 6:
-        raise ValueError("The exact solver supports at most 6 open positions")
+    if sum(r["positions"] for r in target_roles) > (30 if medium else 6):
+        raise ValueError(
+            f"The {solver} solver supports at most {30 if medium else 6} open positions"
+        )
     packages = []
     for t in training:
         _fields(
@@ -159,10 +222,13 @@ def allocate_workforce(payload: dict) -> dict:
                 "eligibility",
                 "artifact",
                 "completion_criterion",
+                "lead_days",
             },
             "training package",
         )
-        capacity = number(t.get("capacity"), "training capacity", 0, 8)
+        capacity = number(
+            t.get("capacity"), "training capacity", 0, 100 if medium else 8
+        )
         if capacity != int(capacity):
             raise ValueError("training capacity must be an integer")
         prerequisites = (
@@ -185,6 +251,9 @@ def allocate_workforce(payload: dict) -> dict:
                 "artifact": text(t.get("artifact"), "training artifact"),
                 "completion_criterion": text(
                     t.get("completion_criterion"), "completion criterion"
+                ),
+                "lead_days": number(
+                    t.get("lead_days", 0), "training lead days", 0, 365
                 ),
             }
         )
@@ -214,6 +283,7 @@ def allocate_workforce(payload: dict) -> dict:
                     "employee_id": emp["id"],
                     "role_id": role["id"],
                     "eligibility": emp["eligibility"].get(role["id"], "unknown"),
+                    "consent": emp["consent"],
                     "weighted_coverage": round(
                         sum(
                             v["weight"] * min(1, emp["skills"].get(s, 0) / v["minimum"])
@@ -236,7 +306,7 @@ def allocate_workforce(payload: dict) -> dict:
                     ],
                 }
             )
-            if emp["eligibility"].get(role["id"]) != "met":
+            if emp["eligibility"].get(role["id"]) != "met" or emp["consent"] != "met":
                 continue
             for ti, package in [(-1, None)] + list(enumerate(packages)):
                 skills = emp["skills"].copy()
@@ -251,14 +321,24 @@ def allocate_workforce(payload: dict) -> dict:
                     ):
                         continue
                     for s, level in package["outcomes"].items():
-                        skills[s] = max(skills.get(s, 0), level)
+                        current = skills.get(s, 0)
+                        skills[s] = min(
+                            1, current + effect_multiplier * max(0, level - current)
+                        )
                 if any(
                     skills.get(s, 0) + 1e-9 < v["minimum"]
                     for s, v in role["requirements"].items()
                 ):
                     continue
                 hours = package["hours"] if package else 0
-                cash = package["fee"] if package else 0
+                fee = package["fee"] if package else 0
+                cash = fee + emp["backfill_cost"]
+                days = role["internal_lead_days"] + (
+                    package["lead_days"] if package else 0
+                )
+                if days > horizon:
+                    continue
+                delay_cost = days * role["vacancy_daily_cost"]
                 options[role["id"]].append(
                     {
                         "employee_id": emp["id"],
@@ -268,10 +348,25 @@ def allocate_workforce(payload: dict) -> dict:
                         "mode": "train_and_move" if package else "direct_internal",
                         "cash_cost": cash,
                         "hours": hours,
-                        "economic_cost": round(cash + hours * emp["hourly_cost"], 2),
+                        "economic_cost": round(
+                            cash + hours * emp["hourly_cost"] + delay_cost, 2
+                        ),
+                        "lead_days": days,
+                        "cost_components": {
+                            "training_fee": fee,
+                            "backfill": emp["backfill_cost"],
+                            "released_time": hours * emp["hourly_cost"],
+                            "vacancy_delay": delay_cost,
+                            "external_hiring": 0,
+                            "unfilled_vacancy": 0,
+                        },
                     }
                 )
-        if role["external_cost"] is not None and role["external_eligible"] == "met":
+        if (
+            role["external_cost"] is not None
+            and role["external_eligible"] == "met"
+            and role["external_lead_days"] <= horizon
+        ):
             options[role["id"]].append(
                 {
                     "employee_id": None,
@@ -280,8 +375,19 @@ def allocate_workforce(payload: dict) -> dict:
                     "training_index": -1,
                     "mode": "external_hire",
                     "cash_cost": role["external_cost"],
-                    "economic_cost": role["external_cost"],
+                    "economic_cost": role["external_cost"]
+                    + role["external_lead_days"] * role["vacancy_daily_cost"],
                     "hours": 0,
+                    "lead_days": role["external_lead_days"],
+                    "cost_components": {
+                        "training_fee": 0,
+                        "backfill": 0,
+                        "released_time": 0,
+                        "vacancy_delay": role["external_lead_days"]
+                        * role["vacancy_daily_cost"],
+                        "external_hiring": role["external_cost"],
+                        "unfilled_vacancy": 0,
+                    },
                 }
             )
         options[role["id"]].sort(
@@ -289,6 +395,19 @@ def allocate_workforce(payload: dict) -> dict:
         )
 
     def solve(mode):
+        if solver == "milp":
+            from .workforce_milp import solve_allocation
+
+            return solve_allocation(
+                staff,
+                target_roles,
+                packages,
+                options,
+                mode,
+                budget,
+                hour_budget,
+                horizon,
+            )
         best = None
         nodes = 0
 
@@ -300,8 +419,16 @@ def allocate_workforce(payload: dict) -> dict:
                     "Allocation exceeds the 300,000-node exact-search limit; reduce positions or training options"
                 )
             filled = sum(s["mode"] != "unfilled" for s in selected)
+            priority = sum(
+                next(r["priority"] for r in target_roles if r["id"] == s["role_id"])
+                for s in selected
+                if s["mode"] != "unfilled"
+            )
             if best:
-                if filled + len(slots) - index < best["filled"]:
+                if (
+                    priority + sum(r["priority"] for r, _ in slots[index:])
+                    < best["filled_priority"] - 1e-8
+                ):
                     return
                 if (
                     best["filled"] == len(slots)
@@ -313,7 +440,7 @@ def allocate_workforce(payload: dict) -> dict:
                     s["mode"] in {"direct_internal", "train_and_move"} for s in selected
                 )
                 key = (
-                    -filled,
+                    -round(priority, 6),
                     round(economic, 2),
                     -internal,
                     round(cash, 2),
@@ -322,6 +449,7 @@ def allocate_workforce(payload: dict) -> dict:
                 if best is None or key < best["_key"]:
                     best = {
                         "filled": filled,
+                        "filled_priority": round(priority, 6),
                         "unfilled": len(slots) - filled,
                         "internal_moves": internal,
                         "external_hires": sum(
@@ -335,18 +463,7 @@ def allocate_workforce(payload: dict) -> dict:
                     }
                 return
             role, slot = slots[index]
-            for option in options[role["id"]] + [
-                {
-                    "mode": "unfilled",
-                    "cash_cost": 0,
-                    "economic_cost": 0,
-                    "hours": 0,
-                    "employee_index": -1,
-                    "training_index": -1,
-                    "employee_id": None,
-                    "training_id": None,
-                }
-            ]:
+            for option in options[role["id"]] + [unfilled_option(role, horizon)]:
                 if mode == "no_training" and option["training_index"] >= 0:
                     continue
                 if mode == "external_only" and option["mode"] not in {
@@ -400,10 +517,14 @@ def allocate_workforce(payload: dict) -> dict:
         "schema_version": "career_fit.workforce.v1",
         "status": "human_reviewed_scenario",
         "currency": currency,
+        "price_year": payload.get("price_year"),
+        "solver": solver,
+        "horizon_days": horizon,
+        "training_effect_multiplier": effect_multiplier,
         "input_status": payload.get("input_status", "synthetic_or_user_supplied"),
         "budget": budget,
         "hours_budget": hour_budget,
-        "objective": "Maximize filled positions, then minimize incremental economic cost, then prefer internal moves. Exact enumeration within the stated model and search limit.",
+        "objective": "Maximize filled role-priority units, then minimize total scenario cost (fees, released time, backfill and vacancy delay/unfilled costs), then prefer internal moves. All economic inputs require review.",
         "matrix": matrix,
         "scenarios": scenarios,
         "training_packages": packages,
@@ -428,7 +549,8 @@ def allocate_workforce(payload: dict) -> dict:
             "Employee levels and thresholds are synthetic or reviewed user inputs on a 0–1 scenario scale; O*NET importance weights are not employee proficiency thresholds.",
             "Each employee may fill one position and take at most one training package. Package prerequisites use pre-training evidence. Training outcomes require assessment before any move.",
             "Unknown or unmet eligibility excludes an assignment. External candidates are assumed qualified only where explicitly marked met.",
-            "Economic cost includes fees plus released employee time. External hiring costs are incremental recruitment/onboarding costs; recurring compensation and displaced duties are outside this short-run comparison.",
+            "Economic cost includes fees, released time, supplied backfill and vacancy delay/unfilled costs over the stated horizon. Recurring compensation is outside this incremental comparison; zero/default costs mean omitted by the scenario, not empirically free.",
+            "Role priorities, lead times, competency thresholds and economic losses are scenario assumptions. Only reviewed eligibility and consent permit an internal assignment; completed training must still pass assessment.",
             "No protected attributes, demographic fields, names, addresses, or employer prestige are accepted as matching variables. IDs are for bookkeeping only.",
             "This is a planning aid for voluntary development and reviewed mobility, not authorization for hiring, dismissal or automatic personnel decisions.",
         ],

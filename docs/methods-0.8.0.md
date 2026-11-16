@@ -1,0 +1,53 @@
+# Evidence, measurement and allocation methods
+
+Career Fit demonstrates how an analyst moves from noisy descriptions to a reviewable decision. Four layers have different validity requirements: text extraction, user-declared evidence, learning design and resource allocation. Success in one layer does not validate the others.
+
+## Employer and learning-resource research
+
+The snapshot contains eight official employer descriptions from Amazon, Apple, Workday, Walmart and NHS employers. It is a purposive sample spanning the US, UK and Ireland, multiple role families and mixed seniority. Some descriptions are closed, archived or available only through indexed official text. Each observation carries source identity, access state, retrieval date, a concise paraphrase and qualification notes. These are analyst-coded observations, not independent human annotation or a count of currently available jobs.
+
+SQLite separates descriptions, coded requirements and learning resources. Foreign keys and one job–skill key prevent duplicate mention counts. The actual queries are distributed in [queries.sql](../examples/evidence_research/queries.sql). Within this eight-description sample, reporting appears in eight descriptions, SQL in six, BI/dashboard work in five and Excel in four. Mention, responsibility, preference and explicit requirement remain different codes. These counts cannot establish market prevalence or a time trend. Senior-role experience, qualification and authorization requirements remain application gates; a short course cannot remove them.
+
+Five Open University and Microsoft Learn resources provide an attributed starting catalog. Three state a duration; two need explicit duration assumptions. Free content access does not establish that software, exams, equipment or connectivity are free. The catalog separates provider facts from study/practice assumptions, entry conditions, proposed artifacts and assessment criteria. A resource–skill mapping is a design judgment; provider content does not prove an individual's learning gain.
+
+## External extraction evaluation
+
+The [SkillSpan source](https://github.com/kris927b/SkillSpan) supplies 4,800 train, 3,174 dev and 3,569 test sentences with skill and knowledge BIO spans. We report the dictionary reference, legacy independent-token perceptron and averaged greedy sequence perceptron. Both supervised models use five train-only epochs. The averaged model uses fixed seed 37 and previous-tag features; it was added after inspecting legacy dev errors. This is not a claim of preregistration. No test sentence is used for parameter selection.
+
+Exact matching requires both character boundaries. Relaxed matching finds maximum-cardinality one-to-one overlaps using augmenting paths. A reference cannot be counted repeatedly when multiple predictions overlap it. Micro precision/recall pool span counts; sentence macro scores remain separately labeled. Negative-reference sentences contribute false positives. Orphan I tags begin a span; the official test set contains one such sequence.
+
+Test exact F1 is 0.032 for the dictionary, 0.063 for the legacy model and 0.060 for the averaged model on the skill-only target. The averaged model's overlap F1 is 0.436, which indicates partial intersections rather than exact boundary success. The dictionary also covers software/knowledge labels: on the explicitly separate combined skill/knowledge target its test exact F1 is 0.162. Task differences explain some mismatch but do not excuse the weak exact results. None of these models is promoted as a reliable automatic measurement of employability. The [full table and error scope](measurement-evaluation.md) retain every method and split.
+
+The reviewed dictionary workflow remains the product reference because it is inspectable. Review is a necessary product control, not evidence that the extractor is accurate. Fit weights, evidence-strength signals and transfer assumptions remain designed heuristics; this external extraction test does not calibrate them against hiring, performance or human judgments.
+
+## Human capital and task evidence
+
+General skills can be useful across roles, while software, institutional knowledge and employer-specific routines have narrower transfer. Complementary skill bundles mean that collecting isolated labels may be insufficient. Career Fit therefore distinguishes direct task evidence, transferable evidence, thin claims, missing foundations and hard eligibility gates. A statement of course completion remains different from a reproducible work artifact.
+
+The personal optimizer enumerates catalog subsets, rejects unknown eligibility, checks prerequisite order and respects cash and 90-day time capacity. First it maximizes distinct reviewed gap importance addressed by assumed task outcomes; then it minimizes supplied economic cost and hours. Importance coverage is a planning objective, not a proficiency score or expected wage return. A completed task does not automatically alter evidence. The user records an artifact, review notes and four rubric dimensions: correctness, reproducibility, interpretation and independence. A declared pass needs completed status and all four levels at least 2 of 3. This is a user-declared assessment, including self-assessment where stated, rather than independent verification.
+
+Explicit transfer returns the artifacts to a fresh role review. Existing structured evidence retains negation and verification metadata; it is not recast as new positive evidence. Catalog and progress survive the browser-session round trip. Custom skill targets are remapped by current reviewed label; removed targets become unmapped and need confirmation. Progress is historical bookkeeping: before the next investment decision the user must supply remaining cash and time. Reported actual time is not automatically treated as time remaining or percentage complete.
+
+## Workforce optimization
+
+For employee i, role r and optional training package k, an assignment variable selects a feasible route. Eligibility, explicit consent, pre-training prerequisites, assessed scenario thresholds and lead time determine feasibility. Each employee can fill one position and take at most one package. Capacity constraints limit seats, total cash and released training hours. External hiring and unfilled positions are explicit alternatives. Missing consent is unknown and excludes internal allocation; legacy examples now state their assumed consent explicitly.
+
+Training changes a level s to min(1, s + multiplier × max(0, target − s)). The multiplier changes the assumed gain, never existing skill. Training time plus internal lead time must fit the stated horizon. This simplified model assumes serial lead times and no deterioration, uncertain attendance, stochastic hiring, multi-course sequences or recurring pay differences. Those omissions constrain its business interpretation.
+
+Cash cost includes training fees, supplied backfill and external hiring charges. Incremental economic cost adds released time and vacancy-day loss. Unfilled roles incur vacancy loss across the full horizon. Training/hiring costs are paid once per modeled route. Compensation after assignment is excluded. A zero/default loss input is an omitted scenario component, not evidence of zero actual loss. The model does not discount within the short horizon.
+
+The lexicographic objective maximizes filled role-priority units, then minimizes economic cost, then prefers internal moves. It can prefer fewer high-priority positions to more low-priority ones; it does not maximize welfare or filled headcount unconditionally. The exact enumerator supports small hand-checkable cases. The optional SciPy/HiGHS mixed-integer model supports up to 100 employees, 12 role types, 30 positions and 12 packages. Three integer solves preserve the objective order; each must prove optimality within its time limit. The integer result is checked against every resource constraint. The bounded demonstration validates a 30-person case; the upper API limits are not a throughput benchmark.
+
+Compare filled role composition before claiming savings. Equal counts can conceal different roles. When coverage differs, the report gives the coverage and cost differences without presenting a like-for-like saving. Training effects, backfill and vacancy values are assumed, so sensitivity describes conditional choices rather than causal effects.
+
+## Decision case findings
+
+The analyst learning case selects Excel, SQL, a research-to-business memo and a data-quality reconciliation task: 46 hours including six preparation hours, zero content/practice fees and 920 USD at an assumed 20 USD per hour. Software/equipment are excluded. The task includes synthetic rows with duplicate keys, missing IDs and invalid FTE, plus a documented quarantine rule and expected aggregates. Eligibility and employer experience still require review.
+
+In the workforce case, no training fills 10 positions (18 priority units), costing 32,200 USD cash and 122,000 USD economic cost. Hybrid fills 12 (24 units), costing 21,800 USD cash and 81,040 USD economic cost with 88 release hours. The coverage difference prevents a like-for-like saving claim. At release budgets of 80, 120 and 160 hours, all 12 positions can be filled, while economic cost changes from 94,240 to 81,040 to 67,840 USD. Actual release used is 48, 88 and 128 hours: capacity has discrete effects because packages and seats are indivisible. At 75% of assumed learning gains the full coverage result disappears. At 5,000 USD backfill per move, only six positions (15 units) are filled. These findings make the choice conditional on assumptions that an employer would need to supply and validate.
+
+## Limits and next evidence
+
+No actual employee outcomes, salary gains, employer adoption or human usability effect have been measured. Automated browser checks and independent agent reviews establish implementation behavior, not a human study. The [feedback protocol](user-validation.md) defines the next evidence collection step without inventing participants. The project demonstrates source research, SQL, evaluation design, optimization, product judgment and reproducible engineering; it does not establish production Snowflake operation, enterprise HR deployment or recruiting experience.
+
+Primary references: [SkillSpan paper](https://aclanthology.org/2022.naacl-main.366/), [SciPy milp API](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.milp.html), [O*NET database](https://www.onetcenter.org/database.html), and the employer/provider links in the distributed research packet.

@@ -1,32 +1,585 @@
 "use strict";
-const $ = id => document.getElementById(id);
-let mode = "personal", result = null, markdown = "", generation = 0;
-const el = (tag, cls, value) => {const n=document.createElement(tag); if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n;};
-const fmt = value => value === null || value === undefined ? "Not supplied" : Number(value).toLocaleString("en-US",{maximumFractionDigits:2});
-const money = value => fmt(value) + " " + (result ? result.currency : "");
-const labels = {no_training:"No training + hiring",external_only:"External hiring only",internal_only:"Internal + training",hybrid:"Hybrid optimum"};
-function table(target, headings, rows){const t=el("table");const head=el("thead");const hr=el("tr");headings.forEach(x=>hr.append(el("th","",x)));head.append(hr);t.append(head);const body=el("tbody");rows.forEach(row=>{const tr=el("tr");row.forEach(x=>tr.append(el("td","",x)));body.append(tr);});t.append(body);$(target).replaceChildren(t);}
-function metric(label,value,note,target="metrics"){const card=el("div","metric");card.append(el("span","",label),el("strong","",value));if(note)card.append(el("small","",note));$(target).append(card);}
-function invalidate(){generation++;result=null;markdown="";$("result").hidden=true;$("export-md").disabled=true;$("export-json").disabled=true;$("status").textContent="Inputs changed. Review and compare again.";}
-function catalog(payload){
-  $("catalog-table").replaceChildren();if(mode!=="personal")return;
-  const t=el("table"),head=el("tr");["Training option","Hours","Fee","Eligibility"].forEach(v=>head.append(el("th","",v)));t.append(head);
-  (payload.courses||[]).forEach(course=>{const row=el("tr");row.append(el("td","",course.title));
-    ["hours","fee","eligibility"].forEach(key=>{const td=el("td");let input;if(key==="eligibility"){input=el("select");["met","unknown","not_met"].forEach(v=>{const o=el("option","",v);o.value=v;input.append(o);});}else{input=el("input");input.type="number";input.min="0";input.step="1";}
-      input.value=course[key];input.setAttribute("aria-label",course.title+" "+key);input.addEventListener("input",()=>{try{const data=JSON.parse($("input-json").value);const found=data.courses.find(c=>c.id===course.id);found[key]=key==="eligibility"?input.value:Number(input.value);$("input-json").value=JSON.stringify(data,null,2);$("review").checked=false;invalidate();}catch(e){$("status").textContent=e.message;}});td.append(input);row.append(td);});t.append(row);});$("catalog-table").append(t);
+const $ = (id) => document.getElementById(id);
+let mode = "personal",
+  result = null,
+  markdown = "",
+  generation = 0;
+const el = (tag, cls, value) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (value !== undefined) n.textContent = String(value);
+  return n;
+};
+const fmt = (value) =>
+  value === null || value === undefined
+    ? "Not supplied"
+    : Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
+const money = (value) => fmt(value) + " " + (result ? result.currency : "");
+const labels = {
+  no_training: "No training + hiring",
+  external_only: "External hiring only",
+  internal_only: "Internal + training",
+  hybrid: "Hybrid optimum",
+};
+function table(target, headings, rows) {
+  const t = el("table");
+  const head = el("thead");
+  const hr = el("tr");
+  headings.forEach((x) => hr.append(el("th", "", x)));
+  head.append(hr);
+  t.append(head);
+  const body = el("tbody");
+  rows.forEach((row) => {
+    const tr = el("tr");
+    row.forEach((x) => tr.append(el("td", "", x)));
+    body.append(tr);
+  });
+  t.append(body);
+  $(target).replaceChildren(t);
 }
-function fill(payload){catalog(payload);$("input-json").value=JSON.stringify(payload,null,2);$("budget").value=payload.budget;$("hours").value=mode==="personal"?payload.hours:payload.hours_budget;$("currency-label").textContent=payload.currency;$("review").checked=false;$("benefit").value="";$("basis").value="";if(mode==="personal"){$("weekly").value=payload.weekly_hours;$("hourly").value=payload.hourly_value===null?"":payload.hourly_value;$("occupation").value=payload.occupation_id||"";$("geography").value=payload.geography??"US";}invalidate();$("status").textContent="Review the inputs, then confirm to compare.";}
-async function loadDemo(){const selected=mode;const response=await fetch("/api/capital-demo?mode="+selected);const payload=await response.json();if(mode!==selected)return;fill(payload);$("case-note").textContent=mode==="personal"?"Real Amazon Talent Intelligence Analyst posting (10569918), reviewed paraphrase dated November 16, 2026. Candidate A and all training options are fictional. This senior role has experience gates that a short course cannot resolve.":"Six synthetic employees, four scenario vacancies, and two training packages. Skill importance weights come from O*NET 31.0 for operations research analysts and human resources specialists. All employee levels, thresholds and costs are assumptions.";}
-async function switchMode(value){mode=value;invalidate();$("personal-tab").setAttribute("aria-selected",String(mode==="personal"));$("workforce-tab").setAttribute("aria-selected",String(mode==="workforce"));document.querySelectorAll(".personal-only").forEach(n=>n.hidden=mode!=="personal");$("mode-label").textContent=mode==="personal"?"PERSONAL INVESTMENT":"WORKFORCE ALLOCATION";$("question").textContent=mode==="personal"?"What can I achieve in 90 days?":"Develop, move, or recruit?";$("hours-label").firstChild.textContent=mode==="personal"?"Total available hours":"Cohort release hours";await loadDemo();}
-function requestInput(){const input=JSON.parse($("input-json").value);if(!input||Array.isArray(input)||typeof input!=="object")throw new Error("Decision input must be a JSON object.");if(!$("review").checked)throw new Error("Confirm the reviewed evidence and assumptions before calculating.");input.budget=Number($("budget").value);if(mode==="personal"){input.hours=Number($("hours").value);input.weekly_hours=Number($("weekly").value);input.hourly_value=$("hourly").value===""?null:Number($("hourly").value);input.occupation_id=$("occupation").value;input.geography=$("geography").value;if($("benefit").value!==""){input.benefits={annual_benefit:Number($("benefit").value),years:Number($("years").value),discount_rate:Number($("discount").value),basis:$("basis").value};}else delete input.benefits;}else{input.hours_budget=Number($("hours").value);input.review_confirmed=true;}return input;}
-function sources(contexts){$("market").replaceChildren();contexts.forEach(ctx=>{const box=el("article","source");const row=ctx.occupation;box.append(el("h3","",row?row.title:"No matching public occupation data"));box.append(el("p","market-status",`Data: ${ctx.status} · geography: ${ctx.geography_status} · requested: ${ctx.requested_geography}`));if(row){box.append(el("p","",`${row.taxonomy} ${row.taxonomy_vintage} · ${row.occupation_id} · ${row.period} · ${row.geography}`));const metrics=el("div","metrics");[["Employment estimate",fmt(row.employment)],["Projected annual openings",fmt(row.annual_openings)],["Projected change",fmt(row.projected_change_pct)+"%"],["Median annual wage",fmt(row.median_annual_wage)+" "+row.currency]].forEach(([a,b])=>{const c=el("div","metric");c.append(el("span","",a),el("strong","",b));metrics.append(c);});box.append(metrics);box.append(el("p","",`Wage price year: ${row.price_year}. National context is not a local wage or local hiring estimate.`));}ctx.sources.forEach(s=>{const p=el("p");const a=el("a","",s.source_id);if(/^https?:\/\//.test(s.source_url)){a.href=s.source_url;a.target="_blank";a.rel="noopener";}p.append(a,document.createTextNode(` · ${s.source_vintage} · retrieved ${s.retrieved_at} · ${s.status} · ${s.freshness_status}`));box.append(p);});box.append(el("p","",ctx.interpretation));$("market").append(box);});}
-function personal(){const p=result.best_plan;$("decision-title").textContent=p?"A feasible portfolio, with visible limits.":"The current time constraints are infeasible.";$("decision-copy").textContent=result.objective;$("metrics").replaceChildren();if(p){metric("Cash cost",money(p.cash_cost),"Budget: "+money(result.budget));metric("Economic cost",money(p.economic_cost),"Includes supplied time value and foregone income");metric("Total effort",fmt(p.hours)+" h","Includes "+fmt(result.preparation_hours)+" h preparation");metric("Feasible portfolios",fmt(result.feasible_portfolios),"Top options shown below");}const gates=result.eligibility_gates.filter(x=>x.status!=="met");$("eligibility").textContent=gates.length?"Eligibility to resolve: "+gates.map(g=>g.canonical_skill+" — "+g.status).join("; ")+". Training completion does not change these gates.":"No unresolved gate in the reviewed extraction. Verify the full posting before applying.";$("comparison-title").textContent="Distinct skill targets under the same constraints.";table("comparison-table",["Training portfolio","Target importance covered","Cash cost","Economic cost","Hours"],result.alternatives.map(a=>[a.course_ids.join(" + ")||"Preparation only",a.target_weight_covered,money(a.cash_cost),money(a.economic_cost),fmt(a.hours)]));$("cost-chart").replaceChildren();$("comparison-note").textContent=p?"Selected options: "+(p.selected_courses.map(c=>c.title).join("; ")||"Evidence preparation only")+". Remaining targets: "+(result.remaining_targets.join(", ")||"none under this catalog")+". Unknown course eligibility is excluded.":result.infeasibility_reason;$("actions-title").textContent="A specific 30/60/90-day plan.";$("timeline").replaceChildren();result.timeline.forEach(phase=>{const c=el("article","step");c.append(el("span","day","BY DAY "+phase.day));c.append(el("h3","",phase.artifact));const ul=el("ul");phase.actions.forEach(a=>ul.append(el("li","",a)));phase.training.forEach(t=>{const li=el("li");li.append(el("strong","",t.title+" · "+t.hours+" h"),document.createTextNode(" · due day "+t.due_day+". "+t.artifact+". Check: "+t.completion_criterion));ul.append(li);});c.append(ul,el("p","","Complete when: "+phase.completion_criterion));$("timeline").append(c);});$("evidence-title").textContent="Current proof and proposed training targets.";table("evidence-table",["Requirement","Skill ID","Evidence","Training target"],result.evidence_map.map(e=>[e.skill,e.skill_id,e.status,e.training_target?"Subject to completion assessment":"No"]));$("returns").hidden=false;const returns=result.returns;$("returns-copy").textContent=returns.reason||(returns.benefit_basis+". "+returns.timing);if(returns.status==="scenario")table("returns-table",["Benefit multiplier","NPV","Cumulative ROI"],returns.sensitivity.map(s=>[s.benefit_multiplier,money(s.npv),s.roi_pct===null?"Undefined at zero cost":fmt(s.roi_pct)+"%"]));else $("returns-table").replaceChildren();sources([result.market_context]);}
-function workforce(){const best=result.scenarios.hybrid;$("decision-title").textContent=best.filled+" positions can be filled under these assumptions.";$("decision-copy").textContent=result.objective;$("metrics").replaceChildren();metric("Positions filled",best.filled+" / "+(best.filled+best.unfilled),"Subject to assessment and consent");metric("Cash cost",money(best.cash_cost),"Budget: "+money(result.budget));metric("Economic cost",money(best.economic_cost),"Fees plus released time");metric("Released time",fmt(best.hours)+" h","Capacity: "+fmt(result.hours_budget)+" h");$("eligibility").textContent="Proposed mobility requires a human skills assessment and employee agreement. Unknown or unmet role eligibility is excluded; no protected attributes enter matching.";$("comparison-title").textContent="Training, mobility and hiring at the same budget.";table("comparison-table",["Scenario","Filled / unfilled","Cash cost","Economic cost","Hours"],Object.entries(result.scenarios).map(([k,s])=>[labels[k],s.filled+" / "+s.unfilled,money(s.cash_cost),money(s.economic_cost),fmt(s.hours)]));$("cost-chart").replaceChildren();const max=Math.max(1,...Object.values(result.scenarios).map(s=>s.economic_cost));Object.entries(result.scenarios).forEach(([k,s])=>{const row=el("div","bar-row");const track=el("div","bar-track");const bar=el("div","bar-fill"+(k==="hybrid"?" best":""));bar.style.width=(100*s.economic_cost/max)+"%";track.append(bar);row.append(el("span","",labels[k]),track,el("span","",money(s.economic_cost)));$("cost-chart").append(row);});const comp=result.comparison;$("comparison-note").textContent=comp.same_positions_filled?"At equal coverage, economic cost saving versus no training: "+money(comp.cost_saving_at_equal_coverage)+".":"Hybrid fills "+comp.additional_positions_filled+" additional position(s); economic cost difference versus no training: "+money(comp.economic_cost_difference)+". Different coverage prevents a like-for-like savings claim.";$("actions-title").textContent="Review the proposed employee–role moves.";$("timeline").replaceChildren();best.assignments.forEach(a=>{const c=el("article","step");c.append(el("span","day",a.role_id.toUpperCase()+" · POSITION "+a.position),el("h3","",a.employee_id||a.mode.replaceAll("_"," ")),el("p","","Route: "+a.mode.replaceAll("_"," ")),el("p","","Economic cost: "+money(a.economic_cost)));if(a.training_id){const t=result.training_packages.find(t=>t.id===a.training_id);c.append(el("p","",t.title+" · "+t.hours+" h"),el("p","",t.artifact),el("p","","Complete when: "+t.completion_criterion));}$("timeline").append(c);});$("evidence-title").textContent="Every employee–role gap remains inspectable.";table("evidence-table",["Employee","Role","Eligibility","Weighted coverage","Gaps (scenario 0–1 scale)"],result.matrix.map(e=>[e.employee_id,e.role_id,e.eligibility,fmt(e.weighted_coverage*100)+"%",e.gap_details.filter(g=>g.gap>0).map(g=>g.label+" ("+g.skill_id+"): "+g.gap).join("; ")||"None"]));$("returns").hidden=true;sources(result.market_contexts);}
-async function calculate(){const id=++generation;$("result").hidden=true;result=null;try{const input=requestInput();const endpoint=mode==="personal"?"invest":"workforce";$("status").textContent="Comparing feasible choices…";const response=await fetch("/api/"+endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(input)});const payload=await response.json();if(id!==generation)return;if(!response.ok)throw new Error(payload.detail||"Calculation unavailable");result=payload.result;markdown=payload.markdown;if(mode==="personal")personal();else workforce();$("assumptions").replaceChildren(...result.assumptions.map(a=>el("li","",a)));$("result").hidden=false;$("export-md").disabled=false;$("export-json").disabled=false;$("status").textContent="Scenario complete. Review the proposal and its remaining gaps.";}catch(error){if(id!==generation)return;$("status").textContent=error.message;result=null;}}
-function download(type){if(!result)return;const data=type==="json"?JSON.stringify(result,null,2):markdown;const url=URL.createObjectURL(new Blob([data],{type:type==="json"?"application/json":"text/markdown;charset=utf-8"}));const link=el("a");link.href=url;link.download="career-fit-"+mode+"."+(type==="json"?"json":"md");link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-$("input-json").addEventListener("change",()=>{try{catalog(JSON.parse($("input-json").value));}catch(e){$("status").textContent=e.message;}});
-$("personal-tab").onclick=()=>switchMode("personal");$("workforce-tab").onclick=()=>switchMode("workforce");$("load-demo").onclick=loadDemo;$("calculate").onclick=calculate;$("export-md").onclick=()=>download("md");$("export-json").onclick=()=>download("json");document.querySelectorAll("input,select,textarea").forEach(n=>n.addEventListener("input",()=>{invalidate();if(n.id!=="review")$("review").checked=false;}));
-async function initialize(){await loadDemo();const transferred=sessionStorage.getItem("career-fit-investment");if(transferred){sessionStorage.removeItem("career-fit-investment");try{const demo=JSON.parse($("input-json").value);const loaded=JSON.parse(transferred);demo.analysis_input=loaded.analysis_input||loaded;
-  demo.occupation_id="";demo.geography="";demo.confirmed_prerequisites=[];
-  demo.courses=(loaded.requirements||[]).filter(r=>!r.hard_constraint&&r.status!=="direct"&&r.skill_id).slice(0,6).map((r,i)=>({id:"proof-"+(i+1),title:"Build evidence for "+r.canonical_skill,hours:12,fee:0,skills:[r.skill_id],skill_labels:{[r.skill_id]:r.canonical_skill},prerequisites:[],eligibility:"met",artifact:"One role-specific work sample demonstrating "+r.canonical_skill,completion_criterion:"A human reviewer can reproduce the work and explain how it supports "+r.canonical_skill}));
-  demo.input_status="user_reviewed_profile; proposed_self_directed_work_samples_with_assumed_effort_and_zero_fees";fill(demo);$("case-note").textContent="Your reviewed role and evidence are loaded. Proposed work samples use the exact current skill IDs, an assumed 12 hours each and zero fees. Adjust effort, costs and assessment criteria; confirm an occupation and target geography separately.";$("advanced").open=true;}catch{$("status").textContent="Transferred inputs could not be read. The fictional demo remains available.";}}}initialize().catch(e=>$("status").textContent=e.message);
+function metric(label, value, note, target = "metrics") {
+  const card = el("div", "metric");
+  card.append(el("span", "", label), el("strong", "", value));
+  if (note) card.append(el("small", "", note));
+  $(target).append(card);
+}
+function invalidate() {
+  generation++;
+  result = null;
+  markdown = "";
+  $("result").hidden = true;
+  $("export-md").disabled = true;
+  $("export-json").disabled = true;
+  $("status").textContent = "Inputs changed. Review and compare again.";
+}
+function catalog(payload) {
+  $("catalog-table").replaceChildren();
+  if (mode !== "personal") return;
+  const t = el("table"),
+    head = el("tr");
+  ["Training option", "Hours", "Fee", "Eligibility"].forEach((v) =>
+    head.append(el("th", "", v)),
+  );
+  t.append(head);
+  (payload.courses || []).forEach((course) => {
+    const row = el("tr");
+    row.append(el("td", "", course.title));
+    ["hours", "fee", "eligibility"].forEach((key) => {
+      const td = el("td");
+      let input;
+      if (key === "eligibility") {
+        input = el("select");
+        ["met", "unknown", "not_met"].forEach((v) => {
+          const o = el("option", "", v);
+          o.value = v;
+          input.append(o);
+        });
+      } else {
+        input = el("input");
+        input.type = "number";
+        input.min = "0";
+        input.step = "1";
+      }
+      input.value = course[key];
+      input.setAttribute("aria-label", course.title + " " + key);
+      input.addEventListener("input", () => {
+        try {
+          const data = JSON.parse($("input-json").value);
+          const found = data.courses.find((c) => c.id === course.id);
+          found[key] =
+            key === "eligibility" ? input.value : Number(input.value);
+          $("input-json").value = JSON.stringify(data, null, 2);
+          $("review").checked = false;
+          invalidate();
+        } catch (e) {
+          $("status").textContent = e.message;
+        }
+      });
+      td.append(input);
+      row.append(td);
+    });
+    t.append(row);
+  });
+  $("catalog-table").append(t);
+}
+function fill(payload) {
+  catalog(payload);
+  $("input-json").value = JSON.stringify(payload, null, 2);
+  $("budget").value = payload.budget;
+  $("hours").value = mode === "personal" ? payload.hours : payload.hours_budget;
+  $("currency-label").textContent = payload.currency;
+  $("review").checked = false;
+  $("benefit").value = "";
+  $("basis").value = "";
+  if (mode === "personal") {
+    $("weekly").value = payload.weekly_hours;
+    $("hourly").value =
+      payload.hourly_value === null ? "" : payload.hourly_value;
+    $("occupation").value = payload.occupation_id || "";
+    $("geography").value = payload.geography ?? "US";
+  }
+  invalidate();
+  $("status").textContent = "Review the inputs, then confirm to compare.";
+}
+async function loadDemo() {
+  const selected = mode;
+  const response = await fetch("/api/capital-demo?mode=" + selected);
+  const payload = await response.json();
+  if (mode !== selected) return;
+  fill(payload);
+  $("case-note").textContent =
+    mode === "personal"
+      ? "Real Amazon Talent Intelligence Analyst posting (10569918), reviewed paraphrase dated November 16, 2026. Candidate A and all training options are fictional. This senior role has experience gates that a short course cannot resolve."
+      : "Six synthetic employees, four scenario vacancies, and two training packages. Skill importance weights come from O*NET 31.0 for operations research analysts and human resources specialists. All employee levels, thresholds and costs are assumptions.";
+}
+async function switchMode(value) {
+  mode = value;
+  invalidate();
+  $("personal-tab").setAttribute("aria-selected", String(mode === "personal"));
+  $("workforce-tab").setAttribute(
+    "aria-selected",
+    String(mode === "workforce"),
+  );
+  document
+    .querySelectorAll(".personal-only")
+    .forEach((n) => (n.hidden = mode !== "personal"));
+  $("mode-label").textContent =
+    mode === "personal" ? "PERSONAL INVESTMENT" : "WORKFORCE ALLOCATION";
+  $("question").textContent =
+    mode === "personal"
+      ? "What can I achieve in 90 days?"
+      : "Develop, move, or recruit?";
+  $("hours-label").firstChild.textContent =
+    mode === "personal" ? "Total available hours" : "Cohort release hours";
+  await loadDemo();
+}
+function requestInput() {
+  const input = JSON.parse($("input-json").value);
+  if (!input || Array.isArray(input) || typeof input !== "object")
+    throw new Error("Decision input must be a JSON object.");
+  if (!$("review").checked)
+    throw new Error(
+      "Confirm the reviewed evidence and assumptions before calculating.",
+    );
+  input.budget = Number($("budget").value);
+  if (mode === "personal") {
+    input.hours = Number($("hours").value);
+    input.weekly_hours = Number($("weekly").value);
+    input.hourly_value =
+      $("hourly").value === "" ? null : Number($("hourly").value);
+    input.occupation_id = $("occupation").value;
+    input.geography = $("geography").value;
+    if ($("benefit").value !== "") {
+      input.benefits = {
+        annual_benefit: Number($("benefit").value),
+        years: Number($("years").value),
+        discount_rate: Number($("discount").value),
+        basis: $("basis").value,
+      };
+    } else delete input.benefits;
+  } else {
+    input.hours_budget = Number($("hours").value);
+    input.review_confirmed = true;
+  }
+  return input;
+}
+function sources(contexts) {
+  $("market").replaceChildren();
+  contexts.forEach((ctx) => {
+    const box = el("article", "source");
+    const row = ctx.occupation;
+    box.append(
+      el("h3", "", row ? row.title : "No matching public occupation data"),
+    );
+    box.append(
+      el(
+        "p",
+        "market-status",
+        `Data: ${ctx.status} · geography: ${ctx.geography_status} · requested: ${ctx.requested_geography}`,
+      ),
+    );
+    if (row) {
+      box.append(
+        el(
+          "p",
+          "",
+          `${row.taxonomy} ${row.taxonomy_vintage} · ${row.occupation_id} · ${row.period} · ${row.geography}`,
+        ),
+      );
+      const metrics = el("div", "metrics");
+      [
+        ["Employment estimate", fmt(row.employment)],
+        ["Projected annual openings", fmt(row.annual_openings)],
+        ["Projected change", fmt(row.projected_change_pct) + "%"],
+        [
+          "Median annual wage",
+          fmt(row.median_annual_wage) + " " + row.currency,
+        ],
+      ].forEach(([a, b]) => {
+        const c = el("div", "metric");
+        c.append(el("span", "", a), el("strong", "", b));
+        metrics.append(c);
+      });
+      box.append(metrics);
+      box.append(
+        el(
+          "p",
+          "",
+          `Wage price year: ${row.price_year}. National context is not a local wage or local hiring estimate.`,
+        ),
+      );
+    }
+    ctx.sources.forEach((s) => {
+      const p = el("p");
+      const a = el("a", "", s.source_id);
+      if (/^https?:\/\//.test(s.source_url)) {
+        a.href = s.source_url;
+        a.target = "_blank";
+        a.rel = "noopener";
+      }
+      p.append(
+        a,
+        document.createTextNode(
+          ` · ${s.source_vintage} · retrieved ${s.retrieved_at} · ${s.status} · ${s.freshness_status}`,
+        ),
+      );
+      box.append(p);
+    });
+    box.append(el("p", "", ctx.interpretation));
+    $("market").append(box);
+  });
+}
+function personal() {
+  const p = result.best_plan;
+  $("decision-title").textContent = p
+    ? "A feasible portfolio, with visible limits."
+    : "The current time constraints are infeasible.";
+  $("decision-copy").textContent = result.objective;
+  $("metrics").replaceChildren();
+  if (p) {
+    metric("Cash cost", money(p.cash_cost), "Budget: " + money(result.budget));
+    metric(
+      "Economic cost",
+      money(p.economic_cost),
+      "Includes supplied time value and foregone income",
+    );
+    metric(
+      "Total effort",
+      fmt(p.hours) + " h",
+      "Includes " + fmt(result.preparation_hours) + " h preparation",
+    );
+    metric(
+      "Feasible portfolios",
+      fmt(result.feasible_portfolios),
+      "Top options shown below",
+    );
+  }
+  const gates = result.eligibility_gates.filter((x) => x.status !== "met");
+  $("eligibility").textContent = gates.length
+    ? "Eligibility to resolve: " +
+      gates.map((g) => g.canonical_skill + " — " + g.status).join("; ") +
+      ". Training completion does not change these gates."
+    : "No unresolved gate in the reviewed extraction. Verify the full posting before applying.";
+  $("comparison-title").textContent =
+    "Distinct skill targets under the same constraints.";
+  table(
+    "comparison-table",
+    [
+      "Training portfolio",
+      "Target importance covered",
+      "Cash cost",
+      "Economic cost",
+      "Hours",
+    ],
+    result.alternatives.map((a) => [
+      a.course_ids.join(" + ") || "Preparation only",
+      a.target_weight_covered,
+      money(a.cash_cost),
+      money(a.economic_cost),
+      fmt(a.hours),
+    ]),
+  );
+  $("cost-chart").replaceChildren();
+  $("comparison-note").textContent = p
+    ? "Selected options: " +
+      (p.selected_courses.map((c) => c.title).join("; ") ||
+        "Evidence preparation only") +
+      ". Remaining targets: " +
+      (result.remaining_targets.join(", ") || "none under this catalog") +
+      ". Unknown course eligibility is excluded."
+    : result.infeasibility_reason;
+  $("actions-title").textContent = "A specific 30/60/90-day plan.";
+  $("timeline").replaceChildren();
+  result.timeline.forEach((phase) => {
+    const c = el("article", "step");
+    c.append(el("span", "day", "BY DAY " + phase.day));
+    c.append(el("h3", "", phase.artifact));
+    const ul = el("ul");
+    phase.actions.forEach((a) => ul.append(el("li", "", a)));
+    phase.training.forEach((t) => {
+      const li = el("li");
+      li.append(
+        el("strong", "", t.title + " · " + t.hours + " h"),
+        document.createTextNode(
+          " · due day " +
+            t.due_day +
+            ". " +
+            t.artifact +
+            ". Check: " +
+            t.completion_criterion,
+        ),
+      );
+      ul.append(li);
+    });
+    c.append(ul, el("p", "", "Complete when: " + phase.completion_criterion));
+    $("timeline").append(c);
+  });
+  $("evidence-title").textContent =
+    "Current proof and proposed training targets.";
+  table(
+    "evidence-table",
+    ["Requirement", "Skill ID", "Evidence", "Training target"],
+    result.evidence_map.map((e) => [
+      e.skill,
+      e.skill_id,
+      e.status,
+      e.training_target ? "Subject to completion assessment" : "No",
+    ]),
+  );
+  $("returns").hidden = false;
+  const returns = result.returns;
+  $("returns-copy").textContent =
+    returns.reason || returns.benefit_basis + ". " + returns.timing;
+  if (returns.status === "scenario")
+    table(
+      "returns-table",
+      ["Benefit multiplier", "NPV", "Cumulative ROI"],
+      returns.sensitivity.map((s) => [
+        s.benefit_multiplier,
+        money(s.npv),
+        s.roi_pct === null ? "Undefined at zero cost" : fmt(s.roi_pct) + "%",
+      ]),
+    );
+  else $("returns-table").replaceChildren();
+  sources([result.market_context]);
+}
+function workforce() {
+  const best = result.scenarios.hybrid;
+  $("decision-title").textContent =
+    best.filled + " positions can be filled under these assumptions.";
+  $("decision-copy").textContent = result.objective;
+  $("metrics").replaceChildren();
+  metric(
+    "Positions filled",
+    best.filled + " / " + (best.filled + best.unfilled),
+    "Subject to assessment and consent",
+  );
+  metric("Cash cost", money(best.cash_cost), "Budget: " + money(result.budget));
+  metric("Economic cost", money(best.economic_cost), "Fees plus released time");
+  metric(
+    "Released time",
+    fmt(best.hours) + " h",
+    "Capacity: " + fmt(result.hours_budget) + " h",
+  );
+  $("eligibility").textContent =
+    "Proposed mobility requires a human skills assessment and employee agreement. Unknown or unmet role eligibility is excluded; no protected attributes enter matching.";
+  $("comparison-title").textContent =
+    "Training, mobility and hiring at the same budget.";
+  table(
+    "comparison-table",
+    ["Scenario", "Filled / unfilled", "Cash cost", "Economic cost", "Hours"],
+    Object.entries(result.scenarios).map(([k, s]) => [
+      labels[k],
+      s.filled + " / " + s.unfilled,
+      money(s.cash_cost),
+      money(s.economic_cost),
+      fmt(s.hours),
+    ]),
+  );
+  $("cost-chart").replaceChildren();
+  const max = Math.max(
+    1,
+    ...Object.values(result.scenarios).map((s) => s.economic_cost),
+  );
+  Object.entries(result.scenarios).forEach(([k, s]) => {
+    const row = el("div", "bar-row");
+    const track = el("div", "bar-track");
+    const bar = el("div", "bar-fill" + (k === "hybrid" ? " best" : ""));
+    bar.style.width = (100 * s.economic_cost) / max + "%";
+    track.append(bar);
+    row.append(
+      el("span", "", labels[k]),
+      track,
+      el("span", "", money(s.economic_cost)),
+    );
+    $("cost-chart").append(row);
+  });
+  const comp = result.comparison;
+  $("comparison-note").textContent = comp.same_positions_filled
+    ? "At equal coverage, economic cost saving versus no training: " +
+      money(comp.cost_saving_at_equal_coverage) +
+      "."
+    : "Hybrid fills " +
+      comp.additional_positions_filled +
+      " additional position(s); economic cost difference versus no training: " +
+      money(comp.economic_cost_difference) +
+      ". Different coverage prevents a like-for-like savings claim.";
+  $("actions-title").textContent = "Review the proposed employee–role moves.";
+  $("timeline").replaceChildren();
+  best.assignments.forEach((a) => {
+    const c = el("article", "step");
+    c.append(
+      el("span", "day", a.role_id.toUpperCase() + " · POSITION " + a.position),
+      el("h3", "", a.employee_id || a.mode.replaceAll("_", " ")),
+      el("p", "", "Route: " + a.mode.replaceAll("_", " ")),
+      el("p", "", "Economic cost: " + money(a.economic_cost)),
+    );
+    if (a.training_id) {
+      const t = result.training_packages.find((t) => t.id === a.training_id);
+      c.append(
+        el("p", "", t.title + " · " + t.hours + " h"),
+        el("p", "", t.artifact),
+        el("p", "", "Complete when: " + t.completion_criterion),
+      );
+    }
+    $("timeline").append(c);
+  });
+  $("evidence-title").textContent =
+    "Every employee–role gap remains inspectable.";
+  table(
+    "evidence-table",
+    [
+      "Employee",
+      "Role",
+      "Eligibility",
+      "Weighted coverage",
+      "Gaps (scenario 0–1 scale)",
+    ],
+    result.matrix.map((e) => [
+      e.employee_id,
+      e.role_id,
+      e.eligibility,
+      fmt(e.weighted_coverage * 100) + "%",
+      e.gap_details
+        .filter((g) => g.gap > 0)
+        .map((g) => g.label + " (" + g.skill_id + "): " + g.gap)
+        .join("; ") || "None",
+    ]),
+  );
+  $("returns").hidden = true;
+  sources(result.market_contexts);
+}
+async function calculate() {
+  const id = ++generation;
+  $("result").hidden = true;
+  result = null;
+  try {
+    const input = requestInput();
+    const endpoint = mode === "personal" ? "invest" : "workforce";
+    $("status").textContent = "Comparing feasible choices…";
+    const response = await fetch("/api/" + endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const payload = await response.json();
+    if (id !== generation) return;
+    if (!response.ok)
+      throw new Error(payload.detail || "Calculation unavailable");
+    result = payload.result;
+    markdown = payload.markdown;
+    if (mode === "personal") personal();
+    else workforce();
+    $("assumptions").replaceChildren(
+      ...result.assumptions.map((a) => el("li", "", a)),
+    );
+    $("result").hidden = false;
+    $("export-md").disabled = false;
+    $("export-json").disabled = false;
+    $("status").textContent =
+      "Scenario complete. Review the proposal and its remaining gaps.";
+  } catch (error) {
+    if (id !== generation) return;
+    $("status").textContent = error.message;
+    result = null;
+  }
+}
+function download(type) {
+  if (!result) return;
+  const data = type === "json" ? JSON.stringify(result, null, 2) : markdown;
+  const url = URL.createObjectURL(
+    new Blob([data], {
+      type:
+        type === "json" ? "application/json" : "text/markdown;charset=utf-8",
+    }),
+  );
+  const link = el("a");
+  link.href = url;
+  link.download =
+    "career-fit-" + mode + "." + (type === "json" ? "json" : "md");
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$("input-json").addEventListener("change", () => {
+  try {
+    catalog(JSON.parse($("input-json").value));
+  } catch (e) {
+    $("status").textContent = e.message;
+  }
+});
+$("personal-tab").onclick = () => switchMode("personal");
+$("workforce-tab").onclick = () => switchMode("workforce");
+$("load-demo").onclick = loadDemo;
+$("calculate").onclick = calculate;
+$("export-md").onclick = () => download("md");
+$("export-json").onclick = () => download("json");
+document.querySelectorAll("input,select,textarea").forEach((n) =>
+  n.addEventListener("input", () => {
+    invalidate();
+    if (n.id !== "review") $("review").checked = false;
+  }),
+);
+async function initialize() {
+  await loadDemo();
+  const transferred = sessionStorage.getItem("career-fit-investment");
+  if (transferred) {
+    sessionStorage.removeItem("career-fit-investment");
+    try {
+      const demo = JSON.parse($("input-json").value);
+      const loaded = JSON.parse(transferred);
+      demo.analysis_input = loaded.analysis_input || loaded;
+      demo.occupation_id = "";
+      demo.geography = "";
+      demo.confirmed_prerequisites = [];
+      demo.courses = (loaded.requirements || [])
+        .filter(
+          (r) => !r.hard_constraint && r.status !== "direct" && r.skill_id,
+        )
+        .slice(0, 6)
+        .map((r, i) => ({
+          id: "proof-" + (i + 1),
+          title: "Build evidence for " + r.canonical_skill,
+          hours: 12,
+          fee: 0,
+          skills: [r.skill_id],
+          skill_labels: { [r.skill_id]: r.canonical_skill },
+          prerequisites: [],
+          eligibility: "met",
+          artifact:
+            "One role-specific work sample demonstrating " + r.canonical_skill,
+          completion_criterion:
+            "A human reviewer can reproduce the work and explain how it supports " +
+            r.canonical_skill,
+        }));
+      demo.input_status =
+        "user_reviewed_profile; proposed_self_directed_work_samples_with_assumed_effort_and_zero_fees";
+      fill(demo);
+      $("case-note").textContent =
+        "Your reviewed role and evidence are loaded. Proposed work samples use the exact current skill IDs, an assumed 12 hours each and zero fees. Adjust effort, costs and assessment criteria; confirm an occupation and target geography separately.";
+      $("advanced").open = true;
+    } catch {
+      $("status").textContent =
+        "Transferred inputs could not be read. The fictional demo remains available.";
+    }
+  }
+}

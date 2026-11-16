@@ -16,7 +16,7 @@ def capital_markdown(result: dict) -> str:
         "# Career Fit human capital decision brief",
         "",
         f"Input status: {clean(result.get('input_status'))}",
-        f"Currency: {clean(result['currency'])}. All training outcomes and personal/cohort inputs are scenarios.",
+        f"Currency: {clean(result['currency'])}; cost price year: {clean(result.get('price_year'))}. All training outcomes and personal/cohort inputs are scenarios.",
         "",
     ]
     if result["schema_version"] == "career_fit.investment.v1":
@@ -80,6 +80,30 @@ def capital_markdown(result: dict) -> str:
                 lines.append(
                     f"| {s['benefit_multiplier']} | {s['npv']} | {clean(s['roi_pct'])} |"
                 )
+        lines += ["", "## Resource facts and practice assumptions", ""]
+        for course in best["selected_courses"] if best else []:
+            lines += [
+                f"- {clean(course['title'])}: planned {course['hours']} hours; fee {course['fee']}. Provider hours: {clean(course.get('provider_hours'))}. {clean(course.get('provider_fee_scope', 'Practice fee is a scenario assumption'))}.",
+                f"  Artifact: {clean(course['artifact'])}. Check: {clean(course['completion_criterion'])}.",
+            ]
+            source = course.get("source", {})
+            if source:
+                lines.append(
+                    f"  Source: [{clean(source['source_id'])}]({source['source_url']}), checked {clean(source['retrieved_at'])}."
+                )
+        progress = result.get("progress", {})
+        lines += [
+            "",
+            "## Work-sample progress",
+            "",
+            progress.get("interpretation", "No progress supplied."),
+            "",
+        ]
+        for record in progress.get("records", []):
+            lines += [
+                f"- {clean(record['title'])}: {record['status']}; assessment {record['assessment']}; reported actual hours {clean(record['actual_hours'])}.",
+                f"  Artifact: {clean(record['artifact'])}. Review: {clean(record['review_note'])}. Rubric: {clean(record['rubric'])}. {record['evidence_status']}.",
+            ]
         contexts = [result["market_context"]]
     else:
         lines += [
@@ -87,12 +111,13 @@ def capital_markdown(result: dict) -> str:
             "",
             result["objective"],
             "",
-            "| Scenario | Filled | Unfilled | Cash cost | Economic cost | Released hours |",
-            "| --- | ---: | ---: | ---: | ---: | ---: |",
+            f"Horizon: {result.get('horizon_days', 90)} days; solver: {result.get('solver', 'exact')}; training effect multiplier: {result.get('training_effect_multiplier', 1)}.",
+            "| Scenario | Filled | Priority units | Unfilled | Cash cost | Economic cost | Released hours |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
         for name, scenario in result["scenarios"].items():
             lines.append(
-                f"| {name} | {scenario['filled']} | {scenario['unfilled']} | {scenario['cash_cost']} | {scenario['economic_cost']} | {scenario['hours']} |"
+                f"| {name} | {scenario['filled']} | {scenario.get('filled_priority', scenario['filled'])} | {scenario['unfilled']} | {scenario['cash_cost']} | {scenario['economic_cost']} | {scenario['hours']} |"
             )
         comparison = result["comparison"]
         lines += [
@@ -111,7 +136,22 @@ def capital_markdown(result: dict) -> str:
             lines.append(
                 f"| {clean(row['role_id'])} / {row['position']} | {clean(row['employee_id'])} | {row['mode']} | {clean(row['training_id'])} | {row['economic_cost']} |"
             )
-        lines += ["", "## Assessment before mobility", ""]
+        components = {}
+        for assignment in result["scenarios"]["hybrid"]["assignments"]:
+            for name, value in assignment.get("cost_components", {}).items():
+                components[name] = components.get(name, 0) + value
+        lines += ["", "## Incremental hybrid cost components", ""]
+        lines += [
+            f"- {name.replace('_', ' ')}: {value:.2f} {result['currency']}"
+            for name, value in components.items()
+        ]
+        lines += [
+            "",
+            "Recurring compensation is outside this incremental scenario. Cost differences with different role coverage are not like-for-like savings.",
+            "",
+            "## Assessment before mobility",
+            "",
+        ]
         for course in result["training_packages"]:
             lines.append(
                 f"- {course['title']}: {course['artifact']}. Completion: {course['completion_criterion']}."

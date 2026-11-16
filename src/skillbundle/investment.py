@@ -145,6 +145,9 @@ def plan_investment(payload: dict) -> dict:
         hourly = number(hourly, "hourly_value")
     currency = text(payload.get("currency"), "currency")
     courses = courses_checked(payload.get("courses", []))
+    from .learning import review_progress
+
+    progress = review_progress(payload, courses)
     if hourly and any(c["foregone_income"] for c in courses):
         raise ValueError(
             "Use hourly time value or course foregone_income, not both, to avoid double counting"
@@ -327,6 +330,8 @@ def plan_investment(payload: dict) -> dict:
         "status": "scenario_plan" if best else "infeasible",
         "input_status": payload.get("input_status", "user_supplied"),
         "currency": currency,
+        "price_year": payload.get("price_year"),
+        "progress": progress,
         "budget": budget,
         "hours_capacity_90_days": round(capacity, 2),
         "preparation_hours": reserve,

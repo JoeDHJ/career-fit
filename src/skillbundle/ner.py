@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import random
 from pathlib import Path
 
 
@@ -61,13 +62,29 @@ def tags_to_char_spans(
 class PerceptronNER:
     """A small, dependency-free supervised BIO tagger for reproducible baselines."""
 
-    def __init__(self, weights: dict[str, dict[str, float]] | None = None):
+    def __init__(
+        self, weights: dict[str, dict[str, float]] | None = None, sequence: bool = False
+    ):
         self.weights = weights or {label: {} for label in LABELS}
+        self.sequence = sequence
+
+    def _features(self, tokens, index, predictions):
+        features = token_features(tokens, index)
+        if self.sequence:
+            prev = predictions[-1] if predictions else "<START>"
+            prev2 = predictions[-2] if len(predictions) > 1 else "<START>"
+            features += [
+                f"tag-1={prev}",
+                f"tag-2={prev2}",
+                f"tag-pair={prev2}|{prev}",
+                f"tag-word={prev}|{tokens[index].casefold()}",
+            ]
+        return features
 
     def predict_tags(self, tokens: list[str]) -> list[str]:
         predictions = []
         for index in range(len(tokens)):
-            features = token_features(tokens, index)
+            features = self._features(tokens, index, predictions)
             scores = {
                 label: sum(
                     self.weights.get(label, {}).get(feature, 0.0)
@@ -82,6 +99,8 @@ class PerceptronNER:
         return predictions
 
     def train(self, rows: list[dict[str, object]], epochs: int = 5) -> dict[str, int]:
+        if self.sequence:
+            return self._train_averaged(rows, epochs)
         updates = 0
         for _ in range(epochs):
             for row in rows:
@@ -102,6 +121,57 @@ class PerceptronNER:
                     updates += 1
         return {"epochs": epochs, "updates": updates, "rows": len(rows)}
 
+    def _train_averaged(self, rows, epochs):
+        if not rows or epochs < 1:
+            raise ValueError("training requires nonempty rows and positive epochs")
+        totals, stamps = {}, {}
+        step = updates = 0
+        order = list(range(len(rows)))
+        rng = random.Random(37)
+        for _ in range(epochs):
+            rng.shuffle(order)
+            for ri in order:
+                row = rows[ri]
+                tokens = row["tokens"]
+                gold = [normalize_tag(tag) for tag in row["tags_skill"]]
+                previous = []
+                for index, actual in enumerate(gold):
+                    step += 1
+                    features = self._features(tokens, index, previous)
+                    scores = {
+                        label: sum(self.weights[label].get(f, 0) for f in features)
+                        for label in LABELS
+                    }
+                    guess = max(
+                        LABELS, key=lambda label: (scores[label], -LABELS.index(label))
+                    )
+                    if guess == "I-SKILL" and (not previous or previous[-1] == "O"):
+                        guess = "B-SKILL"
+                    if guess != actual:
+                        updates += 1
+                        for label, delta in ((actual, 1), (guess, -1)):
+                            for feature in features:
+                                key = label, feature
+                                weight = self.weights[label].get(feature, 0)
+                                totals[key] = (
+                                    totals.get(key, 0)
+                                    + (step - stamps.get(key, 0)) * weight
+                                )
+                                stamps[key] = step
+                                self.weights[label][feature] = weight + delta
+                    previous.append(guess)
+        for label, weights in self.weights.items():
+            for feature, weight in list(weights.items()):
+                key = label, feature
+                average = (
+                    totals.get(key, 0) + (step - stamps.get(key, 0)) * weight
+                ) / step
+                if average:
+                    weights[feature] = round(average, 8)
+                else:
+                    del weights[feature]
+        return {"epochs": epochs, "updates": updates, "rows": len(rows), "seed": 37}
+
     def extract(self, text: str) -> list[dict[str, object]]:
         matches = list(TOKEN_RE.finditer(text))
         tokens = [match.group(0) for match in matches]
@@ -113,7 +183,12 @@ class PerceptronNER:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             json.dumps(
-                {"labels": LABELS, "weights": self.weights, "metadata": metadata or {}},
+                {
+                    "labels": LABELS,
+                    "weights": self.weights,
+                    "sequence": self.sequence,
+                    "metadata": metadata or {},
+                },
                 ensure_ascii=False,
             ),
             encoding="utf-8",
@@ -122,16 +197,33 @@ class PerceptronNER:
     @classmethod
     def load(cls, path: Path) -> "PerceptronNER":
         payload = json.loads(path.read_text(encoding="utf-8"))
-        return cls(payload["weights"])
+        return cls(payload["weights"], sequence=payload.get("sequence", False))
 
 
 def load_skillspan_rows(
     path: Path, limit: int | None = None
 ) -> list[dict[str, object]]:
+    if limit is not None and (
+        isinstance(limit, bool) or not isinstance(limit, int) or limit < 0
+    ):
+        raise ValueError("limit must be a nonnegative integer or None")
     rows = []
     for line in path.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            rows.append(json.loads(line))
-        if limit and len(rows) >= limit:
+        if limit is not None and len(rows) >= limit:
             break
+        if line.strip():
+            row = json.loads(line)
+            if (
+                not isinstance(row, dict)
+                or not isinstance(row.get("tokens"), list)
+                or not isinstance(row.get("tags_skill"), list)
+                or len(row["tokens"]) != len(row["tags_skill"])
+                or any(
+                    not isinstance(t, str) for t in row["tokens"] + row["tags_skill"]
+                )
+            ):
+                raise ValueError(
+                    "SkillSpan rows need equal-length token/tag string lists"
+                )
+            rows.append(row)
     return rows

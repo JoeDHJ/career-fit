@@ -1,0 +1,4982 @@
+[
+  {
+    "changed_input": "hours_budget",
+    "value": 0,
+    "hybrid": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": true,
+      "additional_positions_filled": 0,
+      "economic_cost_difference": 0.0,
+      "cost_saving_at_equal_coverage": 0.0
+    }
+  },
+  {
+    "changed_input": "hours_budget",
+    "value": 80,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 10,
+      "external_hires": 2,
+      "cash_cost": 34200.0,
+      "economic_cost": 94240.0,
+      "hours": 48.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E01",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E19",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -27760.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "hours_budget",
+    "value": 120,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 11,
+      "external_hires": 1,
+      "cash_cost": 21800.0,
+      "economic_cost": 81040.0,
+      "hours": 88.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E25",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E07",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 1600.0,
+          "hours": 40.0,
+          "economic_cost": 16800.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 400.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -40960.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "hours_budget",
+    "value": 160,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 12,
+      "external_hires": 0,
+      "cash_cost": 9400.0,
+      "economic_cost": 67840.0,
+      "hours": 128.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E01",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E19",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 1600.0,
+          "hours": 40.0,
+          "economic_cost": 16800.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 400.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": "E25",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 1600.0,
+          "hours": 40.0,
+          "economic_cost": 16800.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 400.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -54160.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "training_effect_multiplier",
+    "value": 0.75,
+    "hybrid": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 41
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": true,
+      "additional_positions_filled": 0,
+      "economic_cost_difference": 0.0,
+      "cost_saving_at_equal_coverage": 0.0
+    }
+  },
+  {
+    "changed_input": "training_effect_multiplier",
+    "value": 1,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 11,
+      "external_hires": 1,
+      "cash_cost": 21800.0,
+      "economic_cost": 81040.0,
+      "hours": 88.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E25",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E07",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 1600.0,
+          "hours": 40.0,
+          "economic_cost": 16800.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 400.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -40960.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "training_effect_multiplier",
+    "value": 1.25,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 12,
+      "external_hires": 0,
+      "cash_cost": 8600.0,
+      "economic_cost": 60960.0,
+      "hours": 112.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E01",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E19",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 1000.0,
+          "hours": 24.0,
+          "economic_cost": 10120.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 400.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E07",
+          "training_id": "math",
+          "mode": "train_and_move",
+          "cash_cost": 1200.0,
+          "hours": 32.0,
+          "economic_cost": 13360.0,
+          "lead_days": 28.0,
+          "cost_components": {
+            "training_fee": 800.0,
+            "backfill": 400.0,
+            "released_time": 960.0,
+            "vacancy_delay": 11200.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "math",
+          "mode": "train_and_move",
+          "cash_cost": 1200.0,
+          "hours": 32.0,
+          "economic_cost": 13360.0,
+          "lead_days": 28.0,
+          "cost_components": {
+            "training_fee": 800.0,
+            "backfill": 400.0,
+            "released_time": 960.0,
+            "vacancy_delay": 11200.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 81
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 32200.0,
+      "economic_cost": 122000.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 500.0,
+          "hours": 0,
+          "economic_cost": 1900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 550.0,
+          "hours": 0,
+          "economic_cost": 1600.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 550.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -61040.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "backfill_per_employee",
+    "value": 0,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 11,
+      "external_hires": 1,
+      "cash_cost": 16400.0,
+      "economic_cost": 75640.0,
+      "hours": 88.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 600.0,
+          "hours": 24.0,
+          "economic_cost": 9720.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 0.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E25",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 600.0,
+          "hours": 24.0,
+          "economic_cost": 9720.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 0.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E19",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 1200.0,
+          "hours": 40.0,
+          "economic_cost": 16400.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 0.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 10,
+      "filled_priority": 18.0,
+      "unfilled": 2,
+      "internal_moves": 8,
+      "external_hires": 2,
+      "cash_cost": 28000.0,
+      "economic_cost": 117800.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 0.0,
+          "hours": 0,
+          "economic_cost": 1050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 2,
+      "economic_cost_difference": -42160.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "backfill_per_employee",
+    "value": 1500,
+    "hybrid": {
+      "filled": 12,
+      "filled_priority": 24.0,
+      "unfilled": 0,
+      "internal_moves": 11,
+      "external_hires": 1,
+      "cash_cost": 32900.0,
+      "economic_cost": 92140.0,
+      "hours": 88.0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E04",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E07",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 2100.0,
+          "hours": 24.0,
+          "economic_cost": 11220.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 1500.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 2100.0,
+          "hours": 24.0,
+          "economic_cost": 11220.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 1500.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E19",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 2700.0,
+          "hours": 40.0,
+          "economic_cost": 17900.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 1500.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 9,
+      "filled_priority": 15.0,
+      "unfilled": 3,
+      "internal_moves": 8,
+      "external_hires": 1,
+      "cash_cost": 26000.0,
+      "economic_cost": 123800.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2900.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E10",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 1500.0,
+          "hours": 0,
+          "economic_cost": 2550.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 1500.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": null,
+          "training_id": null,
+          "mode": "external_hire",
+          "cash_cost": 14000.0,
+          "economic_cost": 30000.0,
+          "hours": 0,
+          "lead_days": 40.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 16000.0,
+            "external_hiring": 14000.0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": 3,
+      "economic_cost_difference": -31660.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  },
+  {
+    "changed_input": "backfill_per_employee",
+    "value": 5000,
+    "hybrid": {
+      "filled": 6,
+      "filled_priority": 15.0,
+      "unfilled": 6,
+      "internal_moves": 6,
+      "external_hires": 0,
+      "cash_cost": 32400.0,
+      "economic_cost": 142040.0,
+      "hours": 88.0,
+      "assignments": [
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 12000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 12000.0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 9000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 9000.0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 9000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 9000.0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 9000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 9000.0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 9000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 9000.0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "employee_id": "E07",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 5600.0,
+          "hours": 24.0,
+          "economic_cost": 14720.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 5000.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "employee_id": "E13",
+          "training_id": "systems",
+          "mode": "train_and_move",
+          "cash_cost": 5600.0,
+          "hours": 24.0,
+          "economic_cost": 14720.0,
+          "lead_days": 21.0,
+          "cost_components": {
+            "training_fee": 600.0,
+            "backfill": 5000.0,
+            "released_time": 720.0,
+            "vacancy_delay": 8400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "employee_id": "E25",
+          "training_id": "science",
+          "mode": "train_and_move",
+          "cash_cost": 6200.0,
+          "hours": 40.0,
+          "economic_cost": 21400.0,
+          "lead_days": 35.0,
+          "cost_components": {
+            "training_fee": 1200.0,
+            "backfill": 5000.0,
+            "released_time": 1200.0,
+            "vacancy_delay": 14000.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 1,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 76
+    },
+    "no_training": {
+      "filled": 7,
+      "filled_priority": 11.0,
+      "unfilled": 5,
+      "internal_moves": 7,
+      "external_hires": 0,
+      "cash_cost": 35000.0,
+      "economic_cost": 148750.0,
+      "hours": 0,
+      "assignments": [
+        {
+          "employee_id": "E09",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 1
+        },
+        {
+          "employee_id": "E15",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 2
+        },
+        {
+          "employee_id": "E21",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 3
+        },
+        {
+          "employee_id": "E27",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6400.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1400.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "ops",
+          "position": 4
+        },
+        {
+          "employee_id": "E16",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 1
+        },
+        {
+          "employee_id": "E22",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 2
+        },
+        {
+          "employee_id": "E28",
+          "training_id": null,
+          "mode": "direct_internal",
+          "cash_cost": 5000.0,
+          "hours": 0,
+          "economic_cost": 6050.0,
+          "lead_days": 7.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 5000.0,
+            "released_time": 0.0,
+            "vacancy_delay": 1050.0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 0
+          },
+          "role_id": "people",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 9000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 9000.0
+          },
+          "role_id": "people",
+          "position": 4
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 1
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 2
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 3
+        },
+        {
+          "mode": "unfilled",
+          "cash_cost": 0,
+          "economic_cost": 24000.0,
+          "hours": 0,
+          "employee_id": null,
+          "training_id": null,
+          "lead_days": 60.0,
+          "cost_components": {
+            "training_fee": 0,
+            "backfill": 0,
+            "released_time": 0,
+            "vacancy_delay": 0,
+            "external_hiring": 0,
+            "unfilled_vacancy": 24000.0
+          },
+          "role_id": "data",
+          "position": 4
+        }
+      ],
+      "search_nodes": 0,
+      "solver_status": "optimal",
+      "mip_gap": 0.0,
+      "variables": 16
+    },
+    "comparison": {
+      "same_positions_filled": false,
+      "additional_positions_filled": -1,
+      "economic_cost_difference": -6710.0,
+      "cost_saving_at_equal_coverage": null
+    }
+  }
+]
